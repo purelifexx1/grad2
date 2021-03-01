@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->bt_connect->setText("Connect");
     connect(_packet_handler, SIGNAL(on_display_event(Display_packet)), this, SLOT(display_event(Display_packet)));
     QString temp = "bt_inc_";
-    for(int i = 1; i <= 6; i++){
+    for(int i = 1; i <= 8; i++){
         QPushButton *object_bt = this->findChild<QPushButton*>(temp + QString::number(i));
         connect(object_bt, SIGNAL(clicked()), this, SLOT(on_bt_keycommand()));
     }
@@ -49,7 +49,18 @@ void MainWindow::display_event(Display_packet data)
             }
             QString detail_string;
             for(int t = 0; t < data.Reference_String.length(); t++){
-                detail_string += system_parameter->DETAIL_STATUS[data.Reference_String.at(t)] + "; ";
+                switch (data.Reference_String.at(t)) {
+                case MANUAL_SPEED:{
+                    detail_string += system_parameter->DETAIL_STATUS[data.Reference_String.at(t)] +
+                            ": " + QString::number(data.Reference_String.at(t+1)) + "; ";
+                    t++;
+                }
+                break;
+                default:{
+                    detail_string += system_parameter->DETAIL_STATUS[data.Reference_String.at(t)] + "; ";
+                }
+                break;
+                }
             }
             log_console(system_parameter->RDP_String[data.Respond_Type]
                     + " | Command ID: " + system_parameter->COMMAND_STRING[data.Command_ID]

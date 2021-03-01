@@ -14,6 +14,7 @@
 #include  "kinematic.h"
 
 double conveyor_speed;
+int32_t current_key_speed1;
 
 typedef enum
 {
