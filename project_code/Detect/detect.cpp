@@ -168,7 +168,9 @@ void drawPred(int classId, float conf, int left, int top, int right, int bottom,
     }
 
     //Image Processing in Croped Image and Calculate Theta
+    if (!imageCrop.empty()){
     imageProcess(imageCrop,frame,r.x,r.y, center, theta);
+    }
     //Draw a rectangle displaying the bounding box
     rectangle(frame, Point(left, top), Point(right, bottom), Scalar(255, 178, 50), 3);
 
