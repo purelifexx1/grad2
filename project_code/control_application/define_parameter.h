@@ -250,9 +250,10 @@ typedef enum
 typedef enum{
     VIETNAM_FLAG,
     JAPAN_FLAG,
-    KOREAN_FLAG,
-    ITALY_FLAG,
-
+    ENGLAND_FLAG,
+    SWITZERLAND_FLAG,
+    SWEDEN_FLAG,
+    GERMANY_FLAG,
     NUM_OF_OBJECT
 }ObjectType;
 

@@ -289,6 +289,7 @@ Robot_CommandTypedef 	commandRead	(uint8_t *message, int32_t length, int32_t *id
 							return CMD_ERROR;
 						}
 						duty_cmd->key_speed = speed;
+						current_key_speed1 = speed;
 						return CMD_KEY_SPEED;
 					}else{
 						return CMD_ERROR;

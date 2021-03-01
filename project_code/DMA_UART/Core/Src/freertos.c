@@ -70,6 +70,7 @@ extern SCARA_PositionTypeDef		positionPrevios;
 extern SCARA_PositionTypeDef		positionCurrent;
 extern SCARA_PositionTypeDef		positionNext;
 extern SCARA_PositionTypeDef		positionTrue;
+extern int32_t						current_key_speed1 = 1;
 extern double						conveyor_speed = 0;
 
 extern TIM_HandleTypeDef htim7;
@@ -507,7 +508,7 @@ void StartDefaultTask(void const * argument)
 		  break;
 		  case SCARA_KEY_STATE_INIT:
 		  {
-			  if (scaraKeyInit1(current_key, current_key_speed) == SCARA_STATUS_OK) {
+			  if (scaraKeyInit1(current_key, current_key_speed1) == SCARA_STATUS_OK) {
 				  run_time = 0;
 				  current_key_state = SCARA_KEY_STATE_FLOW;
 // #ifdef SIMULATION
