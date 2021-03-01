@@ -394,7 +394,7 @@ void StartDefaultTask(void const * argument)
 						  case SCARA_MODE_DUTY:
 							  {
 								  if (SCARA_MODE_DUTY == current_mode && SCARA_DUTY_STATE_READY == current_duty_state) {
-									  scaraSetScanFlag();
+									  //scaraSetScanFlag();
 //									  if(duty_cmd.modeInit_type == DUTY_MODE_INIT_LINEAR){
 //										  current_method = SCARA_METHOD_AUTO;
 //									  }

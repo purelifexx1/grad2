@@ -19,7 +19,7 @@ private:
     void routing(QByteArray packet);
     void packet_extract(QByteArray packet);
     void Scara_position_received(QByteArray data);
-    void Detail_Statusr_Handler(QByteArray data);
+    void Detail_Status_Handler(QByteArray data);
     QByteArray archive_buffer;
     bool archive_status = false;
 };

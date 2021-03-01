@@ -88,7 +88,7 @@ void packet_handler::routing(QByteArray packet)
                 case RPD_DUTY:
                 case RPD_STOP:
                 case RPD_ERROR:
-                    Detail_Statusr_Handler(packet.mid(1, packet_length-1));
+                    Detail_Status_Handler(packet.mid(1, packet_length-1));
                 break;
 
                 case NUM_OF_RESPOND:
@@ -115,7 +115,7 @@ void packet_handler::Scara_position_received(QByteArray data)
     emit on_display_event(display_packet);
 }
 
-void packet_handler::Detail_Statusr_Handler(QByteArray data)
+void packet_handler::Detail_Status_Handler(QByteArray data)
 {
     Display_packet display_packet;
     display_packet.Respond_Type = (Robot_RespondTypedef)data.at(0);
