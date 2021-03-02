@@ -123,10 +123,12 @@
 /* Shift period */
 #define SHIFT_PERIOD	(1.2f)
 #define SHIFT_T_UP		(0.264f)
+#define SHIFT_KEY_TIME	0.05
 
 /* Shift speed limit */
 #define SHIFT_SPEED_MIN	(1)
-#define SHIFT_SPEED_MAX	(7)
+#define SHIFT_SPEED_MAX	(14)
+#define SHIFT_KEY_S		5
 
 /* Kinematic Parameters (mm) */
 #define		d1				(211.0f)

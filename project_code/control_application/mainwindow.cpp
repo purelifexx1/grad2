@@ -278,8 +278,8 @@ void MainWindow::on_bt_key_setsp_clicked()
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_KEY_SPEED);
     uint8_t key_speed = (uint8_t)ui->tb_key_setsp->text().toInt();
-    key_speed = (key_speed > 7)?7:key_speed;
-    key_speed = (key_speed < 1)?1:key_speed;
+    key_speed = (key_speed > SHIFT_KEY_MAX)?SHIFT_KEY_MAX:key_speed;
+    key_speed = (key_speed < SHIFT_KEY_MAX)?SHIFT_KEY_MIN:key_speed;
     command.append(key_speed);
     command.append(0x29);
     mSerial->write(command, command.length());

@@ -35,15 +35,15 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
  15 .debug_ranges 00001bd0  00000000  00000000  00068568  2**3
                   CONTENTS, READONLY, DEBUGGING
- 16 .debug_macro  00029c23  00000000  00000000  0006a138  2**0
+ 16 .debug_macro  00029c30  00000000  00000000  0006a138  2**0
                   CONTENTS, READONLY, DEBUGGING
- 17 .debug_line   0001f604  00000000  00000000  00093d5b  2**0
+ 17 .debug_line   0001f604  00000000  00000000  00093d68  2**0
                   CONTENTS, READONLY, DEBUGGING
- 18 .debug_str    000ddb01  00000000  00000000  000b335f  2**0
+ 18 .debug_str    000ddb24  00000000  00000000  000b336c  2**0
                   CONTENTS, READONLY, DEBUGGING
- 19 .comment      0000007b  00000000  00000000  00190e60  2**0
+ 19 .comment      0000007b  00000000  00000000  00190e90  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00008bc0  00000000  00000000  00190edc  2**2
+ 20 .debug_frame  00008bc0  00000000  00000000  00190f0c  2**2
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -2033,7 +2033,7 @@ Robot_CommandTypedef 	commandRead	(uint8_t *message, int32_t length, int32_t *id
  8001470:	2b00      	cmp	r3, #0
  8001472:	dd02      	ble.n	800147a <commandRead+0x4f2>
  8001474:	6a3b      	ldr	r3, [r7, #32]
- 8001476:	2b07      	cmp	r3, #7
+ 8001476:	2b0e      	cmp	r3, #14
  8001478:	dd01      	ble.n	800147e <commandRead+0x4f6>
 							return CMD_ERROR;
  800147a:	2316      	movs	r3, #22
@@ -18916,7 +18916,7 @@ SCARA_StatusTypeDef  scaraKeyInit1(SCARA_KeyTypeDef key, int32_t speed)
  800a7fc:	dd03      	ble.n	800a806 <scaraKeyInit1+0x46>
  800a7fe:	463b      	mov	r3, r7
  800a800:	681b      	ldr	r3, [r3, #0]
- 800a802:	2b07      	cmp	r3, #7
+ 800a802:	2b0e      	cmp	r3, #14
  800a804:	dd01      	ble.n	800a80a <scaraKeyInit1+0x4a>
 		return SCARA_STATUS_ERROR_PARA;
  800a806:	2306      	movs	r3, #6
@@ -18931,13 +18931,13 @@ SCARA_StatusTypeDef  scaraKeyInit1(SCARA_KeyTypeDef key, int32_t speed)
  800a816:	f852 f023 	ldr.w	pc, [r2, r3, lsl #2]
  800a81a:	bf00      	nop
  800a81c:	0800a83d 	.word	0x0800a83d
- 800a820:	0800a8e1 	.word	0x0800a8e1
+ 800a820:	0800a8df 	.word	0x0800a8df
  800a824:	0800a985 	.word	0x0800a985
- 800a828:	0800aa25 	.word	0x0800aa25
+ 800a828:	0800aa23 	.word	0x0800aa23
  800a82c:	0800aac5 	.word	0x0800aac5
- 800a830:	0800ab65 	.word	0x0800ab65
+ 800a830:	0800ab63 	.word	0x0800ab63
  800a834:	0800ac05 	.word	0x0800ac05
- 800a838:	0800aca5 	.word	0x0800aca5
+ 800a838:	0800aca3 	.word	0x0800aca3
 		case SCARA_KEY_X_INC:{
 			cmd.v_factor = 0;
  800a83c:	f107 0208 	add.w	r2, r7, #8
@@ -18952,74 +18952,76 @@ SCARA_StatusTypeDef  scaraKeyInit1(SCARA_KeyTypeDef key, int32_t speed)
  800a854:	f107 0308 	add.w	r3, r7, #8
  800a858:	2200      	movs	r2, #0
  800a85a:	739a      	strb	r2, [r3, #14]
-			cmd.target_point.x 		= speed*10;
+			cmd.target_point.x 		= speed*SHIFT_KEY_S;
  800a85c:	463b      	mov	r3, r7
  800a85e:	681a      	ldr	r2, [r3, #0]
  800a860:	4613      	mov	r3, r2
  800a862:	009b      	lsls	r3, r3, #2
  800a864:	4413      	add	r3, r2
- 800a866:	005b      	lsls	r3, r3, #1
- 800a868:	4618      	mov	r0, r3
- 800a86a:	f7f5 fe5b 	bl	8000524 <__aeabi_i2d>
- 800a86e:	4603      	mov	r3, r0
- 800a870:	460c      	mov	r4, r1
- 800a872:	f107 0208 	add.w	r2, r7, #8
- 800a876:	e9c2 341c 	strd	r3, r4, [r2, #112]	; 0x70
+ 800a866:	4618      	mov	r0, r3
+ 800a868:	f7f5 fe5c 	bl	8000524 <__aeabi_i2d>
+ 800a86c:	4603      	mov	r3, r0
+ 800a86e:	460c      	mov	r4, r1
+ 800a870:	f107 0208 	add.w	r2, r7, #8
+ 800a874:	e9c2 341c 	strd	r3, r4, [r2, #112]	; 0x70
 			cmd.target_point.y 		= 0;
- 800a87a:	f107 0208 	add.w	r2, r7, #8
- 800a87e:	f04f 0300 	mov.w	r3, #0
- 800a882:	f04f 0400 	mov.w	r4, #0
- 800a886:	e9c2 341e 	strd	r3, r4, [r2, #120]	; 0x78
+ 800a878:	f107 0208 	add.w	r2, r7, #8
+ 800a87c:	f04f 0300 	mov.w	r3, #0
+ 800a880:	f04f 0400 	mov.w	r4, #0
+ 800a884:	e9c2 341e 	strd	r3, r4, [r2, #120]	; 0x78
 			cmd.target_point.z 		= 0;
- 800a88a:	f107 0208 	add.w	r2, r7, #8
- 800a88e:	f04f 0300 	mov.w	r3, #0
- 800a892:	f04f 0400 	mov.w	r4, #0
- 800a896:	e9c2 3420 	strd	r3, r4, [r2, #128]	; 0x80
+ 800a888:	f107 0208 	add.w	r2, r7, #8
+ 800a88c:	f04f 0300 	mov.w	r3, #0
+ 800a890:	f04f 0400 	mov.w	r4, #0
+ 800a894:	e9c2 3420 	strd	r3, r4, [r2, #128]	; 0x80
 			cmd.target_point.roll 	= 0;
- 800a89a:	f107 0208 	add.w	r2, r7, #8
- 800a89e:	f04f 0300 	mov.w	r3, #0
- 800a8a2:	f04f 0400 	mov.w	r4, #0
- 800a8a6:	e9c2 3422 	strd	r3, r4, [r2, #136]	; 0x88
-			cmd.time_total 			= 0.8 + speed*0.1;
- 800a8aa:	463b      	mov	r3, r7
- 800a8ac:	6818      	ldr	r0, [r3, #0]
- 800a8ae:	f7f5 fe39 	bl	8000524 <__aeabi_i2d>
- 800a8b2:	f20f 43e4 	addw	r3, pc, #1252	; 0x4e4
- 800a8b6:	e9d3 2300 	ldrd	r2, r3, [r3]
- 800a8ba:	f7f5 fe9d 	bl	80005f8 <__aeabi_dmul>
- 800a8be:	4603      	mov	r3, r0
- 800a8c0:	460c      	mov	r4, r1
- 800a8c2:	4618      	mov	r0, r3
- 800a8c4:	4621      	mov	r1, r4
- 800a8c6:	f20f 43d8 	addw	r3, pc, #1240	; 0x4d8
- 800a8ca:	e9d3 2300 	ldrd	r2, r3, [r3]
- 800a8ce:	f7f5 fcdd 	bl	800028c <__adddf3>
- 800a8d2:	4603      	mov	r3, r0
- 800a8d4:	460c      	mov	r4, r1
- 800a8d6:	f107 0208 	add.w	r2, r7, #8
- 800a8da:	e9c2 3408 	strd	r3, r4, [r2, #32]
+ 800a898:	f107 0208 	add.w	r2, r7, #8
+ 800a89c:	f04f 0300 	mov.w	r3, #0
+ 800a8a0:	f04f 0400 	mov.w	r4, #0
+ 800a8a4:	e9c2 3422 	strd	r3, r4, [r2, #136]	; 0x88
+			cmd.time_total 			= 0.8 + speed*SHIFT_KEY_TIME;
+ 800a8a8:	463b      	mov	r3, r7
+ 800a8aa:	6818      	ldr	r0, [r3, #0]
+ 800a8ac:	f7f5 fe3a 	bl	8000524 <__aeabi_i2d>
+ 800a8b0:	f20f 43e4 	addw	r3, pc, #1252	; 0x4e4
+ 800a8b4:	e9d3 2300 	ldrd	r2, r3, [r3]
+ 800a8b8:	f7f5 fe9e 	bl	80005f8 <__aeabi_dmul>
+ 800a8bc:	4603      	mov	r3, r0
+ 800a8be:	460c      	mov	r4, r1
+ 800a8c0:	4618      	mov	r0, r3
+ 800a8c2:	4621      	mov	r1, r4
+ 800a8c4:	f20f 43d8 	addw	r3, pc, #1240	; 0x4d8
+ 800a8c8:	e9d3 2300 	ldrd	r2, r3, [r3]
+ 800a8cc:	f7f5 fcde 	bl	800028c <__adddf3>
+ 800a8d0:	4603      	mov	r3, r0
+ 800a8d2:	460c      	mov	r4, r1
+ 800a8d4:	f107 0208 	add.w	r2, r7, #8
+ 800a8d8:	e9c2 3408 	strd	r3, r4, [r2, #32]
 		}
 		break;
- 800a8de:	e231      	b.n	800ad44 <scaraKeyInit1+0x584>
+ 800a8dc:	e232      	b.n	800ad44 <scaraKeyInit1+0x584>
 		case SCARA_KEY_X_DEC:{
 			cmd.v_factor = 0;
- 800a8e0:	f107 0208 	add.w	r2, r7, #8
- 800a8e4:	f04f 0300 	mov.w	r3, #0
- 800a8e8:	f04f 0400 	mov.w	r4, #0
- 800a8ec:	e9c2 346a 	strd	r3, r4, [r2, #424]	; 0x1a8
+ 800a8de:	f107 0208 	add.w	r2, r7, #8
+ 800a8e2:	f04f 0300 	mov.w	r3, #0
+ 800a8e6:	f04f 0400 	mov.w	r4, #0
+ 800a8ea:	e9c2 346a 	strd	r3, r4, [r2, #424]	; 0x1a8
 			cmd.space_type = DUTY_SPACE_TASK;
- 800a8f0:	f107 0308 	add.w	r3, r7, #8
- 800a8f4:	2200      	movs	r2, #0
- 800a8f6:	735a      	strb	r2, [r3, #13]
+ 800a8ee:	f107 0308 	add.w	r3, r7, #8
+ 800a8f2:	2200      	movs	r2, #0
+ 800a8f4:	735a      	strb	r2, [r3, #13]
 			cmd.path_type = DUTY_PATH_LINE;
- 800a8f8:	f107 0308 	add.w	r3, r7, #8
- 800a8fc:	2200      	movs	r2, #0
- 800a8fe:	739a      	strb	r2, [r3, #14]
-			cmd.target_point.x 		= -speed*10;
- 800a900:	463b      	mov	r3, r7
- 800a902:	681b      	ldr	r3, [r3, #0]
- 800a904:	f06f 0209 	mvn.w	r2, #9
- 800a908:	fb02 f303 	mul.w	r3, r2, r3
+ 800a8f6:	f107 0308 	add.w	r3, r7, #8
+ 800a8fa:	2200      	movs	r2, #0
+ 800a8fc:	739a      	strb	r2, [r3, #14]
+			cmd.target_point.x 		= -speed*SHIFT_KEY_S;
+ 800a8fe:	463b      	mov	r3, r7
+ 800a900:	681a      	ldr	r2, [r3, #0]
+ 800a902:	4613      	mov	r3, r2
+ 800a904:	079b      	lsls	r3, r3, #30
+ 800a906:	1a9b      	subs	r3, r3, r2
+ 800a908:	009b      	lsls	r3, r3, #2
+ 800a90a:	1a9b      	subs	r3, r3, r2
  800a90c:	4618      	mov	r0, r3
  800a90e:	f7f5 fe09 	bl	8000524 <__aeabi_i2d>
  800a912:	4603      	mov	r3, r0
@@ -19041,7 +19043,7 @@ SCARA_StatusTypeDef  scaraKeyInit1(SCARA_KeyTypeDef key, int32_t speed)
  800a942:	f04f 0300 	mov.w	r3, #0
  800a946:	f04f 0400 	mov.w	r4, #0
  800a94a:	e9c2 3422 	strd	r3, r4, [r2, #136]	; 0x88
-			cmd.time_total 			= 0.8 + speed*0.1;
+			cmd.time_total 			= 0.8 + speed*SHIFT_KEY_TIME;
  800a94e:	463b      	mov	r3, r7
  800a950:	6818      	ldr	r0, [r3, #0]
  800a952:	f7f5 fde7 	bl	8000524 <__aeabi_i2d>
@@ -19081,75 +19083,77 @@ SCARA_StatusTypeDef  scaraKeyInit1(SCARA_KeyTypeDef key, int32_t speed)
  800a9a8:	f04f 0300 	mov.w	r3, #0
  800a9ac:	f04f 0400 	mov.w	r4, #0
  800a9b0:	e9c2 341c 	strd	r3, r4, [r2, #112]	; 0x70
-			cmd.target_point.y 		= speed*10;
+			cmd.target_point.y 		= speed*SHIFT_KEY_S;
  800a9b4:	463b      	mov	r3, r7
  800a9b6:	681a      	ldr	r2, [r3, #0]
  800a9b8:	4613      	mov	r3, r2
  800a9ba:	009b      	lsls	r3, r3, #2
  800a9bc:	4413      	add	r3, r2
- 800a9be:	005b      	lsls	r3, r3, #1
- 800a9c0:	4618      	mov	r0, r3
- 800a9c2:	f7f5 fdaf 	bl	8000524 <__aeabi_i2d>
- 800a9c6:	4603      	mov	r3, r0
- 800a9c8:	460c      	mov	r4, r1
- 800a9ca:	f107 0208 	add.w	r2, r7, #8
- 800a9ce:	e9c2 341e 	strd	r3, r4, [r2, #120]	; 0x78
+ 800a9be:	4618      	mov	r0, r3
+ 800a9c0:	f7f5 fdb0 	bl	8000524 <__aeabi_i2d>
+ 800a9c4:	4603      	mov	r3, r0
+ 800a9c6:	460c      	mov	r4, r1
+ 800a9c8:	f107 0208 	add.w	r2, r7, #8
+ 800a9cc:	e9c2 341e 	strd	r3, r4, [r2, #120]	; 0x78
 			cmd.target_point.z 		= 0;
- 800a9d2:	f107 0208 	add.w	r2, r7, #8
- 800a9d6:	f04f 0300 	mov.w	r3, #0
- 800a9da:	f04f 0400 	mov.w	r4, #0
- 800a9de:	e9c2 3420 	strd	r3, r4, [r2, #128]	; 0x80
+ 800a9d0:	f107 0208 	add.w	r2, r7, #8
+ 800a9d4:	f04f 0300 	mov.w	r3, #0
+ 800a9d8:	f04f 0400 	mov.w	r4, #0
+ 800a9dc:	e9c2 3420 	strd	r3, r4, [r2, #128]	; 0x80
 			cmd.target_point.roll 	= 0;
- 800a9e2:	f107 0208 	add.w	r2, r7, #8
- 800a9e6:	f04f 0300 	mov.w	r3, #0
- 800a9ea:	f04f 0400 	mov.w	r4, #0
- 800a9ee:	e9c2 3422 	strd	r3, r4, [r2, #136]	; 0x88
-			cmd.time_total 			= 0.8 + speed*0.1;
- 800a9f2:	463b      	mov	r3, r7
- 800a9f4:	6818      	ldr	r0, [r3, #0]
- 800a9f6:	f7f5 fd95 	bl	8000524 <__aeabi_i2d>
- 800a9fa:	a3e7      	add	r3, pc, #924	; (adr r3, 800ad98 <scaraKeyInit1+0x5d8>)
- 800a9fc:	e9d3 2300 	ldrd	r2, r3, [r3]
- 800aa00:	f7f5 fdfa 	bl	80005f8 <__aeabi_dmul>
- 800aa04:	4603      	mov	r3, r0
- 800aa06:	460c      	mov	r4, r1
- 800aa08:	4618      	mov	r0, r3
- 800aa0a:	4621      	mov	r1, r4
- 800aa0c:	a3e4      	add	r3, pc, #912	; (adr r3, 800ada0 <scaraKeyInit1+0x5e0>)
- 800aa0e:	e9d3 2300 	ldrd	r2, r3, [r3]
- 800aa12:	f7f5 fc3b 	bl	800028c <__adddf3>
- 800aa16:	4603      	mov	r3, r0
- 800aa18:	460c      	mov	r4, r1
- 800aa1a:	f107 0208 	add.w	r2, r7, #8
- 800aa1e:	e9c2 3408 	strd	r3, r4, [r2, #32]
+ 800a9e0:	f107 0208 	add.w	r2, r7, #8
+ 800a9e4:	f04f 0300 	mov.w	r3, #0
+ 800a9e8:	f04f 0400 	mov.w	r4, #0
+ 800a9ec:	e9c2 3422 	strd	r3, r4, [r2, #136]	; 0x88
+			cmd.time_total 			= 0.8 + speed*SHIFT_KEY_TIME;
+ 800a9f0:	463b      	mov	r3, r7
+ 800a9f2:	6818      	ldr	r0, [r3, #0]
+ 800a9f4:	f7f5 fd96 	bl	8000524 <__aeabi_i2d>
+ 800a9f8:	a3e7      	add	r3, pc, #924	; (adr r3, 800ad98 <scaraKeyInit1+0x5d8>)
+ 800a9fa:	e9d3 2300 	ldrd	r2, r3, [r3]
+ 800a9fe:	f7f5 fdfb 	bl	80005f8 <__aeabi_dmul>
+ 800aa02:	4603      	mov	r3, r0
+ 800aa04:	460c      	mov	r4, r1
+ 800aa06:	4618      	mov	r0, r3
+ 800aa08:	4621      	mov	r1, r4
+ 800aa0a:	a3e5      	add	r3, pc, #916	; (adr r3, 800ada0 <scaraKeyInit1+0x5e0>)
+ 800aa0c:	e9d3 2300 	ldrd	r2, r3, [r3]
+ 800aa10:	f7f5 fc3c 	bl	800028c <__adddf3>
+ 800aa14:	4603      	mov	r3, r0
+ 800aa16:	460c      	mov	r4, r1
+ 800aa18:	f107 0208 	add.w	r2, r7, #8
+ 800aa1c:	e9c2 3408 	strd	r3, r4, [r2, #32]
 		}
 		break;
- 800aa22:	e18f      	b.n	800ad44 <scaraKeyInit1+0x584>
+ 800aa20:	e190      	b.n	800ad44 <scaraKeyInit1+0x584>
 
 		case SCARA_KEY_Y_DEC:{
 			cmd.v_factor = 0;
- 800aa24:	f107 0208 	add.w	r2, r7, #8
- 800aa28:	f04f 0300 	mov.w	r3, #0
- 800aa2c:	f04f 0400 	mov.w	r4, #0
- 800aa30:	e9c2 346a 	strd	r3, r4, [r2, #424]	; 0x1a8
+ 800aa22:	f107 0208 	add.w	r2, r7, #8
+ 800aa26:	f04f 0300 	mov.w	r3, #0
+ 800aa2a:	f04f 0400 	mov.w	r4, #0
+ 800aa2e:	e9c2 346a 	strd	r3, r4, [r2, #424]	; 0x1a8
 			cmd.space_type = DUTY_SPACE_TASK;
- 800aa34:	f107 0308 	add.w	r3, r7, #8
- 800aa38:	2200      	movs	r2, #0
- 800aa3a:	735a      	strb	r2, [r3, #13]
+ 800aa32:	f107 0308 	add.w	r3, r7, #8
+ 800aa36:	2200      	movs	r2, #0
+ 800aa38:	735a      	strb	r2, [r3, #13]
 			cmd.path_type = DUTY_PATH_LINE;
- 800aa3c:	f107 0308 	add.w	r3, r7, #8
- 800aa40:	2200      	movs	r2, #0
- 800aa42:	739a      	strb	r2, [r3, #14]
+ 800aa3a:	f107 0308 	add.w	r3, r7, #8
+ 800aa3e:	2200      	movs	r2, #0
+ 800aa40:	739a      	strb	r2, [r3, #14]
 			cmd.target_point.x 		= 0;
- 800aa44:	f107 0208 	add.w	r2, r7, #8
- 800aa48:	f04f 0300 	mov.w	r3, #0
- 800aa4c:	f04f 0400 	mov.w	r4, #0
- 800aa50:	e9c2 341c 	strd	r3, r4, [r2, #112]	; 0x70
-			cmd.target_point.y 		= -speed*10;
- 800aa54:	463b      	mov	r3, r7
- 800aa56:	681b      	ldr	r3, [r3, #0]
- 800aa58:	f06f 0209 	mvn.w	r2, #9
- 800aa5c:	fb02 f303 	mul.w	r3, r2, r3
+ 800aa42:	f107 0208 	add.w	r2, r7, #8
+ 800aa46:	f04f 0300 	mov.w	r3, #0
+ 800aa4a:	f04f 0400 	mov.w	r4, #0
+ 800aa4e:	e9c2 341c 	strd	r3, r4, [r2, #112]	; 0x70
+			cmd.target_point.y 		= -speed*SHIFT_KEY_S;
+ 800aa52:	463b      	mov	r3, r7
+ 800aa54:	681a      	ldr	r2, [r3, #0]
+ 800aa56:	4613      	mov	r3, r2
+ 800aa58:	079b      	lsls	r3, r3, #30
+ 800aa5a:	1a9b      	subs	r3, r3, r2
+ 800aa5c:	009b      	lsls	r3, r3, #2
+ 800aa5e:	1a9b      	subs	r3, r3, r2
  800aa60:	4618      	mov	r0, r3
  800aa62:	f7f5 fd5f 	bl	8000524 <__aeabi_i2d>
  800aa66:	4603      	mov	r3, r0
@@ -19166,7 +19170,7 @@ SCARA_StatusTypeDef  scaraKeyInit1(SCARA_KeyTypeDef key, int32_t speed)
  800aa86:	f04f 0300 	mov.w	r3, #0
  800aa8a:	f04f 0400 	mov.w	r4, #0
  800aa8e:	e9c2 3422 	strd	r3, r4, [r2, #136]	; 0x88
-			cmd.time_total 			= 0.8 + speed*0.1;
+			cmd.time_total 			= 0.8 + speed*SHIFT_KEY_TIME;
  800aa92:	463b      	mov	r3, r7
  800aa94:	6818      	ldr	r0, [r3, #0]
  800aa96:	f7f5 fd45 	bl	8000524 <__aeabi_i2d>
@@ -19211,74 +19215,76 @@ SCARA_StatusTypeDef  scaraKeyInit1(SCARA_KeyTypeDef key, int32_t speed)
  800aaf8:	f04f 0300 	mov.w	r3, #0
  800aafc:	f04f 0400 	mov.w	r4, #0
  800ab00:	e9c2 341e 	strd	r3, r4, [r2, #120]	; 0x78
-			cmd.target_point.z 		= speed*10;
+			cmd.target_point.z 		= speed*SHIFT_KEY_S;
  800ab04:	463b      	mov	r3, r7
  800ab06:	681a      	ldr	r2, [r3, #0]
  800ab08:	4613      	mov	r3, r2
  800ab0a:	009b      	lsls	r3, r3, #2
  800ab0c:	4413      	add	r3, r2
- 800ab0e:	005b      	lsls	r3, r3, #1
- 800ab10:	4618      	mov	r0, r3
- 800ab12:	f7f5 fd07 	bl	8000524 <__aeabi_i2d>
- 800ab16:	4603      	mov	r3, r0
- 800ab18:	460c      	mov	r4, r1
- 800ab1a:	f107 0208 	add.w	r2, r7, #8
- 800ab1e:	e9c2 3420 	strd	r3, r4, [r2, #128]	; 0x80
+ 800ab0e:	4618      	mov	r0, r3
+ 800ab10:	f7f5 fd08 	bl	8000524 <__aeabi_i2d>
+ 800ab14:	4603      	mov	r3, r0
+ 800ab16:	460c      	mov	r4, r1
+ 800ab18:	f107 0208 	add.w	r2, r7, #8
+ 800ab1c:	e9c2 3420 	strd	r3, r4, [r2, #128]	; 0x80
 			cmd.target_point.roll 	= 0;
- 800ab22:	f107 0208 	add.w	r2, r7, #8
- 800ab26:	f04f 0300 	mov.w	r3, #0
- 800ab2a:	f04f 0400 	mov.w	r4, #0
- 800ab2e:	e9c2 3422 	strd	r3, r4, [r2, #136]	; 0x88
-			cmd.time_total 			= 0.8 + speed*0.1;
- 800ab32:	463b      	mov	r3, r7
- 800ab34:	6818      	ldr	r0, [r3, #0]
- 800ab36:	f7f5 fcf5 	bl	8000524 <__aeabi_i2d>
- 800ab3a:	a397      	add	r3, pc, #604	; (adr r3, 800ad98 <scaraKeyInit1+0x5d8>)
- 800ab3c:	e9d3 2300 	ldrd	r2, r3, [r3]
- 800ab40:	f7f5 fd5a 	bl	80005f8 <__aeabi_dmul>
- 800ab44:	4603      	mov	r3, r0
- 800ab46:	460c      	mov	r4, r1
- 800ab48:	4618      	mov	r0, r3
- 800ab4a:	4621      	mov	r1, r4
- 800ab4c:	a394      	add	r3, pc, #592	; (adr r3, 800ada0 <scaraKeyInit1+0x5e0>)
- 800ab4e:	e9d3 2300 	ldrd	r2, r3, [r3]
- 800ab52:	f7f5 fb9b 	bl	800028c <__adddf3>
- 800ab56:	4603      	mov	r3, r0
- 800ab58:	460c      	mov	r4, r1
- 800ab5a:	f107 0208 	add.w	r2, r7, #8
- 800ab5e:	e9c2 3408 	strd	r3, r4, [r2, #32]
+ 800ab20:	f107 0208 	add.w	r2, r7, #8
+ 800ab24:	f04f 0300 	mov.w	r3, #0
+ 800ab28:	f04f 0400 	mov.w	r4, #0
+ 800ab2c:	e9c2 3422 	strd	r3, r4, [r2, #136]	; 0x88
+			cmd.time_total 			= 0.8 + speed*SHIFT_KEY_TIME;
+ 800ab30:	463b      	mov	r3, r7
+ 800ab32:	6818      	ldr	r0, [r3, #0]
+ 800ab34:	f7f5 fcf6 	bl	8000524 <__aeabi_i2d>
+ 800ab38:	a397      	add	r3, pc, #604	; (adr r3, 800ad98 <scaraKeyInit1+0x5d8>)
+ 800ab3a:	e9d3 2300 	ldrd	r2, r3, [r3]
+ 800ab3e:	f7f5 fd5b 	bl	80005f8 <__aeabi_dmul>
+ 800ab42:	4603      	mov	r3, r0
+ 800ab44:	460c      	mov	r4, r1
+ 800ab46:	4618      	mov	r0, r3
+ 800ab48:	4621      	mov	r1, r4
+ 800ab4a:	a395      	add	r3, pc, #596	; (adr r3, 800ada0 <scaraKeyInit1+0x5e0>)
+ 800ab4c:	e9d3 2300 	ldrd	r2, r3, [r3]
+ 800ab50:	f7f5 fb9c 	bl	800028c <__adddf3>
+ 800ab54:	4603      	mov	r3, r0
+ 800ab56:	460c      	mov	r4, r1
+ 800ab58:	f107 0208 	add.w	r2, r7, #8
+ 800ab5c:	e9c2 3408 	strd	r3, r4, [r2, #32]
 		}
 		break;
- 800ab62:	e0ef      	b.n	800ad44 <scaraKeyInit1+0x584>
+ 800ab60:	e0f0      	b.n	800ad44 <scaraKeyInit1+0x584>
 		case SCARA_KEY_Z_DEC:{
 			cmd.v_factor = 0;
- 800ab64:	f107 0208 	add.w	r2, r7, #8
- 800ab68:	f04f 0300 	mov.w	r3, #0
- 800ab6c:	f04f 0400 	mov.w	r4, #0
- 800ab70:	e9c2 346a 	strd	r3, r4, [r2, #424]	; 0x1a8
+ 800ab62:	f107 0208 	add.w	r2, r7, #8
+ 800ab66:	f04f 0300 	mov.w	r3, #0
+ 800ab6a:	f04f 0400 	mov.w	r4, #0
+ 800ab6e:	e9c2 346a 	strd	r3, r4, [r2, #424]	; 0x1a8
 			cmd.space_type = DUTY_SPACE_TASK;
- 800ab74:	f107 0308 	add.w	r3, r7, #8
- 800ab78:	2200      	movs	r2, #0
- 800ab7a:	735a      	strb	r2, [r3, #13]
+ 800ab72:	f107 0308 	add.w	r3, r7, #8
+ 800ab76:	2200      	movs	r2, #0
+ 800ab78:	735a      	strb	r2, [r3, #13]
 			cmd.path_type = DUTY_PATH_LINE;
- 800ab7c:	f107 0308 	add.w	r3, r7, #8
- 800ab80:	2200      	movs	r2, #0
- 800ab82:	739a      	strb	r2, [r3, #14]
+ 800ab7a:	f107 0308 	add.w	r3, r7, #8
+ 800ab7e:	2200      	movs	r2, #0
+ 800ab80:	739a      	strb	r2, [r3, #14]
 			cmd.target_point.x 		= 0;
- 800ab84:	f107 0208 	add.w	r2, r7, #8
- 800ab88:	f04f 0300 	mov.w	r3, #0
- 800ab8c:	f04f 0400 	mov.w	r4, #0
- 800ab90:	e9c2 341c 	strd	r3, r4, [r2, #112]	; 0x70
+ 800ab82:	f107 0208 	add.w	r2, r7, #8
+ 800ab86:	f04f 0300 	mov.w	r3, #0
+ 800ab8a:	f04f 0400 	mov.w	r4, #0
+ 800ab8e:	e9c2 341c 	strd	r3, r4, [r2, #112]	; 0x70
 			cmd.target_point.y 		= 0;
- 800ab94:	f107 0208 	add.w	r2, r7, #8
- 800ab98:	f04f 0300 	mov.w	r3, #0
- 800ab9c:	f04f 0400 	mov.w	r4, #0
- 800aba0:	e9c2 341e 	strd	r3, r4, [r2, #120]	; 0x78
-			cmd.target_point.z 		= -speed*10;
- 800aba4:	463b      	mov	r3, r7
- 800aba6:	681b      	ldr	r3, [r3, #0]
- 800aba8:	f06f 0209 	mvn.w	r2, #9
- 800abac:	fb02 f303 	mul.w	r3, r2, r3
+ 800ab92:	f107 0208 	add.w	r2, r7, #8
+ 800ab96:	f04f 0300 	mov.w	r3, #0
+ 800ab9a:	f04f 0400 	mov.w	r4, #0
+ 800ab9e:	e9c2 341e 	strd	r3, r4, [r2, #120]	; 0x78
+			cmd.target_point.z 		= -speed*SHIFT_KEY_S;
+ 800aba2:	463b      	mov	r3, r7
+ 800aba4:	681a      	ldr	r2, [r3, #0]
+ 800aba6:	4613      	mov	r3, r2
+ 800aba8:	079b      	lsls	r3, r3, #30
+ 800abaa:	1a9b      	subs	r3, r3, r2
+ 800abac:	009b      	lsls	r3, r3, #2
+ 800abae:	1a9b      	subs	r3, r3, r2
  800abb0:	4618      	mov	r0, r3
  800abb2:	f7f5 fcb7 	bl	8000524 <__aeabi_i2d>
  800abb6:	4603      	mov	r3, r0
@@ -19290,7 +19296,7 @@ SCARA_StatusTypeDef  scaraKeyInit1(SCARA_KeyTypeDef key, int32_t speed)
  800abc6:	f04f 0300 	mov.w	r3, #0
  800abca:	f04f 0400 	mov.w	r4, #0
  800abce:	e9c2 3422 	strd	r3, r4, [r2, #136]	; 0x88
-			cmd.time_total 			= 0.8 + speed*0.1;
+			cmd.time_total 			= 0.8 + speed*SHIFT_KEY_TIME;
  800abd2:	463b      	mov	r3, r7
  800abd4:	6818      	ldr	r0, [r3, #0]
  800abd6:	f7f5 fca5 	bl	8000524 <__aeabi_i2d>
@@ -19340,81 +19346,83 @@ SCARA_StatusTypeDef  scaraKeyInit1(SCARA_KeyTypeDef key, int32_t speed)
  800ac48:	f04f 0300 	mov.w	r3, #0
  800ac4c:	f04f 0400 	mov.w	r4, #0
  800ac50:	e9c2 3420 	strd	r3, r4, [r2, #128]	; 0x80
-			cmd.target_point.roll 	= speed*10;
+			cmd.target_point.roll 	= speed*SHIFT_KEY_S;
  800ac54:	463b      	mov	r3, r7
  800ac56:	681a      	ldr	r2, [r3, #0]
  800ac58:	4613      	mov	r3, r2
  800ac5a:	009b      	lsls	r3, r3, #2
  800ac5c:	4413      	add	r3, r2
- 800ac5e:	005b      	lsls	r3, r3, #1
- 800ac60:	4618      	mov	r0, r3
- 800ac62:	f7f5 fc5f 	bl	8000524 <__aeabi_i2d>
- 800ac66:	4603      	mov	r3, r0
- 800ac68:	460c      	mov	r4, r1
- 800ac6a:	f107 0208 	add.w	r2, r7, #8
- 800ac6e:	e9c2 3422 	strd	r3, r4, [r2, #136]	; 0x88
-			cmd.time_total 			= 0.8 + speed*0.1;
- 800ac72:	463b      	mov	r3, r7
- 800ac74:	6818      	ldr	r0, [r3, #0]
- 800ac76:	f7f5 fc55 	bl	8000524 <__aeabi_i2d>
- 800ac7a:	a347      	add	r3, pc, #284	; (adr r3, 800ad98 <scaraKeyInit1+0x5d8>)
- 800ac7c:	e9d3 2300 	ldrd	r2, r3, [r3]
- 800ac80:	f7f5 fcba 	bl	80005f8 <__aeabi_dmul>
- 800ac84:	4603      	mov	r3, r0
- 800ac86:	460c      	mov	r4, r1
- 800ac88:	4618      	mov	r0, r3
- 800ac8a:	4621      	mov	r1, r4
- 800ac8c:	a344      	add	r3, pc, #272	; (adr r3, 800ada0 <scaraKeyInit1+0x5e0>)
- 800ac8e:	e9d3 2300 	ldrd	r2, r3, [r3]
- 800ac92:	f7f5 fafb 	bl	800028c <__adddf3>
- 800ac96:	4603      	mov	r3, r0
- 800ac98:	460c      	mov	r4, r1
- 800ac9a:	f107 0208 	add.w	r2, r7, #8
- 800ac9e:	e9c2 3408 	strd	r3, r4, [r2, #32]
+ 800ac5e:	4618      	mov	r0, r3
+ 800ac60:	f7f5 fc60 	bl	8000524 <__aeabi_i2d>
+ 800ac64:	4603      	mov	r3, r0
+ 800ac66:	460c      	mov	r4, r1
+ 800ac68:	f107 0208 	add.w	r2, r7, #8
+ 800ac6c:	e9c2 3422 	strd	r3, r4, [r2, #136]	; 0x88
+			cmd.time_total 			= 0.8 + speed*SHIFT_KEY_TIME;
+ 800ac70:	463b      	mov	r3, r7
+ 800ac72:	6818      	ldr	r0, [r3, #0]
+ 800ac74:	f7f5 fc56 	bl	8000524 <__aeabi_i2d>
+ 800ac78:	a347      	add	r3, pc, #284	; (adr r3, 800ad98 <scaraKeyInit1+0x5d8>)
+ 800ac7a:	e9d3 2300 	ldrd	r2, r3, [r3]
+ 800ac7e:	f7f5 fcbb 	bl	80005f8 <__aeabi_dmul>
+ 800ac82:	4603      	mov	r3, r0
+ 800ac84:	460c      	mov	r4, r1
+ 800ac86:	4618      	mov	r0, r3
+ 800ac88:	4621      	mov	r1, r4
+ 800ac8a:	a345      	add	r3, pc, #276	; (adr r3, 800ada0 <scaraKeyInit1+0x5e0>)
+ 800ac8c:	e9d3 2300 	ldrd	r2, r3, [r3]
+ 800ac90:	f7f5 fafc 	bl	800028c <__adddf3>
+ 800ac94:	4603      	mov	r3, r0
+ 800ac96:	460c      	mov	r4, r1
+ 800ac98:	f107 0208 	add.w	r2, r7, #8
+ 800ac9c:	e9c2 3408 	strd	r3, r4, [r2, #32]
 		}
 		break;
- 800aca2:	e04f      	b.n	800ad44 <scaraKeyInit1+0x584>
+ 800aca0:	e050      	b.n	800ad44 <scaraKeyInit1+0x584>
 		case SCARA_KEY_ROLL_DEC:{
 			cmd.v_factor = 0;
- 800aca4:	f107 0208 	add.w	r2, r7, #8
- 800aca8:	f04f 0300 	mov.w	r3, #0
- 800acac:	f04f 0400 	mov.w	r4, #0
- 800acb0:	e9c2 346a 	strd	r3, r4, [r2, #424]	; 0x1a8
+ 800aca2:	f107 0208 	add.w	r2, r7, #8
+ 800aca6:	f04f 0300 	mov.w	r3, #0
+ 800acaa:	f04f 0400 	mov.w	r4, #0
+ 800acae:	e9c2 346a 	strd	r3, r4, [r2, #424]	; 0x1a8
 			cmd.space_type = DUTY_SPACE_TASK;
- 800acb4:	f107 0308 	add.w	r3, r7, #8
- 800acb8:	2200      	movs	r2, #0
- 800acba:	735a      	strb	r2, [r3, #13]
+ 800acb2:	f107 0308 	add.w	r3, r7, #8
+ 800acb6:	2200      	movs	r2, #0
+ 800acb8:	735a      	strb	r2, [r3, #13]
 			cmd.path_type = DUTY_PATH_LINE;
- 800acbc:	f107 0308 	add.w	r3, r7, #8
- 800acc0:	2200      	movs	r2, #0
- 800acc2:	739a      	strb	r2, [r3, #14]
+ 800acba:	f107 0308 	add.w	r3, r7, #8
+ 800acbe:	2200      	movs	r2, #0
+ 800acc0:	739a      	strb	r2, [r3, #14]
 			cmd.target_point.x 		= 0;
- 800acc4:	f107 0208 	add.w	r2, r7, #8
- 800acc8:	f04f 0300 	mov.w	r3, #0
- 800accc:	f04f 0400 	mov.w	r4, #0
- 800acd0:	e9c2 341c 	strd	r3, r4, [r2, #112]	; 0x70
+ 800acc2:	f107 0208 	add.w	r2, r7, #8
+ 800acc6:	f04f 0300 	mov.w	r3, #0
+ 800acca:	f04f 0400 	mov.w	r4, #0
+ 800acce:	e9c2 341c 	strd	r3, r4, [r2, #112]	; 0x70
 			cmd.target_point.y 		= 0;
- 800acd4:	f107 0208 	add.w	r2, r7, #8
- 800acd8:	f04f 0300 	mov.w	r3, #0
- 800acdc:	f04f 0400 	mov.w	r4, #0
- 800ace0:	e9c2 341e 	strd	r3, r4, [r2, #120]	; 0x78
+ 800acd2:	f107 0208 	add.w	r2, r7, #8
+ 800acd6:	f04f 0300 	mov.w	r3, #0
+ 800acda:	f04f 0400 	mov.w	r4, #0
+ 800acde:	e9c2 341e 	strd	r3, r4, [r2, #120]	; 0x78
 			cmd.target_point.z 		= 0;
- 800ace4:	f107 0208 	add.w	r2, r7, #8
- 800ace8:	f04f 0300 	mov.w	r3, #0
- 800acec:	f04f 0400 	mov.w	r4, #0
- 800acf0:	e9c2 3420 	strd	r3, r4, [r2, #128]	; 0x80
-			cmd.target_point.roll 	= -speed*10;
- 800acf4:	463b      	mov	r3, r7
- 800acf6:	681b      	ldr	r3, [r3, #0]
- 800acf8:	f06f 0209 	mvn.w	r2, #9
- 800acfc:	fb02 f303 	mul.w	r3, r2, r3
+ 800ace2:	f107 0208 	add.w	r2, r7, #8
+ 800ace6:	f04f 0300 	mov.w	r3, #0
+ 800acea:	f04f 0400 	mov.w	r4, #0
+ 800acee:	e9c2 3420 	strd	r3, r4, [r2, #128]	; 0x80
+			cmd.target_point.roll 	= -speed*SHIFT_KEY_S;
+ 800acf2:	463b      	mov	r3, r7
+ 800acf4:	681a      	ldr	r2, [r3, #0]
+ 800acf6:	4613      	mov	r3, r2
+ 800acf8:	079b      	lsls	r3, r3, #30
+ 800acfa:	1a9b      	subs	r3, r3, r2
+ 800acfc:	009b      	lsls	r3, r3, #2
+ 800acfe:	1a9b      	subs	r3, r3, r2
  800ad00:	4618      	mov	r0, r3
  800ad02:	f7f5 fc0f 	bl	8000524 <__aeabi_i2d>
  800ad06:	4603      	mov	r3, r0
  800ad08:	460c      	mov	r4, r1
  800ad0a:	f107 0208 	add.w	r2, r7, #8
  800ad0e:	e9c2 3422 	strd	r3, r4, [r2, #136]	; 0x88
-			cmd.time_total 			= 0.8 + speed*0.1;
+			cmd.time_total 			= 0.8 + speed*SHIFT_KEY_TIME;
  800ad12:	463b      	mov	r3, r7
  800ad14:	6818      	ldr	r0, [r3, #0]
  800ad16:	f7f5 fc05 	bl	8000524 <__aeabi_i2d>
@@ -19479,7 +19487,7 @@ SCARA_StatusTypeDef  scaraKeyInit1(SCARA_KeyTypeDef key, int32_t speed)
  800ad94:	bd90      	pop	{r4, r7, pc}
  800ad96:	bf00      	nop
  800ad98:	9999999a 	.word	0x9999999a
- 800ad9c:	3fb99999 	.word	0x3fb99999
+ 800ad9c:	3fa99999 	.word	0x3fa99999
  800ada0:	9999999a 	.word	0x9999999a
  800ada4:	3fe99999 	.word	0x3fe99999
 

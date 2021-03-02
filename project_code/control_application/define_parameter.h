@@ -4,6 +4,8 @@
 #include <QtCore>
 #define SCARA_FOWARD_SCALE 1000000
 #define SCARA_INVERSE_SCALE 0.000001f
+#define SHIFT_KEY_MAX       14
+#define SHIFT_KEY_MIN       1
 
 typedef enum
 {

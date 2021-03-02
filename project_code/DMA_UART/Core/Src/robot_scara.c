@@ -1658,22 +1658,22 @@ SCARA_StatusTypeDef  scaraKeyInit1(SCARA_KeyTypeDef key, int32_t speed)
 			cmd.v_factor = 0;
 			cmd.space_type = DUTY_SPACE_TASK;
 			cmd.path_type = DUTY_PATH_LINE;
-			cmd.target_point.x 		= speed*10;
+			cmd.target_point.x 		= speed*SHIFT_KEY_S;
 			cmd.target_point.y 		= 0;
 			cmd.target_point.z 		= 0;
 			cmd.target_point.roll 	= 0;
-			cmd.time_total 			= 0.8 + speed*0.1;
+			cmd.time_total 			= 0.8 + speed*SHIFT_KEY_TIME;
 		}
 		break;
 		case SCARA_KEY_X_DEC:{
 			cmd.v_factor = 0;
 			cmd.space_type = DUTY_SPACE_TASK;
 			cmd.path_type = DUTY_PATH_LINE;
-			cmd.target_point.x 		= -speed*10;
+			cmd.target_point.x 		= -speed*SHIFT_KEY_S;
 			cmd.target_point.y 		= 0;
 			cmd.target_point.z 		= 0;
 			cmd.target_point.roll 	= 0;
-			cmd.time_total 			= 0.8 + speed*0.1;
+			cmd.time_total 			= 0.8 + speed*SHIFT_KEY_TIME;
 		}
 		break;
 		case SCARA_KEY_Y_INC:{
@@ -1681,10 +1681,10 @@ SCARA_StatusTypeDef  scaraKeyInit1(SCARA_KeyTypeDef key, int32_t speed)
 			cmd.space_type = DUTY_SPACE_TASK;
 			cmd.path_type = DUTY_PATH_LINE;
 			cmd.target_point.x 		= 0;
-			cmd.target_point.y 		= speed*10;
+			cmd.target_point.y 		= speed*SHIFT_KEY_S;
 			cmd.target_point.z 		= 0;
 			cmd.target_point.roll 	= 0;
-			cmd.time_total 			= 0.8 + speed*0.1;
+			cmd.time_total 			= 0.8 + speed*SHIFT_KEY_TIME;
 		}
 		break;
 
@@ -1693,10 +1693,10 @@ SCARA_StatusTypeDef  scaraKeyInit1(SCARA_KeyTypeDef key, int32_t speed)
 			cmd.space_type = DUTY_SPACE_TASK;
 			cmd.path_type = DUTY_PATH_LINE;
 			cmd.target_point.x 		= 0;
-			cmd.target_point.y 		= -speed*10;
+			cmd.target_point.y 		= -speed*SHIFT_KEY_S;
 			cmd.target_point.z 		= 0;
 			cmd.target_point.roll 	= 0;
-			cmd.time_total 			= 0.8 + speed*0.1;
+			cmd.time_total 			= 0.8 + speed*SHIFT_KEY_TIME;
 		}
 		break;
 		case SCARA_KEY_Z_INC:{
@@ -1705,9 +1705,9 @@ SCARA_StatusTypeDef  scaraKeyInit1(SCARA_KeyTypeDef key, int32_t speed)
 			cmd.path_type = DUTY_PATH_LINE;
 			cmd.target_point.x 		= 0;
 			cmd.target_point.y 		= 0;
-			cmd.target_point.z 		= speed*10;
+			cmd.target_point.z 		= speed*SHIFT_KEY_S;
 			cmd.target_point.roll 	= 0;
-			cmd.time_total 			= 0.8 + speed*0.1;
+			cmd.time_total 			= 0.8 + speed*SHIFT_KEY_TIME;
 		}
 		break;
 		case SCARA_KEY_Z_DEC:{
@@ -1716,9 +1716,9 @@ SCARA_StatusTypeDef  scaraKeyInit1(SCARA_KeyTypeDef key, int32_t speed)
 			cmd.path_type = DUTY_PATH_LINE;
 			cmd.target_point.x 		= 0;
 			cmd.target_point.y 		= 0;
-			cmd.target_point.z 		= -speed*10;
+			cmd.target_point.z 		= -speed*SHIFT_KEY_S;
 			cmd.target_point.roll 	= 0;
-			cmd.time_total 			= 0.8 + speed*0.1;
+			cmd.time_total 			= 0.8 + speed*SHIFT_KEY_TIME;
 		}
 		break;
 		case SCARA_KEY_ROLL_INC:{
@@ -1728,8 +1728,8 @@ SCARA_StatusTypeDef  scaraKeyInit1(SCARA_KeyTypeDef key, int32_t speed)
 			cmd.target_point.x 		= 0;
 			cmd.target_point.y 		= 0;
 			cmd.target_point.z 		= 0;
-			cmd.target_point.roll 	= speed*10;
-			cmd.time_total 			= 0.8 + speed*0.1;
+			cmd.target_point.roll 	= speed*SHIFT_KEY_S;
+			cmd.time_total 			= 0.8 + speed*SHIFT_KEY_TIME;
 		}
 		break;
 		case SCARA_KEY_ROLL_DEC:{
@@ -1739,8 +1739,8 @@ SCARA_StatusTypeDef  scaraKeyInit1(SCARA_KeyTypeDef key, int32_t speed)
 			cmd.target_point.x 		= 0;
 			cmd.target_point.y 		= 0;
 			cmd.target_point.z 		= 0;
-			cmd.target_point.roll 	= -speed*10;
-			cmd.time_total 			= 0.8 + speed*0.1;
+			cmd.target_point.roll 	= -speed*SHIFT_KEY_S;
+			cmd.time_total 			= 0.8 + speed*SHIFT_KEY_TIME;
 		}
 		break;
 	}
