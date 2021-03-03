@@ -47,6 +47,8 @@ public:
     QPushButton *bt_home;
     QPushButton *bt_key_setsp;
     QLineEdit *tb_key_setsp;
+    QPushButton *bt_inc_7;
+    QPushButton *bt_inc_8;
     QGroupBox *groupBox_2;
     QLineEdit *tb_x_cor;
     QLineEdit *tb_y_cor;
@@ -113,6 +115,7 @@ public:
     QRadioButton *rb_auto;
     QPushButton *bt_set_method;
     QRadioButton *rb_test;
+    QRadioButton *rb_pick_and_place;
     QWidget *tab_2;
     QGroupBox *groupBox_9;
     QRadioButton *rb_test_mt1;
@@ -145,7 +148,7 @@ public:
         bt_refresh->setGeometry(QRect(140, 10, 80, 21));
         groupBox = new QGroupBox(centralwidget);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
-        groupBox->setGeometry(QRect(10, 30, 311, 171));
+        groupBox->setGeometry(QRect(10, 30, 311, 181));
         bt_robot_stop = new QPushButton(groupBox);
         bt_robot_stop->setObjectName(QString::fromUtf8("bt_robot_stop"));
         bt_robot_stop->setGeometry(QRect(20, 30, 80, 21));
@@ -154,22 +157,22 @@ public:
         bt_scan_limit->setGeometry(QRect(110, 30, 80, 21));
         bt_inc_1 = new QPushButton(groupBox);
         bt_inc_1->setObjectName(QString::fromUtf8("bt_inc_1"));
-        bt_inc_1->setGeometry(QRect(20, 80, 80, 21));
+        bt_inc_1->setGeometry(QRect(20, 60, 80, 21));
         bt_inc_2 = new QPushButton(groupBox);
         bt_inc_2->setObjectName(QString::fromUtf8("bt_inc_2"));
-        bt_inc_2->setGeometry(QRect(110, 80, 80, 21));
+        bt_inc_2->setGeometry(QRect(110, 60, 80, 21));
         bt_inc_4 = new QPushButton(groupBox);
         bt_inc_4->setObjectName(QString::fromUtf8("bt_inc_4"));
-        bt_inc_4->setGeometry(QRect(110, 110, 80, 21));
+        bt_inc_4->setGeometry(QRect(110, 90, 80, 21));
         bt_inc_3 = new QPushButton(groupBox);
         bt_inc_3->setObjectName(QString::fromUtf8("bt_inc_3"));
-        bt_inc_3->setGeometry(QRect(20, 110, 80, 21));
+        bt_inc_3->setGeometry(QRect(20, 90, 80, 21));
         bt_inc_6 = new QPushButton(groupBox);
         bt_inc_6->setObjectName(QString::fromUtf8("bt_inc_6"));
-        bt_inc_6->setGeometry(QRect(110, 140, 80, 21));
+        bt_inc_6->setGeometry(QRect(110, 120, 80, 21));
         bt_inc_5 = new QPushButton(groupBox);
         bt_inc_5->setObjectName(QString::fromUtf8("bt_inc_5"));
-        bt_inc_5->setGeometry(QRect(20, 140, 80, 21));
+        bt_inc_5->setGeometry(QRect(20, 120, 80, 21));
         bt_home = new QPushButton(groupBox);
         bt_home->setObjectName(QString::fromUtf8("bt_home"));
         bt_home->setGeometry(QRect(200, 30, 80, 21));
@@ -179,6 +182,12 @@ public:
         tb_key_setsp = new QLineEdit(groupBox);
         tb_key_setsp->setObjectName(QString::fromUtf8("tb_key_setsp"));
         tb_key_setsp->setGeometry(QRect(220, 100, 81, 21));
+        bt_inc_7 = new QPushButton(groupBox);
+        bt_inc_7->setObjectName(QString::fromUtf8("bt_inc_7"));
+        bt_inc_7->setGeometry(QRect(20, 150, 80, 21));
+        bt_inc_8 = new QPushButton(groupBox);
+        bt_inc_8->setObjectName(QString::fromUtf8("bt_inc_8"));
+        bt_inc_8->setGeometry(QRect(110, 150, 80, 21));
         groupBox_2 = new QGroupBox(centralwidget);
         groupBox_2->setObjectName(QString::fromUtf8("groupBox_2"));
         groupBox_2->setGeometry(QRect(330, 10, 391, 351));
@@ -365,13 +374,14 @@ public:
         tab->setObjectName(QString::fromUtf8("tab"));
         groupBox_8 = new QGroupBox(tab);
         groupBox_8->setObjectName(QString::fromUtf8("groupBox_8"));
-        groupBox_8->setGeometry(QRect(10, 0, 181, 111));
+        groupBox_8->setGeometry(QRect(10, 0, 211, 111));
         rb_manual = new QRadioButton(groupBox_8);
         rb_manual->setObjectName(QString::fromUtf8("rb_manual"));
         rb_manual->setGeometry(QRect(10, 20, 84, 19));
         rb_semi_auto = new QRadioButton(groupBox_8);
         rb_semi_auto->setObjectName(QString::fromUtf8("rb_semi_auto"));
         rb_semi_auto->setGeometry(QRect(10, 40, 84, 19));
+        rb_semi_auto->setChecked(true);
         rb_auto = new QRadioButton(groupBox_8);
         rb_auto->setObjectName(QString::fromUtf8("rb_auto"));
         rb_auto->setGeometry(QRect(10, 60, 84, 19));
@@ -381,6 +391,9 @@ public:
         rb_test = new QRadioButton(groupBox_8);
         rb_test->setObjectName(QString::fromUtf8("rb_test"));
         rb_test->setGeometry(QRect(90, 20, 84, 19));
+        rb_pick_and_place = new QRadioButton(groupBox_8);
+        rb_pick_and_place->setObjectName(QString::fromUtf8("rb_pick_and_place"));
+        rb_pick_and_place->setGeometry(QRect(90, 40, 101, 17));
         tabWidget->addTab(tab, QString());
         tab_2 = new QWidget();
         tab_2->setObjectName(QString::fromUtf8("tab_2"));
@@ -420,7 +433,7 @@ public:
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 1079, 20));
+        menubar->setGeometry(QRect(0, 0, 1079, 21));
         MainWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
@@ -428,7 +441,7 @@ public:
 
         retranslateUi(MainWindow);
 
-        tabWidget->setCurrentIndex(1);
+        tabWidget->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -450,6 +463,8 @@ public:
         bt_inc_5->setText(QCoreApplication::translate("MainWindow", "Inc z", nullptr));
         bt_home->setText(QCoreApplication::translate("MainWindow", "Move Home", nullptr));
         bt_key_setsp->setText(QCoreApplication::translate("MainWindow", "Set key speed", nullptr));
+        bt_inc_7->setText(QCoreApplication::translate("MainWindow", "Inc roll", nullptr));
+        bt_inc_8->setText(QCoreApplication::translate("MainWindow", "Dec roll", nullptr));
         groupBox_2->setTitle(QCoreApplication::translate("MainWindow", "GroupBox", nullptr));
         label->setText(QCoreApplication::translate("MainWindow", "Y", nullptr));
         label_2->setText(QCoreApplication::translate("MainWindow", "X", nullptr));
@@ -497,6 +512,7 @@ public:
         rb_auto->setText(QCoreApplication::translate("MainWindow", "AUTO", nullptr));
         bt_set_method->setText(QCoreApplication::translate("MainWindow", "Set method", nullptr));
         rb_test->setText(QCoreApplication::translate("MainWindow", "TEST", nullptr));
+        rb_pick_and_place->setText(QCoreApplication::translate("MainWindow", "PICK AND PLACE", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(tab), QCoreApplication::translate("MainWindow", "Tab 1", nullptr));
         groupBox_9->setTitle(QCoreApplication::translate("MainWindow", "Test motor", nullptr));
         rb_test_mt1->setText(QCoreApplication::translate("MainWindow", "Motor1", nullptr));

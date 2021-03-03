@@ -279,7 +279,7 @@ void MainWindow::on_bt_key_setsp_clicked()
     command.append(CMD_KEY_SPEED);
     uint8_t key_speed = (uint8_t)ui->tb_key_setsp->text().toInt();
     key_speed = (key_speed > SHIFT_KEY_MAX)?SHIFT_KEY_MAX:key_speed;
-    key_speed = (key_speed < SHIFT_KEY_MAX)?SHIFT_KEY_MIN:key_speed;
+    key_speed = (key_speed < SHIFT_KEY_MIN)?SHIFT_KEY_MIN:key_speed;
     command.append(key_speed);
     command.append(0x29);
     mSerial->write(command, command.length());
@@ -299,6 +299,8 @@ void MainWindow::on_bt_set_method_clicked()
         command.append(SCARA_METHOD_AUTO);
     }else if(ui->rb_test->isChecked() == true){
         command.append(SCARA_METHOD_TEST);
+    }else if(ui->rb_pick_and_place->isChecked() == true){
+        command.append(SCARA_METHOD_PICK_AND_PLACE);
     }else{
         log_console("Please select method");
         log_console("--------------------------");
@@ -337,11 +339,16 @@ void MainWindow::on_bt_testmt()
 
 void MainWindow::on_testing_clicked()
 {
-//    uint16_t t = 16;
-//    double a = (double)t;
-//    uint16_t b = (uint16_t)a;
-//    uint16_t c = b - 12;
-//    qDebug() << "test";
+    QByteArray command;
+    command.append(0x28);
+    command.append(COMMAND_TRANSMISION);
+    command.append(CMD_OBJECT_DETECTED);
+    QbyteArray_AddValue(&command, "338.4816", SCARA_COR_VALUE);
+    QbyteArray_AddValue(&command, "-3.7336", SCARA_COR_VALUE);
+    QbyteArray_AddValue(&command, "0.0", SCARA_COR_VALUE);
+    command.append(VIETNAM_FLAG);
+    command.append(0x29);
+    mSerial->write(command, command.length());
 }
 
 

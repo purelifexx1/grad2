@@ -957,7 +957,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -968,7 +968,7 @@
        <rect>
         <x>10</x>
         <y>0</y>
-        <width>181</width>
+        <width>211</width>
         <height>111</height>
        </rect>
       </property>
@@ -999,6 +999,9 @@
        </property>
        <property name="text">
         <string>SEMI-AUTO</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
        </property>
       </widget>
       <widget class="QRadioButton" name="rb_auto">
@@ -1038,6 +1041,19 @@
        </property>
        <property name="text">
         <string>TEST</string>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="rb_pick_and_place">
+       <property name="geometry">
+        <rect>
+         <x>90</x>
+         <y>40</y>
+         <width>101</width>
+         <height>17</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>PICK AND PLACE</string>
        </property>
       </widget>
      </widget>
@@ -1188,7 +1204,7 @@
      <x>0</x>
      <y>0</y>
      <width>1079</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

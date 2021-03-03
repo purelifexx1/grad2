@@ -209,16 +209,18 @@ void StartDefaultTask(void const * argument)
   int32_t					current_key_speed;
   double						run_time;
 
-  SCARA_Pick_And_Place_Package *Object;
+  SCARA_Pick_And_Place_Package Object[8];
   SCARA_Pick_And_Place_State  operation_state;
   uint8_t object_tail_pointer = 0;
   uint8_t object_head_pointer = 0;
   double state_time = 0;
   const SCARA_Slot_TypeDef SLot_Cordinate[NUM_OF_OBJECT] = {
-  		{200.0f, 200.0f, 0.0f} ,
-  		{200.0f, 200.0f, 0.0f} ,
-  		{200.0f, 200.0f, 0.0f} ,
-  		{200.0f, 200.0f, 0.0f}
+  		{203.859f, -101.616f, 0.0f} ,
+  		{203.859f, -101.616f, 0.0f} ,
+  		{203.859f, -101.616f, 0.0f} ,
+  		{203.859f, -101.616f, 0.0f} ,
+		{203.859f, -101.616f, 0.0f} ,
+		{203.859f, -101.616f, 0.0f}
   };
 
   LOG_REPORT("free_rtos.c: PROGRAM START...", __LINE__);
@@ -287,7 +289,7 @@ void StartDefaultTask(void const * argument)
 		  //memset(respond, 0, 40);
 		  // Check change method
 		  if (duty_cmd.change_method == TRUE) {
-			  free(Object);
+			  //free(Object);
 			  if (SCARA_METHOD_MANUAL == duty_cmd.robot_method) {
 				  // Need add check condition idle in each method
 				  current_method = SCARA_METHOD_MANUAL;
@@ -477,6 +479,9 @@ void StartDefaultTask(void const * argument)
 				  		  memcpy(&Object[object_head_pointer].object_position, &duty_cmd.target_point, sizeof(SCARA_PositionTypeDef));
 				  		  Object[object_head_pointer].timer_value = (uint16_t)duty_cmd.target_point.t;
 				  		  object_head_pointer = (object_head_pointer+1)%8;
+				  		  detail_array[0] = OBJECT_DETECTED;
+						  respond_lenght = commandRespond1(RPD_OK, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
+						  total_respond_length += respond_lenght;
 				  	  }
 				  	  break;
 				  	  default:
@@ -620,10 +625,11 @@ void StartDefaultTask(void const * argument)
 					  break;
 				  case SCARA_SCAN_STATE_FINISH:
 					  {
-						  lowlayer_readSetPosition(&positionNext);
+						  //lowlayer_readSetPosition(&positionNext);
+						  lowlayer_readTruePosition(&positionNext);
+						  kinematicForward(&positionNext);
 						  current_mode 	= SCARA_MODE_DUTY;
 						  current_duty_state = SCARA_DUTY_STATE_READY;
-						  kinematicForward(&positionNext);
 						  scaraSetScanFlag();
 						  //Done Inform
 						//   scaraPosition2String((char *)position, positionNext);
@@ -883,7 +889,7 @@ void StartDefaultTask(void const * argument)
 	  {
 		  switch(current_duty_state) {
 		  case SCARA_DUTY_STATE_INIT:{
-			  Object = calloc(8, sizeof(SCARA_Pick_And_Place_Package));
+			  //Object = calloc(8, sizeof(SCARA_Pick_And_Place_Package));
 			  object_tail_pointer = 0;
 			  object_head_pointer = 0;
 			  operation_state = SCARA_MOVE_TO_TARGET;
@@ -898,7 +904,7 @@ void StartDefaultTask(void const * argument)
 			  if(object_tail_pointer != object_head_pointer){
 				  switch(operation_state){
 					  case SCARA_MOVE_TO_TARGET:{
-						  double wait_time = TIMER_SCALE*((uint16_t)(TIM2->CNT - Object[object_tail_pointer].timer_value)) + MOVE_TIME + PUT_DOWN_TIME;
+						  double wait_time = TIMER_SCALE*((uint16_t)(TIM2->CNT - Object[object_tail_pointer].timer_value)) + MOVE_TIME + PUT_DOWN_TIME_ON_OBJECT;
 						  Object[object_tail_pointer].object_position.y += wait_time*conveyor_speed;
 						  Object[object_tail_pointer].object_position.z = UP_HEIGHT;
 						  state_time = MOVE_TIME;
@@ -907,7 +913,7 @@ void StartDefaultTask(void const * argument)
 
 					  case SCARA_MOVE_DOWN_ON_OBJECT:{
 						  Object[object_tail_pointer].object_position.z = DOWN_HEIGHT_ON_OBJECT;
-						  state_time = DOWN_HEIGHT_ON_OBJECT;
+						  state_time = PUT_DOWN_TIME_ON_OBJECT;
 					  }
 					  break;
 					  case SCARA_ATTACH:{
@@ -915,17 +921,23 @@ void StartDefaultTask(void const * argument)
 						  scaraSetOutput(1);
 					  }
 					  break;
+					  case SCARA_MOVE_UP_ON_OBJECT:{
+						  Object[object_tail_pointer].object_position.z = UP_HEIGHT;
+						  state_time = PICK_UP_TIME_ON_OBJECT;
+					  }
+					  break;
 					  case SCARA_MOVE_TO_SLOT :{
-						  // handle later when define the slot cordinate
+
 						  Object[object_tail_pointer].object_position.x = SLot_Cordinate[Object[object_tail_pointer].object_position.object_type].posx;
-						  Object[object_tail_pointer].object_position.y = SLot_Cordinate[Object[object_tail_pointer].object_position.object_type].posy;;
+						  Object[object_tail_pointer].object_position.y = SLot_Cordinate[Object[object_tail_pointer].object_position.object_type].posy;
+						  Object[object_tail_pointer].object_position.roll = SLot_Cordinate[Object[object_tail_pointer].object_position.object_type].roll;
 						  Object[object_tail_pointer].object_position.z = UP_HEIGHT;
 						  state_time = MOVE_TIME;
 					  }
 					  break;
 					  case SCARA_MOVE_DOWN_ON_SLOT:{
 						  Object[object_tail_pointer].object_position.z = DOWN_HEIGHT_ON_SLOT;
-						  state_time = DOWN_HEIGHT_ON_OBJECT;
+						  state_time = PUT_DOWN_TIME_ON_SLOT;
 					  }
 					  break;
 					  case SCARA_RELEASE:{
@@ -933,8 +945,8 @@ void StartDefaultTask(void const * argument)
 						  scaraSetOutput(0);
 					  }
 					  break;
-					  case SCARA_MOVE_UP:{
-						  state_time = PICK_UP_TIME;
+					  case SCARA_MOVE_UP_ON_SLOT:{
+						  state_time = PICK_UP_TIME_ON_SLOT;
 						  Object[object_tail_pointer].object_position.z = UP_HEIGHT;
 					  }
 					  break;
@@ -942,7 +954,12 @@ void StartDefaultTask(void const * argument)
 				  memcpy(&duty_cmd.target_point, &Object[object_tail_pointer].object_position, sizeof(SCARA_PositionTypeDef));
 				  duty_cmd.time_total = state_time;
 				  SCARA_StatusTypeDef status1;
-				  status1 = scaraInitDuty(duty_cmd);
+				  duty_cmd.v_factor = 0;
+				  if(operation_state == SCARA_ATTACH || operation_state == SCARA_RELEASE){
+					  status1 = SCARA_STATUS_OK;
+				  }else{
+					  status1 = scaraInitDuty(duty_cmd);
+				  }
 				  if ( SCARA_STATUS_OK == status1) {
 				  	current_duty_state = SCARA_DUTY_STATE_FLOW;
 				  	run_time = 0;
@@ -968,7 +985,7 @@ void StartDefaultTask(void const * argument)
 			  // Check Time Out
 			  if (scaraIsFinish(run_time)) {
 				current_duty_state = SCARA_DUTY_STATE_OPERATION;
-				if(operation_state == SCARA_MOVE_UP){
+				if(operation_state == SCARA_MOVE_UP_ON_SLOT){
 					operation_state = SCARA_MOVE_TO_TARGET;
 					object_tail_pointer = (object_tail_pointer+1)%8;
 				}else{
@@ -976,7 +993,7 @@ void StartDefaultTask(void const * argument)
 				}
 				lowlayer_readTruePosition(&positionNext);
 				kinematicForward(&positionNext);
-			  } else {
+			  } else if(operation_state != SCARA_ATTACH && operation_state != SCARA_RELEASE){
 				status = scaraFlowDuty(run_time , &positionNext, positionCurrent);
 				if ( SCARA_STATUS_OK == status) {
 					lowlayer_computeAndWritePulse(positionCurrent, positionNext);
@@ -989,7 +1006,7 @@ void StartDefaultTask(void const * argument)
 
 		  case SCARA_DUTY_STATE_FINISH:
 			  //error
-			  free(Object);
+			  //free(Object);
 		  break;
 		  }
 	  }

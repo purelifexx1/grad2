@@ -251,8 +251,9 @@ Robot_CommandTypedef 	commandRead	(uint8_t *message, int32_t length, int32_t *id
 							duty_cmd->robot_method = SCARA_METHOD_AUTO;
 						}else if(SCARA_METHOD_TEST == method){
 							duty_cmd->robot_method = SCARA_METHOD_TEST;
-						}
-						 else {
+						}else if(SCARA_METHOD_PICK_AND_PLACE == method){
+							duty_cmd->robot_method = SCARA_METHOD_PICK_AND_PLACE;
+						}else {
 							return CMD_ERROR;
 						}
 						duty_cmd->change_method = TRUE;
@@ -318,11 +319,11 @@ Robot_CommandTypedef 	commandRead	(uint8_t *message, int32_t length, int32_t *id
 
 				case CMD_OBJECT_DETECTED:
 				{
-					if (length == 19){ // 4 int32_t number + 1 byte object type + 2 define byte
+					if (length == 15){ // 3 int32_t number + 1 byte object type + 2 define byte
 						temp_pointer = -2;
 						duty_cmd->target_point.x = (double)(*(int32_t*)(&message[temp_pointer+=4]))*COR_INVERSE_SCALE;
 						duty_cmd->target_point.y = (double)(*(int32_t*)(&message[temp_pointer+=4]))*COR_INVERSE_SCALE;
-						duty_cmd->target_point.z = (double)(*(int32_t*)(&message[temp_pointer+=4]))*COR_INVERSE_SCALE;
+						//duty_cmd->target_point.z = (double)(*(int32_t*)(&message[temp_pointer+=4]))*COR_INVERSE_SCALE;
 						duty_cmd->target_point.roll = (double)(*(int32_t*)(&message[temp_pointer+=4]))*COR_INVERSE_SCALE;
 						duty_cmd->target_point.object_type = message[temp_pointer+=4];
 						duty_cmd->target_point.t = (double)(TIM2->CNT);

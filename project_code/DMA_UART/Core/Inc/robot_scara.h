@@ -399,11 +399,11 @@ typedef enum
 	SCARA_MOVE_TO_TARGET         ,
 	SCARA_MOVE_DOWN_ON_OBJECT	 ,
 	SCARA_ATTACH		         ,
-	//MOVE_UP		   ,
+	SCARA_MOVE_UP_ON_OBJECT		 ,
 	SCARA_MOVE_TO_SLOT           ,
 	SCARA_MOVE_DOWN_ON_SLOT	     ,
 	SCARA_RELEASE		         ,
-	SCARA_MOVE_UP		         ,
+	SCARA_MOVE_UP_ON_SLOT		 ,
 }SCARA_Pick_And_Place_State;
 
 typedef struct

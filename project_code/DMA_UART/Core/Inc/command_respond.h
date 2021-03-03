@@ -104,6 +104,7 @@ typedef enum
     AUTO_METHOD     ,
     TEST_METHOD     ,
 	PICK_AND_PLACE_METHOD,
+	OBJECT_DETECTED 	,
     STOP_NOW        ,
     START_SCAN      ,
     BUSY            ,

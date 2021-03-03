@@ -724,7 +724,7 @@ SCARA_StatusTypeDef	scaraInitLSPB1		(Trajectory_LSPB_TypeDef *lspb,
 		//check if time valid or not
 		if(tf < 0.1 && v_design > 7.5){
 			tf = 1.5*total_s/v_design;
-		}else if(v_design < 0.0001 && tf > 0.5){ //check if velocity valid or not
+		}else if(v_design < 0.0001 && tf > 0.15){ //check if velocity valid or not
 			v_design = 1.5*total_s/tf;
 		}else{
 			v_lim = total_s/tf;
