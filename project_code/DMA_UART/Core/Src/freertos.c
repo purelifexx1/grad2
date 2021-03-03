@@ -890,6 +890,7 @@ void StartDefaultTask(void const * argument)
 		  switch(current_duty_state) {
 		  case SCARA_DUTY_STATE_INIT:{
 			  //Object = calloc(8, sizeof(SCARA_Pick_And_Place_Package));
+			  HAL_TIM_Base_Start(&htim2);
 			  object_tail_pointer = 0;
 			  object_head_pointer = 0;
 			  operation_state = SCARA_MOVE_TO_TARGET;
@@ -958,6 +959,13 @@ void StartDefaultTask(void const * argument)
 				  if(operation_state == SCARA_ATTACH || operation_state == SCARA_RELEASE){
 					  status1 = SCARA_STATUS_OK;
 				  }else{
+					  if(operation_state == SCARA_MOVE_DOWN_ON_OBJECT || operation_state == SCARA_MOVE_DOWN_ON_SLOT || operation_state == SCARA_MOVE_UP_ON_OBJECT || operation_state == SCARA_MOVE_UP_ON_SLOT){
+						  duty_cmd.trajec_type = DUTY_TRAJECTORY_LINEAR;
+						  duty_cmd.modeInit_type = DUTY_MODE_INIT_QT;
+					  }else{
+						  duty_cmd.trajec_type = DUTY_TRAJECTORY_LSPB;
+						  duty_cmd.modeInit_type = DUTY_MODE_INIT_QVT;
+					  }
 					  status1 = scaraInitDuty(duty_cmd);
 				  }
 				  if ( SCARA_STATUS_OK == status1) {
