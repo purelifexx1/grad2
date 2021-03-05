@@ -6,7 +6,9 @@
 #define SCARA_INVERSE_SCALE 0.000001f
 #define SHIFT_KEY_MAX       14
 #define SHIFT_KEY_MIN       1
-
+#define MINIMUM_LINEAR_TIME_FRAME  0.03
+#define MINIMUM_CIRCLE_TIME_FRAME  0.05
+#define ADD_VALUE(array, value, type) system_parameter->Convert_And_Append(array, value, type)
 typedef enum
 {
     DISPLAY_POSITION,
@@ -207,7 +209,8 @@ typedef enum
     DOUBLE_VALUE,
     BYTE_VALUE,
     INT16_VALUE,
-    SCARA_COR_VALUE
+    SCARA_COR_VALUE_TEXT,
+    SCARA_COR_VALUE_DOUBLE
 }TypeDef_Conversion ;
 
 typedef struct
@@ -259,6 +262,20 @@ typedef enum{
     GERMANY_FLAG,
     NUM_OF_OBJECT
 }ObjectType;
+
+typedef enum{
+    COMPRESS_SUCCESSFULLY,
+    CURRENT_DATA_UNINIT,
+    GCODE_PROCESS_ERROR,
+    UNMATCH_Z_HEIGHT,
+    NUM_OF_DTC
+}Gcode_Decoder_DTC_TypeDef;
+
+typedef enum{
+    ROUTE_COMMAND,
+    STATE_LINEAR,
+    STATE_CIRCLE
+}Gcode_Compress_State_TypeDef;
 
 class define_parameter
 {
@@ -350,5 +367,5 @@ public:
     define_parameter();
     void Convert_And_Append(QByteArray *object_array, QVariant convert_object, TypeDef_Conversion input_type);
 };
-
+extern define_parameter *system_parameter;
 #endif // DEFINE_PARAMETER_H
