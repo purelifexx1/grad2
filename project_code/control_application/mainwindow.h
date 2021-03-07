@@ -5,6 +5,7 @@
 #include "receivethread.h"
 #include "define_parameter.h"
 #include "packet_handler.h"
+#include "gcode_decoder.h"
 #define log_console(content) ui->tb_console->append(content)
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -18,9 +19,9 @@ public:
 
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    ReceiveThread *Received_Thread;
-    define_parameter *system_parameter = new define_parameter();
+    ReceiveThread *Received_Thread;    
     packet_handler *_packet_handler = new packet_handler();
+
 
 private slots:
     void on_bt_refresh_clicked();
@@ -61,6 +62,5 @@ public slots:
     void display_event(Display_packet data);
 private:
     Ui::MainWindow *ui;
-    void QbyteArray_AddValue(QByteArray *object_array, QVariant convert_object, TypeDef_Conversion input_type);
 };
 #endif // MAINWINDOW_H

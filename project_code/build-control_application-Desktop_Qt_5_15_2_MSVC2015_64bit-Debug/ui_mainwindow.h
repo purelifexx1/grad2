@@ -115,6 +115,7 @@ public:
     QRadioButton *rb_auto;
     QPushButton *bt_set_method;
     QRadioButton *rb_test;
+    QRadioButton *rb_pick_and_place;
     QWidget *tab_2;
     QGroupBox *groupBox_9;
     QRadioButton *rb_test_mt1;
@@ -373,13 +374,14 @@ public:
         tab->setObjectName(QString::fromUtf8("tab"));
         groupBox_8 = new QGroupBox(tab);
         groupBox_8->setObjectName(QString::fromUtf8("groupBox_8"));
-        groupBox_8->setGeometry(QRect(10, 0, 181, 111));
+        groupBox_8->setGeometry(QRect(10, 0, 211, 111));
         rb_manual = new QRadioButton(groupBox_8);
         rb_manual->setObjectName(QString::fromUtf8("rb_manual"));
         rb_manual->setGeometry(QRect(10, 20, 84, 19));
         rb_semi_auto = new QRadioButton(groupBox_8);
         rb_semi_auto->setObjectName(QString::fromUtf8("rb_semi_auto"));
         rb_semi_auto->setGeometry(QRect(10, 40, 84, 19));
+        rb_semi_auto->setChecked(true);
         rb_auto = new QRadioButton(groupBox_8);
         rb_auto->setObjectName(QString::fromUtf8("rb_auto"));
         rb_auto->setGeometry(QRect(10, 60, 84, 19));
@@ -389,6 +391,9 @@ public:
         rb_test = new QRadioButton(groupBox_8);
         rb_test->setObjectName(QString::fromUtf8("rb_test"));
         rb_test->setGeometry(QRect(90, 20, 84, 19));
+        rb_pick_and_place = new QRadioButton(groupBox_8);
+        rb_pick_and_place->setObjectName(QString::fromUtf8("rb_pick_and_place"));
+        rb_pick_and_place->setGeometry(QRect(90, 40, 101, 17));
         tabWidget->addTab(tab, QString());
         tab_2 = new QWidget();
         tab_2->setObjectName(QString::fromUtf8("tab_2"));
@@ -428,7 +433,7 @@ public:
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 1079, 20));
+        menubar->setGeometry(QRect(0, 0, 1079, 21));
         MainWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
@@ -436,7 +441,7 @@ public:
 
         retranslateUi(MainWindow);
 
-        tabWidget->setCurrentIndex(1);
+        tabWidget->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -507,6 +512,7 @@ public:
         rb_auto->setText(QCoreApplication::translate("MainWindow", "AUTO", nullptr));
         bt_set_method->setText(QCoreApplication::translate("MainWindow", "Set method", nullptr));
         rb_test->setText(QCoreApplication::translate("MainWindow", "TEST", nullptr));
+        rb_pick_and_place->setText(QCoreApplication::translate("MainWindow", "PICK AND PLACE", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(tab), QCoreApplication::translate("MainWindow", "Tab 1", nullptr));
         groupBox_9->setTitle(QCoreApplication::translate("MainWindow", "Test motor", nullptr));
         rb_test_mt1->setText(QCoreApplication::translate("MainWindow", "Motor1", nullptr));

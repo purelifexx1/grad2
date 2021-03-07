@@ -10,6 +10,7 @@ CONFIG += c++11
 
 SOURCES += \
     define_parameter.cpp \
+    gcode_decoder.cpp \
     main.cpp \
     mainwindow.cpp \
     packet_handler.cpp \
@@ -17,6 +18,7 @@ SOURCES += \
 
 HEADERS += \
     define_parameter.h \
+    gcode_decoder.h \
     mainwindow.h \
     packet_handler.h \
     receivethread.h

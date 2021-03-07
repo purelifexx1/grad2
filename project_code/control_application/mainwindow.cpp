@@ -4,6 +4,8 @@
 #include <QDebug>
 #include <QtSerialPort/QtSerialPort>
 #include <QtSerialPort/QSerialPortInfo>
+#include <QFileDialog>
+#include <QFile>
 
 QSerialPort *mSerial;
 MainWindow::MainWindow(QWidget *parent)
@@ -71,11 +73,6 @@ void MainWindow::display_event(Display_packet data)
         break;
     }
 
-}
-
-void MainWindow::QbyteArray_AddValue(QByteArray *object_array, QVariant convert_object, TypeDef_Conversion input_type)
-{
-    system_parameter->Convert_And_Append(object_array, convert_object, input_type);
 }
 
 void MainWindow::on_bt_refresh_clicked()
@@ -147,8 +144,8 @@ void MainWindow::on_bt_home_clicked()
     command.append(0x28);
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_MOVE_HOME);
-    QbyteArray_AddValue(&command, ui->tb_v_factor->text(), SCARA_COR_VALUE);
-    QbyteArray_AddValue(&command, ui->tb_a_factor->text(), SCARA_COR_VALUE);
+    ADD_VALUE(&command, ui->tb_v_factor->text(), SCARA_COR_VALUE_TEXT);
+    ADD_VALUE(&command, ui->tb_a_factor->text(), SCARA_COR_VALUE_TEXT);
     command.append(0x29);
     mSerial->write(command, command.length());
 }
@@ -159,26 +156,26 @@ void MainWindow::on_bt_movL_clicked()
     command.append(0x28);
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_MOVE_LINE);
-    QbyteArray_AddValue(&command, ui->tb_x_cor->text(), SCARA_COR_VALUE);
-    QbyteArray_AddValue(&command, ui->tb_y_cor->text(), SCARA_COR_VALUE);
-    QbyteArray_AddValue(&command, ui->tb_z_cor->text(), SCARA_COR_VALUE);
-    QbyteArray_AddValue(&command, ui->tb_roll_ang->text(), SCARA_COR_VALUE);
+    ADD_VALUE(&command, ui->tb_x_cor->text(), SCARA_COR_VALUE_TEXT);
+    ADD_VALUE(&command, ui->tb_y_cor->text(), SCARA_COR_VALUE_TEXT);
+    ADD_VALUE(&command, ui->tb_z_cor->text(), SCARA_COR_VALUE_TEXT);
+    ADD_VALUE(&command, ui->tb_roll_ang->text(), SCARA_COR_VALUE_TEXT);
     if(ui->tb_v_factor->text().toDouble() > 1 || ui->tb_v_factor->text().toDouble() < 0){
         log_console("Invalid for velocity factor");
         return;
     }else{
-        QbyteArray_AddValue(&command, ui->tb_v_factor->text(), SCARA_COR_VALUE);
+        ADD_VALUE(&command, ui->tb_v_factor->text(), SCARA_COR_VALUE_TEXT);
     }
 
     if(ui->rb_qva->isChecked() == true) {
         command.append(DUTY_MODE_INIT_QVA);
-        QbyteArray_AddValue(&command, ui->tb_a_factor->text(), SCARA_COR_VALUE);
+        ADD_VALUE(&command, ui->tb_a_factor->text(), SCARA_COR_VALUE_TEXT);
     }else if(ui->rb_qvt->isChecked() == true){
         command.append(DUTY_MODE_INIT_QVT);
-        QbyteArray_AddValue(&command, ui->tb_time->text(), SCARA_COR_VALUE);
+        ADD_VALUE(&command, ui->tb_time->text(), SCARA_COR_VALUE_TEXT);
     }else if(ui->rb_qt->isChecked() == true){
         command.append(DUTY_MODE_INIT_QT);
-        QbyteArray_AddValue(&command, ui->tb_time->text(), SCARA_COR_VALUE);
+        ADD_VALUE(&command, ui->tb_time->text(), SCARA_COR_VALUE_TEXT);
     }
     if(ui->rb_abs->isChecked() == true){
        command.append(DUTY_COORDINATES_ABS);
@@ -339,16 +336,42 @@ void MainWindow::on_bt_testmt()
 
 void MainWindow::on_testing_clicked()
 {
-    QByteArray command;
-    command.append(0x28);
-    command.append(COMMAND_TRANSMISION);
-    command.append(CMD_OBJECT_DETECTED);
-    QbyteArray_AddValue(&command, "338.4816", SCARA_COR_VALUE);
-    QbyteArray_AddValue(&command, "-3.7336", SCARA_COR_VALUE);
-    QbyteArray_AddValue(&command, "0.0", SCARA_COR_VALUE);
-    command.append(VIETNAM_FLAG);
-    command.append(0x29);
-    mSerial->write(command, command.length());
+//    QByteArray command;
+//    command.append(0x28);
+//    command.append(COMMAND_TRANSMISION);
+//    command.append(CMD_OBJECT_DETECTED);
+//    ADD_VALUE(&command, "338.4816", SCARA_COR_VALUE);
+//    ADD_VALUE(&command, "-3.7336", SCARA_COR_VALUE);
+//    ADD_VALUE(&command, "0.0", SCARA_COR_VALUE);
+//    command.append(VIETNAM_FLAG);
+//    command.append(0x29);
+//    mSerial->write(command, command.length());
+
+    gcode->Init_Current_Data(0, 0, 0, 0.5);
+    QString file_directory = QFileDialog::getOpenFileName(this, "Open A File", "D:\\");
+    QFile file(file_directory);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
+        log_console("Cannot open a file");
+        return;
+    }
+    QTextStream in(&file);
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        gcode->Process_Line(line);
+    }
+    file.close();
+
+    Gcode_Decoder_DTC_TypeDef Gcode_DTC = gcode->Process_Compress_Gcode_Data();
+    if(Gcode_DTC == COMPRESS_SUCCESSFULLY){
+        log_console("Gcode file compresses successfully");
+    }else{
+        log_console("Failed to compress Gcode file. DTC code: " + QString::number(Gcode_DTC));
+        return;
+    }
+    gcode->Write_Data_To_File("D:/gcode/file.gcode");
+    gcode->Clear_Data();
+
+    qDebug()<<"end";
 }
 
 
@@ -358,7 +381,7 @@ void MainWindow::on_bt_conveyor_sp_clicked()
     command.append(0x28);
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_SETUP_CONVEYOR_SPEED);
-    QbyteArray_AddValue(&command, ui->tb_conveyor_sp->text(), SCARA_COR_VALUE);
+    ADD_VALUE(&command, ui->tb_conveyor_sp->text(), SCARA_COR_VALUE_TEXT);
     command.append(0x29);
     mSerial->write(command, command.length());
 }
