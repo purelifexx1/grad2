@@ -51,33 +51,42 @@ void detect::run()
 
         // Load the network
         Net net = readNetFromDarknet(modelConfiguration, modelWeights);
-        net.setPreferableBackend(DNN_BACKEND_OPENCV);
+        net.setPreferableBackend(DNN_BACKEND_DEFAULT);
         net.setPreferableTarget(DNN_TARGET_OPENCL);
         while (true)
         {
             mVideoCap >> mFrame;
+
+            U_mFrame = mFrame.getUMat(ACCESS_READ) ;
+            resize(U_mFrame,U_mFrame_resize,Size(416,416));
+
             //mFrame = imread("D:/Downloads/YASKAWA/LV/Code/50.jpg");
             // Create a 4D blob from a frame.
-            blobFromImage(mFrame, blob, 1/255.0, cv::Size(inpWidth, inpHeight), Scalar(0,0,0), true, false);
+
+            blobFromImage(U_mFrame_resize, blob, 1/255.0, cv::Size(inpWidth, inpHeight), Scalar(0,0,0), true, false);
 
             //Sets the input to the network
             net.setInput(blob);
-            m_time.start();
+
             // Runs the forward pass to get output of the output layers
+
             vector<Mat> outs;
             net.forward(outs, getOutputsNames(net));
 
-            string label = format("FPS : %f ", (double)m_time.elapsed());
+
             //cout<<"Width "<<mFrame.cols<< "Height"<<mFrame.rows<< endl;
             // Remove the bounding boxes with low confidence
+            m_time.start();
             buffer.clear();
             postprocess(mFrame, outs, buffer);
 
             // Put efficiency information. The function getPerfProfile returns the overall time for inference(t) and the timings for each of the layers(in layersTimes)
-            /*vector<double> layersTimes;
-            double freq = getTickFrequency() ;
-            double t = freq/net.getPerfProfile(layersTimes)  ;*/
+            //vector<double> layersTimes;
+            //double freq = getTickFrequency() ;
+            //double t = freq/net.getPerfProfile(layersTimes)  ;
             //string label = format("FPS : %.2f ", t);
+
+            string label = format("FPS : %f ", (double)m_time.elapsed());
             putText(mFrame, label, Point(0, 15), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 0, 255));
 
             if (!mFrame.empty())
@@ -192,13 +201,14 @@ void drawPred(int classId, float conf, int left, int top, int right, int bottom,
 //Image Processing in Croped Image and Calculate Theta
 void imageProcess(Mat input, Mat& output, int x_crop, int y_crop, Point& center_final, double& theta_final)
 {
-    Mat hsv, hsv_changed[3], s_image, blur, th, edges;
+    Mat hsv, hsv_changed[3],s_image; UMat blur, th, edges;
     //Split S channel in HSV image
     cvtColor(input,hsv, COLOR_BGR2HSV);
     split(hsv,hsv_changed);
     s_image = hsv_changed[1];
+    UMat u_s_image = s_image.getUMat(ACCESS_RW);
     //Blur and Threshold
-    GaussianBlur(s_image, blur, Size(3, 3), 0);
+    GaussianBlur(u_s_image, blur, Size(3, 3), 0);
     threshold(blur, th, 0, 255, THRESH_BINARY + THRESH_OTSU);
     //Find edges
     Canny(th, edges, 66, 133, 3);

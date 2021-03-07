@@ -7,7 +7,7 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-class test;
+class Calib;
 class detect;
 class MainWindow : public QMainWindow
 {
@@ -24,6 +24,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     detect *VideoCapture;
+    Calib  *CalibFrame;
 
 };
 #endif // MAINWINDOW_H

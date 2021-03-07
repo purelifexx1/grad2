@@ -1,6 +1,7 @@
-#ifndef DETECT_H
-#define DETECT_H
+#ifndef CALIB_H
+#define CALIB_H
 
+#include <opencv2/opencv.hpp>
 #include <opencv2/dnn.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
@@ -12,19 +13,21 @@
 #include <QPixmap>
 #include <QDebug>
 
-
 #define ID_CAMERA 0
 
-class detect: public QThread
+class Calib: public QThread
 {
     Q_OBJECT
 public:
-    detect(QObject *parent = nullptr);
-    QPixmap pixmap() const
+    Calib(QObject *parent = nullptr);
+    QPixmap frame() const
     {
-        return mPixmap;
+        return calibFrame;
     }
     std::vector<std::vector<double>> buffer;
+    std::vector<std::vector<double>> Trans_buffer;
+    int Set;
+    double time_h;
 
 signals:
     void newPixmapCaptured();
@@ -32,13 +35,10 @@ protected:
     void run() override;
 private:
     QTime m_time;
-    QPixmap mPixmap;
-    cv::Mat mFrame ;
-    cv::UMat U_mFrame,U_mFrame_resize, blob;
-    cv::VideoCapture mVideoCap;
-    QImage cvMatToQImage(const cv::Mat &inMat);
-    QPixmap cvMatToQPixmap(const cv::Mat &inMat);
+    QPixmap calibFrame;
+    cv::Mat mFrame;
+
+
 };
 
-#endif // DETECT_H
-
+#endif // CALIB_H
