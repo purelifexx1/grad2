@@ -120,10 +120,12 @@ void MainWindow::received_callback(QByteArray data)
 void MainWindow::on_bt_robot_stop_clicked()
 {
     QByteArray command;
-    command.append(0x28);
+    command.append(START_CHAR);
+    command.append('\0');
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_STOPNOW);
-    command.append(0x29);
+    command.append(RECEIVE_END);
+    command[1] = command.length() - 2;
     mSerial->write(command, command.length());
 }
 
@@ -131,29 +133,41 @@ void MainWindow::on_bt_robot_stop_clicked()
 void MainWindow::on_bt_scan_limit_clicked()
 {
     QByteArray command;
-    command.append(0x28);
+    command.append(START_CHAR);
+    command.append('\0');
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_SCAN_LIMIT);
-    command.append(0x29);
+    command.append(RECEIVE_END);
+    command[1] = command.length() - 2;
     mSerial->write(command, command.length());
 }
 
 void MainWindow::on_bt_home_clicked()
 {
     QByteArray command;
-    command.append(0x28);
+    command.append(START_CHAR);
+    command.append('\0');
     command.append(COMMAND_TRANSMISION);
-    command.append(CMD_MOVE_HOME);
-    ADD_VALUE(&command, ui->tb_v_factor->text(), SCARA_COR_VALUE_TEXT);
-    ADD_VALUE(&command, ui->tb_a_factor->text(), SCARA_COR_VALUE_TEXT);
-    command.append(0x29);
+    command.append(CMD_MOVE_LINE);
+    ADD_VALUE(&command, 200.0, SCARA_COR_VALUE_TEXT);
+    ADD_VALUE(&command, -75.0, SCARA_COR_VALUE_DOUBLE);
+    ADD_VALUE(&command, 133.291, SCARA_COR_VALUE_DOUBLE);
+    ADD_VALUE(&command, 0.0, SCARA_COR_VALUE_DOUBLE);
+    ADD_VALUE(&command, 0.0, SCARA_COR_VALUE_DOUBLE);
+    command.append(DUTY_MODE_INIT_QVT);
+    ADD_VALUE(&command, 2.0, SCARA_COR_VALUE_DOUBLE);
+    command.append(DUTY_COORDINATES_ABS);
+    command.append(DUTY_TRAJECTORY_LSPB);
+    command.append(RECEIVE_END);
+    command[1] = command.length() - 2;
     mSerial->write(command, command.length());
 }
 
 void MainWindow::on_bt_movL_clicked()
 {
     QByteArray command;
-    command.append(0x28);
+    command.append(START_CHAR);
+    command.append('\0');
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_MOVE_LINE);
     ADD_VALUE(&command, ui->tb_x_cor->text(), SCARA_COR_VALUE_TEXT);
@@ -189,14 +203,16 @@ void MainWindow::on_bt_movL_clicked()
     }else if(ui->rb_linear->isChecked() == true){
         command.append(DUTY_TRAJECTORY_LINEAR);
     }
-    command.append(0x29);
+    command.append(RECEIVE_END);
+    command[1] = command.length() - 2;
     mSerial->write(command, command.length());
 }
 
 void MainWindow::on_bt_model_setting_clicked()
 {
     QByteArray command;
-    command.append(0x28);
+    command.append(START_CHAR);
+    command.append('\0');
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_SETTING);
     if(ui->rb_abs->isChecked() == true){
@@ -210,36 +226,42 @@ void MainWindow::on_bt_model_setting_clicked()
     }else if(ui->rb_scur->isChecked() == false){
         command.append(DUTY_TRAJECTORY_SCURVE);
     }
-    command.append(0x29);
+    command.append(RECEIVE_END);
+    command[1] = command.length() - 2;
     mSerial->write(command, command.length());
 }
 
 void MainWindow::on_bt_on_magnet_clicked()
 {
     QByteArray command;
-    command.append(0x28);
+    command.append(START_CHAR);
+    command.append('\0');
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_OUTPUT);
     command.append('\1');
-    command.append(0x29);
+    command.append(RECEIVE_END);
+    command[1] = command.length() - 2;
     mSerial->write(command, command.length());
 }
 
 void MainWindow::on_bt_off_magnet_clicked()
 {
     QByteArray command;
-    command.append(0x28);
+    command.append(START_CHAR);
+    command.append('\0');
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_OUTPUT);
     command.append('\0');
-    command.append(0x29);
+    command.append(RECEIVE_END);
+    command[1] = command.length() - 2;
     mSerial->write(command, command.length());
 }
 
 void MainWindow::on_bt_read_position_clicked()
 {
     QByteArray command;
-    command.append(0x28);
+    command.append(START_CHAR);
+    command.append('\0');
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_READ_POSITION);
     if(ui->rb_real_type->isChecked() == true){
@@ -251,41 +273,47 @@ void MainWindow::on_bt_read_position_clicked()
     }else if(ui->rb_estimate_type->isChecked() == true){
         command.append(ESTIMATE_POSITION_DATA);
     }
-    command.append(0x29);
+    command.append(RECEIVE_END);
+    command[1] = command.length() - 2;
     mSerial->write(command, command.length());
 }
 
 void MainWindow::on_bt_keycommand()
 {
     QByteArray command;
-    command.append(0x28);
+    command.append(START_CHAR);
+    command.append('\0');
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_KEYBOARD);
     QPushButton *obj_sender = (QPushButton*)sender();
     uint8_t selection = (uint8_t)obj_sender->objectName().split('_')[2].toInt() - 1;
     command.append(selection);
-    command.append(0x29);
+    command.append(RECEIVE_END);
+    command[1] = command.length() - 2;
     mSerial->write(command, command.length());
 }
 
 void MainWindow::on_bt_key_setsp_clicked()
 {
     QByteArray command;
-    command.append(0x28);
+    command.append(START_CHAR);
+    command.append('\0');
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_KEY_SPEED);
     uint8_t key_speed = (uint8_t)ui->tb_key_setsp->text().toInt();
     key_speed = (key_speed > SHIFT_KEY_MAX)?SHIFT_KEY_MAX:key_speed;
     key_speed = (key_speed < SHIFT_KEY_MIN)?SHIFT_KEY_MIN:key_speed;
     command.append(key_speed);
-    command.append(0x29);
+    command.append(RECEIVE_END);
+    command[1] = command.length() - 2;
     mSerial->write(command, command.length());
 }
 
 void MainWindow::on_bt_set_method_clicked()
 {
     QByteArray command;
-    command.append(0x28);
+    command.append(START_CHAR);
+    command.append('\0');
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_METHOD_CHANGE);
     if(ui->rb_manual->isChecked() == true){
@@ -293,7 +321,7 @@ void MainWindow::on_bt_set_method_clicked()
     }else if(ui->rb_semi_auto->isChecked() == true){
         command.append(SCARA_METHOD_SEMI_AUTO);
     }else if(ui->rb_auto->isChecked() == true){
-        command.append(SCARA_METHOD_AUTO);
+        command.append(SCARA_METHOD_GCODE);
     }else if(ui->rb_test->isChecked() == true){
         command.append(SCARA_METHOD_TEST);
     }else if(ui->rb_pick_and_place->isChecked() == true){
@@ -303,7 +331,8 @@ void MainWindow::on_bt_set_method_clicked()
         log_console("--------------------------");
         return;
     }
-    command.append(0x29);
+    command.append(RECEIVE_END);
+    command[1] = command.length() - 2;
     mSerial->write(command, command.length());
 }
 
@@ -315,7 +344,8 @@ void MainWindow::on_bt_clear_console_clicked()
 void MainWindow::on_bt_testmt()
 {
     QByteArray command;
-    command.append(0x28);
+    command.append(START_CHAR);
+    command.append('\0');
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_MOTOR_TEST);
     uint8_t sign = (ui->hs_testmt_sign->value() == 1)?1:0;
@@ -330,23 +360,24 @@ void MainWindow::on_bt_testmt()
     }else if(obj_sender->objectName() == "bt_stop_test"){
        command.append(SCARA_TEST_MOTOR_STOP);
     }
-    command.append(0x29);
+    command.append(RECEIVE_END);
+    command[1] = command.length() -2;
     mSerial->write(command, command.length());
 }
 
 void MainWindow::on_testing_clicked()
 {
 //    QByteArray command;
-//    command.append(0x28);
+//    command.append(START_CHAR);
 //    command.append(COMMAND_TRANSMISION);
 //    command.append(CMD_OBJECT_DETECTED);
 //    ADD_VALUE(&command, "338.4816", SCARA_COR_VALUE);
 //    ADD_VALUE(&command, "-3.7336", SCARA_COR_VALUE);
 //    ADD_VALUE(&command, "0.0", SCARA_COR_VALUE);
 //    command.append(VIETNAM_FLAG);
-//    command.append(0x29);
+//    command.append(RECEIVE_END);
 //    mSerial->write(command, command.length());
-
+    Gcode_Decoder_DTC_TypeDef Gcode_DTC;
     gcode->Init_Current_Data(0, 0, 0, 0.5);
     QString file_directory = QFileDialog::getOpenFileName(this, "Open A File", "D:\\");
     QFile file(file_directory);
@@ -357,20 +388,34 @@ void MainWindow::on_testing_clicked()
     QTextStream in(&file);
     while (!in.atEnd()) {
         QString line = in.readLine();
-        gcode->Process_Line(line);
+        Gcode_DTC = gcode->Process_Line(line);
+        if(Gcode_DTC != GCODE_OK){
+            log_console("Failed to read Gcode file. DTC code: " + QString::number(Gcode_DTC));
+            return;
+        }
     }
     file.close();
 
-    Gcode_Decoder_DTC_TypeDef Gcode_DTC = gcode->Process_Compress_Gcode_Data();
-    if(Gcode_DTC == COMPRESS_SUCCESSFULLY){
+    Gcode_DTC = gcode->Process_Compress_Gcode_Data();
+    if(Gcode_DTC == GCODE_OK){
         log_console("Gcode file compresses successfully");
     }else{
         log_console("Failed to compress Gcode file. DTC code: " + QString::number(Gcode_DTC));
         return;
     }
-    gcode->Write_Data_To_File("D:/gcode/file.gcode");
+    Gcode_DTC = gcode->Write_Data_To_File("D:/gcode/file.gcode");
+    if(Gcode_DTC == GCODE_OK){
+        log_console("Gcode file writes successfully");
+    }else{
+        log_console("Failed to write Gcode file. DTC code: " + QString::number(Gcode_DTC));
+    }
+    gcode->package_data();
+    QByteArray send_packet;
+    for(int c = 0; c < gcode->data_packet.count(); c++){
+        send_packet.append(gcode->data_packet.at(c));
+    }
+    mSerial->write(send_packet, send_packet.length());
     gcode->Clear_Data();
-
     qDebug()<<"end";
 }
 
@@ -378,10 +423,12 @@ void MainWindow::on_testing_clicked()
 void MainWindow::on_bt_conveyor_sp_clicked()
 {
     QByteArray command;
-    command.append(0x28);
+    command.append(START_CHAR);
+    command.append('\0');
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_SETUP_CONVEYOR_SPEED);
     ADD_VALUE(&command, ui->tb_conveyor_sp->text(), SCARA_COR_VALUE_TEXT);
-    command.append(0x29);
+    command.append(RECEIVE_END);
+    command[1] = command.length() - 2;
     mSerial->write(command, command.length());
 }

@@ -8,7 +8,7 @@
 #include "ringbuffer.h"
 
 //Array = 0, head = 0, tail = 0, isFull = 0, isEmpty = 1
-RINGBUFFER_TypeDef usb_rx_ringbuff 	= {{0}, 0, 0, FALSE, TRUE};
+RINGBUFFER_TypeDef usb_rx_ringbuff	= {{0}, 0, 0, FALSE, TRUE};
 RINGBUFFER_TypeDef cmd_tx_ringbuff	= {{0}, 0, 0, FALSE, TRUE};
 
 RINGBUFFER_TypeDef uart_tx_ringbuff = {{0}, 0, 0, FALSE, TRUE};
@@ -145,27 +145,51 @@ uint8_t ringBuff_IsEmpty(RINGBUFFER_TypeDef ringbuff){
  *  returns:	: distance from 'tail' to 'cmp_char'
  *  			  -1 'cmp_char' could not be found.
  */
-int32_t	ringBuff_DistanceOf	(RINGBUFFER_TypeDef *ringbuff, uint8_t cmp_char) {
-	int32_t index;
+int32_t	ringBuff_DistanceOf	(RINGBUFFER_TypeDef *ringbuff, const char* cmp_char) {
+	int32_t index = ringbuff->tail;
 	int32_t distance = 0;
-
-	index = ringbuff->tail;
+	int32_t sync_state = 0;
+	int32_t head_ptr = ringbuff->head;
+	int32_t number_of_state = strlen(cmp_char);
 	if (ringbuff->isFull_Flag) {
-		for ( int32_t i = 0; i < RINGBUFFER_SIZE; i++, index = (index + 1) % RINGBUFFER_SIZE) {
-				if ( cmp_char == ringbuff->Array[index]) {
-					return distance;
-				}
-				distance++;
-			}
-
+	    for ( int32_t i = 0; i < RINGBUFFER_SIZE; i++, index = (index + 1) % RINGBUFFER_SIZE) {
+	            if(ringbuff->Array[index] == cmp_char[sync_state]){
+	                sync_state++;
+	            }else if(ringbuff->Array[index] == cmp_char[0]){
+	                sync_state = 1;
+	            }else{
+	                sync_state = 0;
+	            }
+	            if(sync_state == number_of_state){
+	                return distance;
+	            }
+	//				if ( cmp_char == ringbuff->.Array[index]) {
+	//					return distance;
+	//				}
+	            distance++;
+	        }
 	} else {
-		for ( ; (index != ringbuff->head) || !ringbuff->isEmpty_Flag; index = (index + 1) % RINGBUFFER_SIZE) {
-				if ( cmp_char == ringbuff->Array[index]) {
-					return distance;
-				}
-				distance++;
-			}
+	    for ( ; (index != head_ptr); index = (index + 1) % RINGBUFFER_SIZE) {
+	        if(ringbuff->Array[index] == cmp_char[sync_state]){
+	                //LOG_REPORT("dis1", ringbuff->.tail);
+	                sync_state++;
+	            }else if(ringbuff->Array[index] == cmp_char[0]){
+	                sync_state = 1;
+	            }else{
+	                sync_state = 0;
+	            }
+	            if(sync_state == number_of_state){
+	                //LOG_REPORT("dis", distance);
+	                return distance;
+	            }
+	//				if ( cmp_char == ringbuff->.Array[index]) {
+	//					return distance;
+	//				}
+	            distance++;
+	        }
+	    //LOG_REPORT("hai", 2);
 	}
+
 	return -1;
 }
 

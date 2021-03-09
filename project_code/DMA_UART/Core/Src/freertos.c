@@ -70,8 +70,12 @@ extern SCARA_PositionTypeDef		positionPrevios;
 extern SCARA_PositionTypeDef		positionCurrent;
 extern SCARA_PositionTypeDef		positionNext;
 extern SCARA_PositionTypeDef		positionTrue;
+extern SCARA_Gcode_Cor_TypeDef		Gcode_Cor[125];
 extern int32_t						current_key_speed1 = 1;
 extern double						conveyor_speed = 0;
+extern double						up_z_height;
+extern double 						down_z_height;
+extern int32_t						total_num_of_point;
 
 extern TIM_HandleTypeDef htim7;
 osMailQId commandMailHandle;
@@ -181,20 +185,20 @@ void StartDefaultTask(void const * argument)
   int8_t 				test_value[4];
   uint8_t				respond[40];
   int32_t				respond_lenght;
-  uint8_t				position[135];
-  uint8_t				infor[145];
+  //uint8_t				position[135];
+  //uint8_t				infor[145];
   int32_t				infor_lenght;
-  uint8_t				task_usb[150];
+  //uint8_t				task_usb[150];
   int32_t				task_usb_lenght;
   int32_t 				total_respond_length;
   int32_t 				detail_ptr;
   uint8_t				detail_array[10];
 
-  uint8_t				respond_packed[50];
+  //uint8_t				respond_packed[50];
   int32_t				respond_packed_lenght;
-  uint8_t				infor_packed[150];
+  //uint8_t				infor_packed[150];
   int32_t				infor_packed_lenght;
-  uint8_t				usb_buff[350];
+  //uint8_t				usb_buff[350];
   int32_t				usb_lenght;
   // Debug variables
   //uint32_t total_pulse = 0;
@@ -214,6 +218,7 @@ void StartDefaultTask(void const * argument)
   uint8_t object_tail_pointer = 0;
   uint8_t object_head_pointer = 0;
   double state_time = 0;
+  int run_point = 0;
   const SCARA_Slot_TypeDef SLot_Cordinate[NUM_OF_OBJECT] = {
   		{203.859f, -101.616f, 0.0f} ,
   		{203.859f, -101.616f, 0.0f} ,
@@ -309,8 +314,8 @@ void StartDefaultTask(void const * argument)
 				detail_array[0] = SEMI_AUTO_METHOD;
 				respond_lenght = commandRespond1(RPD_OK, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
 				total_respond_length += respond_lenght;
-			  } else if (SCARA_METHOD_AUTO == duty_cmd.robot_method) {
-				  current_method = SCARA_METHOD_AUTO;
+			  } else if (SCARA_METHOD_GCODE == duty_cmd.robot_method) {
+				  current_method = SCARA_METHOD_GCODE;
 				//   respond_lenght = commandRespond(RPD_OK,
 				// 								duty_cmd.id_command,
 				// 								"Changed AUTO Method",
@@ -470,7 +475,7 @@ void StartDefaultTask(void const * argument)
 						  }
 					  }
 					  break;
-				  	  case SCARA_METHOD_AUTO:
+				  	  case SCARA_METHOD_GCODE:
 				  	  {
 
 				  	  }
@@ -681,20 +686,7 @@ void StartDefaultTask(void const * argument)
 							  detail_array[0] = NONE;
 							  respond_lenght = commandRespond1(RPD_START, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
 							  total_respond_length += respond_lenght;
-// 							  respond_lenght 	= commandRespond(RPD_OK,
-// 																  duty_cmd.id_command,
-// 																  (char *)DETAIL_STATUS[status1],
-// 																  (char *)respond);
-// #ifdef SIMULATION
-// 							  scaraPosition2String((char *)position, positionCurrent);
-// #else
-// 							  scaraPosition2String((char *)position, positionTrue);
-// #endif
-// 							  // Start Inform
-// 							  infor_lenght 		= commandRespond(RPD_START,
-// 																  0,
-// 																  (char *)position,
-// 																  (char *)infor);
+
 							  } else {
 								  current_duty_state 	= SCARA_DUTY_STATE_READY;
 								//   respond_lenght	= commandRespond(RPD_ERROR,
@@ -708,10 +700,7 @@ void StartDefaultTask(void const * argument)
 							  }
 						  } else {
 							  current_duty_state 	= SCARA_DUTY_STATE_READY;
-							//   respond_lenght	= commandRespond(RPD_ERROR,
-							// 									  duty_cmd.id_command,
-							// 									  (char *)DETAIL_STATUS[status1],
-							// 									  (char *)respond);
+
 							detail_array[0] = status1;
 							respond_lenght = commandRespond1(RPD_ERROR, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
 							total_respond_length += respond_lenght;
@@ -732,24 +721,10 @@ void StartDefaultTask(void const * argument)
 							  status = scaraFlowDuty(run_time , &positionNext, positionCurrent);
 							  if ( SCARA_STATUS_OK == status) {
 								  lowlayer_computeAndWritePulse(positionCurrent, positionNext);
-								  // Running Inform
-// #ifdef SIMULATION
-// 								  scaraPosition2String((char *)position, positionCurrent);
-// #else
-// 								  scaraPosition2String((char *)position, positionTrue);
-// #endif
-// 								  infor_lenght = commandRespond(RPD_RUNNING,
-// 																0,
-// 																(char *)position,
-// 																(char *)infor);
+
 							  } else {
 								  current_duty_state = SCARA_DUTY_STATE_FINISH;
-								  // Critical
-								  // If a error appear while Flowing, This is very important
-								//   infor_lenght = commandRespond(RPD_STOP,
-								// 								0,
-								// 								(char *)DETAIL_STATUS[status],
-								// 								(char *)infor);
+
 								detail_array[0] = status;
 								respond_lenght = commandRespond1(RPD_STOP, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
 								total_respond_length += respond_lenght;
@@ -768,15 +743,7 @@ void StartDefaultTask(void const * argument)
 						  positionNext.total_time = 0;
 						  positionNext.q = 0;
 						  // Done Inform
-// #ifdef SIMULATION
-// 						  scaraPosition2String((char *)position, positionCurrent);
-// #else
-// 						  scaraPosition2String((char *)position, positionTrue);
-// #endif
-// 						  infor_lenght 		= commandRespond(RPD_DONE,
-// 															 0,
-// 															 (char *)position,
-// 															 (char *)infor);
+
 					detail_array[0] = NONE;
 					respond_lenght = commandRespond1(RPD_DONE, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
 					total_respond_length += respond_lenght;
@@ -802,73 +769,46 @@ void StartDefaultTask(void const * argument)
 	  }
 	  break;
 
-	  case SCARA_METHOD_AUTO:
+	  case SCARA_METHOD_GCODE:
 	  {
 		  switch (current_duty_state)
 		  {
-		  case SCARA_DUTY_STATE_READY:
-			  
+		  case SCARA_DUTY_STATE_READY:{
+			  run_point = 1;
+		  }
 		  break;
 		  case SCARA_DUTY_STATE_INIT:{
-			  SCARA_StatusTypeDef status1, status2;
-			  status1 = scara_test_InitDuty(duty_cmd);
-			  if ( SCARA_STATUS_OK == status1) {
-				  current_duty_state = SCARA_DUTY_STATE_FLOW;
-			  	status2 = scaraTestLinearDuty();
-			  	if (SCARA_STATUS_OK == status2) {
-			  		current_duty_state = SCARA_DUTY_STATE_FLOW;
-			  		run_time			= 0;
-			  		// Respond
-			  		detail_array[0] = status1;
-			  		respond_lenght = commandRespond1(RPD_OK, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
-			  		total_respond_length += respond_lenght;
-			  		detail_array[0] = NONE;
-			  		respond_lenght = commandRespond1(RPD_START, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
-			  		total_respond_length += respond_lenght;
-			  	} else {
-					current_duty_state 	= SCARA_DUTY_STATE_READY;
-					LOG_REPORT("TEST FAIL", __LINE__);
-					detail_array[0] = status2;
-					respond_lenght = commandRespond1(RPD_ERROR, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
-					total_respond_length += respond_lenght;
-			  	}
-			  } else {
-			  	current_duty_state 	= SCARA_DUTY_STATE_READY;
-			    detail_array[0] = status1;
-			    respond_lenght = commandRespond1(RPD_ERROR, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
-			    total_respond_length += respond_lenght;
-			  	LOG_REPORT("INIT FAIL", __LINE__);
+			  duty_cmd.target_point.x = (double)Gcode_Cor[run_point].X * COR_INVERSE_SCALE;
+			  duty_cmd.target_point.y = (double)Gcode_Cor[run_point].Y * COR_INVERSE_SCALE;
+			  if(Gcode_Cor[run_point].type_define[1] == UP_Z){
+				  duty_cmd.target_point.z = up_z_height;
+			  }else{
+				  duty_cmd.target_point.z = down_z_height;
 			  }
-			}
+			  duty_cmd.target_point.roll = 0;
+			  duty_cmd.v_factor = (double)Gcode_Cor[run_point].F * COR_INVERSE_SCALE / V_MOVE_MAX;
+			  duty_cmd.trajec_type = DUTY_TRAJECTORY_LINEAR;
+			  duty_cmd.coordinate_type = DUTY_COORDINATES_ABS;
+			  if(Gcode_Cor[run_point].type_define[0] == LINEAR_TYPE){
+				  duty_cmd.path_type = DUTY_PATH_LINE;
+			  }else if(Gcode_Cor[run_point].type_define[0] == ARC_AW_TYPE){
+
+			  }else if(Gcode_Cor[run_point].type_define[0] == ARC_CW_TYPE){
+
+			  }
+			  duty_cmd.path_type = DUTY_PATH_LINE;
+			  duty_cmd.space_type = DUTY_SPACE_TASK;
+
+		  }
 		  break;
 
 		  case SCARA_DUTY_STATE_FLOW:{
-			  SCARA_StatusTypeDef status;
-			  // Increase run time
-			  run_time += T_SAMPLING;
-			  // Check Time Out
-			  if (scaraIsFinish(run_time)) {
-			  	current_duty_state = SCARA_DUTY_STATE_FINISH;// Work Done
-			  } else {
-			  	status = scaraTestFlowDuty(run_time , &positionNext, positionCurrent);
-			  	if ( SCARA_STATUS_OK == status) {
-			  		lowlayer_computeAndWritePulse(positionCurrent, positionNext);
-				  }else{
-					  current_duty_state = SCARA_DUTY_STATE_FINISH;
-				  }
-			  }
+
 		  }
 		  break;
 
 		  case SCARA_DUTY_STATE_FINISH:{
-		  	current_duty_state = SCARA_DUTY_STATE_READY;
-			positionNext.t = 0;
-			positionNext.total_time = 0;
-			positionNext.q = 0;
 
-			detail_array[0] = NONE;
-			respond_lenght = commandRespond1(RPD_DONE, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
-			total_respond_length += respond_lenght;
 		  }
 		  break;
 		  
@@ -906,7 +846,7 @@ void StartDefaultTask(void const * argument)
 				  switch(operation_state){
 					  case SCARA_MOVE_TO_TARGET:{
 						  double wait_time = TIMER_SCALE*((uint16_t)(TIM2->CNT - Object[object_tail_pointer].timer_value)) + MOVE_TIME + PUT_DOWN_TIME_ON_OBJECT;
-						  Object[object_tail_pointer].object_position.y += wait_time*conveyor_speed;
+						  Object[object_tail_pointer].object_position.y -= wait_time*conveyor_speed;
 						  Object[object_tail_pointer].object_position.z = UP_HEIGHT;
 						  state_time = MOVE_TIME;
 					  }
@@ -1080,9 +1020,10 @@ void Start_USB_RX_Task(void const * argument)
 	Robot_RespondTypedef 	rpd_type;
 	uint8_t			 	detail[135];
 	uint8_t				respond[145];
-	uint8_t				message[150];
+	uint8_t 			data_packet[256];
+	//uint8_t				message[150];
 	int32_t				respond_lenght;
-	int32_t				message_lenght;
+	//int32_t				message_lenght;
 	int32_t 			detail_length;
 
 	// Default value
@@ -1092,21 +1033,22 @@ void Start_USB_RX_Task(void const * argument)
   for(;;)
   {
 	  for(;;) {
-		  distance = ringBuff_DistanceOf(&usb_rx_ringbuff, END_CHAR);
-		  if ( -1 != distance ) {
+		  distance = ringBuff_DistanceOf(&usb_rx_ringbuff, RECEIVE_END);
+		  if (distance != -1) {
 			  uint8_t temp[distance+1];
 			  int32_t ret;
 			  ringBuff_PopArray(&usb_rx_ringbuff, temp, distance + 1);
-			  ret = unPackPayload(temp, distance + 1);
+			  ret = unPackPayload(temp, distance + 1, data_packet);
+
 			  if( -1 == ret) {
-				  LOG_REPORT("UNPACK FAIL", __LINE__);
+				  //LOG_REPORT("UNPACK FAIL", __LINE__);
 			  } else {
-				  LOG_REPORT((char*) temp, __LINE__);
-				  cmd_type = commandRead(temp, ret, &id_command, &duty_cmd);
+				  //LOG_REPORT((char*) temp, __LINE__);
+				  cmd_type = packetRead(data_packet, ret, &id_command, &duty_cmd);
 				  memset(detail, 0, sizeof(detail));
 				  detail_length = 0;
 				  rpd_type = commandReply(cmd_type, duty_cmd, detail, &detail_length);
-
+				  //LOG_REPORT("tail", usb_rx_ringbuff.tail);
 				  if ( RPD_DUTY == rpd_type) {
 					  DUTY_Command_TypeDef *dataMail;
 					  dataMail = NULL;
@@ -1123,6 +1065,8 @@ void Start_USB_RX_Task(void const * argument)
 
 				//   }else if( RPD_POSITION == rpd_type) { 
 				// 	  CDC_Transmit_FS(detail, 84);
+				  }else if(rpd_type == RPD_TRANSFER){
+
 				  }else {
 					//   memset(respond, 0, sizeof(respond));
 					//   memset(message, 0, sizeof(message));
@@ -1132,7 +1076,7 @@ void Start_USB_RX_Task(void const * argument)
 					  //message_lenght	= packPayload(respond, message, respond_lenght);
 					  CDC_Transmit_FS(respond, respond_lenght);
 					  // Mutex
-					//   osMutexWait(usbTxMutexHandle, osWaitForever);
+//					   osMutexWait(usbTxMutexHandle, osWaitForever);
 					//   ringBuff_PushArray(&cmd_tx_ringbuff, message, message_lenght);
 					//   osMutexRelease(usbTxMutexHandle);
 				  }

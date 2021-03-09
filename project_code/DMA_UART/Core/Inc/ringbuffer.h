@@ -9,7 +9,7 @@
 #define INC_RINGBUFFER_H_
 
 #include "common_def.h"
-
+#include "string.h"
 
 #define RINGBUFFER_SIZE		(1024)
 
@@ -32,7 +32,8 @@ int32_t		ringBuff_PushArray		(RINGBUFFER_TypeDef *ringbuff, uint8_t *ptr_data, i
 int32_t		ringBuff_PopArray		(RINGBUFFER_TypeDef *ringbuff, uint8_t *ptr_data, int32_t len);
 uint8_t		ringBuff_IsFull			(RINGBUFFER_TypeDef ringbuff);
 uint8_t		ringBuff_IsEmpty		(RINGBUFFER_TypeDef ringbuff);
-int32_t		ringBuff_DistanceOf		(RINGBUFFER_TypeDef *ringbuff, uint8_t cmp_char);
+int32_t		ringBuff_DistanceOf		(RINGBUFFER_TypeDef *ringbuff, const char* cmp_char);
 int32_t		ringBuff_HowManySpace	(RINGBUFFER_TypeDef ringbuff);
+
 
 #endif /* INC_RINGBUFFER_H_ */

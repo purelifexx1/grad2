@@ -35,7 +35,7 @@ typedef enum
 {
 	  SCARA_METHOD_MANUAL					= 0x00U,  /*!< Control by joy stick */
 	  SCARA_METHOD_SEMI_AUTO				= 0x01U,  /*!< Control by single command: MOVJ, MOVL, MOVC   */
-	  SCARA_METHOD_AUTO						= 0x02U,   /*!< Control by job file  */
+	  SCARA_METHOD_GCODE					= 0x02U,   /*!< Control by job file  */
 	  SCARA_METHOD_TEST						= 0X03U,
 	  SCARA_METHOD_PICK_AND_PLACE			= 0x04U
 }SCARA_MethodTypeDef;
@@ -412,6 +412,16 @@ typedef struct
 	double posy;
 	double roll;
 }SCARA_Slot_TypeDef;
+
+typedef struct
+{
+	int32_t                         X;
+	int32_t                         Y;
+	int32_t                         F;
+	int32_t                         I;
+	int32_t                         J;
+	Gcode_Packet_Command_TypeDef    type_define[2];
+}SCARA_Gcode_Cor_TypeDef;
 
 /* Function prototype */
 void						scaraStartup		(void);

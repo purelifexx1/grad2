@@ -26,6 +26,7 @@ SCARA_PositionTypeDef		positionCurrent;
 SCARA_PositionTypeDef		positionNext;
 SCARA_PositionTypeDef		positionTrue;
 SCARA_PositionTypeDef		positionKeyInit;
+//SCARA_Gcode_Cor_TypeDef		Gcode_Cor[125];
 
 Trajectory_TargetTypeDef	joint_taget[4] = {  TRAJECTORY_J0, TRAJECTORY_J1,
 												TRAJECTORY_J2, TRAJECTORY_J3};

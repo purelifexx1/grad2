@@ -2,6 +2,8 @@
 #define DEFINE_PARAMETER_H
 
 #include <QtCore>
+#define START_CHAR         0x28
+#define RECEIVE_END        "})"
 #define SCARA_FOWARD_SCALE 1000000
 #define SCARA_INVERSE_SCALE 0.000001f
 #define SHIFT_KEY_MAX       14
@@ -26,7 +28,7 @@ typedef enum
 {
       SCARA_METHOD_MANUAL					= 0x00U,  /*!< Control by joy stick */
       SCARA_METHOD_SEMI_AUTO				= 0x01U,  /*!< Control by single command: MOVJ, MOVL, MOVC   */
-      SCARA_METHOD_AUTO						= 0x02U,   /*!< Control by job file  */
+      SCARA_METHOD_GCODE					= 0x02U,   /*!< Control by job file  */
       SCARA_METHOD_TEST                     = 0x03U,
       SCARA_METHOD_PICK_AND_PLACE           = 0x04U
 }SCARA_MethodTypeDef;
@@ -75,6 +77,7 @@ typedef enum
     TEST_METHOD     ,
     PICK_AND_PLACE_METHOD,
     OBJECT_DETECTED ,
+    GCODE_TRANSFER_FINISH,
     STOP_NOW        ,
     START_SCAN      ,
     BUSY            ,
@@ -97,6 +100,7 @@ typedef enum
     RPD_ERROR	,
     RPD_OK 		,
     RPD_DUTY	,
+    RDP_TRANSFER,
     NUM_OF_RESPOND
 }Robot_RespondTypedef;
 
@@ -173,6 +177,7 @@ typedef enum
 
     CMD_OBJECT_DETECTED,
     CMD_SETUP_CONVEYOR_SPEED,
+    CMD_GCODE,
     NUM_OF_COMMAND_STRING
 }Robot_CommandTypedef ;
 
@@ -209,6 +214,7 @@ typedef enum
     DOUBLE_VALUE,
     BYTE_VALUE,
     INT16_VALUE,
+    INT32_VALUE,
     SCARA_COR_VALUE_TEXT,
     SCARA_COR_VALUE_DOUBLE
 }TypeDef_Conversion ;
@@ -264,10 +270,12 @@ typedef enum{
 }ObjectType;
 
 typedef enum{
-    COMPRESS_SUCCESSFULLY,
+    GCODE_ERROR_LINE_FORMAT,
     CURRENT_DATA_UNINIT,
     GCODE_PROCESS_ERROR,
+    ERROR_WRITE_FILE,
     UNMATCH_Z_HEIGHT,
+    GCODE_OK,
     NUM_OF_DTC
 }Gcode_Decoder_DTC_TypeDef;
 
@@ -311,6 +319,7 @@ public:
                                              "Changed TEST Method",
                                              "Changed PICK_AND_PLACE Method",
                                              "Object Detected",
+                                             "Gcode transfer process completed",
                                              "Stop Now",
                                              "Start scan",
                                              "Busy",
@@ -350,6 +359,7 @@ public:
 
         "CMD_OBJECT_DETECTED",
         "CMD_SETUP_CONVEYOR_SPEED",
+        "CMD_GCODE",
     };
     QString RDP_String[NUM_OF_RESPOND] = {
         "RPD_IDLE"	  ,
@@ -361,6 +371,7 @@ public:
         "RPD_STOP"	  ,
         "RPD_ERROR"	  ,
         "RPD_OK" 	  ,
+        "RPD_TRANSFER",
         "RPD_DUTY"
     };
 

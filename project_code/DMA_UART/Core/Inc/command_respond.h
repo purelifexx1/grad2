@@ -13,8 +13,13 @@
 #include  "robot_lowlayer.h"
 #include  "kinematic.h"
 
-double conveyor_speed;
+#define B2I(temp_pointer) 		(*(int32_t*)(&message[temp_pointer]))
+#define LINEAR_PACKET_LENGTH	13 // 12 byte for x y feedrate, 1 byte define
+#define CIRCLE_PACKET_LENGTH	21 // 20 byte for x y feedrate i j, 1 byte define
+#define FIRST_PACKET_LENGTH		13 // 12 byte for MinZ MaxZ Total_num_of_point, 1 byte define
+double conveyor_speed, up_z_height, down_z_height;
 int32_t current_key_speed1;
+int32_t total_num_of_point;
 
 typedef enum
 {
@@ -48,6 +53,7 @@ typedef enum
 
 	CMD_OBJECT_DETECTED,
 	CMD_SETUP_CONVEYOR_SPEED,
+	CMD_GCODE,
 	NUM_OF_COMMAND
 }Robot_CommandTypedef;
 
@@ -63,7 +69,8 @@ typedef enum
     RPD_ERROR				= 0x07,
 	RPD_OK 					= 0x08,
 	RPD_DUTY				= 0x09,
-    NUM_OF_RESPOND			= 0x0A
+	RPD_TRANSFER			= 0x0A,
+    NUM_OF_RESPOND			= 0x0B
 }Robot_RespondTypedef;
 
 typedef enum
@@ -105,6 +112,7 @@ typedef enum
     TEST_METHOD     ,
 	PICK_AND_PLACE_METHOD,
 	OBJECT_DETECTED 	,
+	GCODE_TRANSFER_FINISH,
     STOP_NOW        ,
     START_SCAN      ,
     BUSY            ,
@@ -122,8 +130,9 @@ typedef enum
 	ESTIMATE_POSITION_DATA
 }Position_DataType;
 
+
 /*---Function Prototype---*/
-Robot_CommandTypedef 	commandRead		(uint8_t *message, int32_t length,
+Robot_CommandTypedef 	packetRead		(uint8_t *message, int32_t length,
 										int32_t *id_command,
 										DUTY_Command_TypeDef *duty_cmd);
 

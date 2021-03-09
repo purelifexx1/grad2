@@ -9,7 +9,6 @@
 #include "robot_scara.h"
 #include <stdio.h>
 #include <string.h>
-
 extern const char *DETAIL_STATUS[NUM_OF_STATUS];
 
 const char *ROBOTCOMMAND[NUM_OF_COMMAND - 1]  = {"STOP",
@@ -48,24 +47,62 @@ const char *ROBOTRESPOND[NUM_OF_RESPOND]  	  = {"IDLE",
 												"OKAY"};
 
 Position_DataType position_type;
-Robot_CommandTypedef 	commandRead	(uint8_t *message, int32_t length, int32_t *id_command, DUTY_Command_TypeDef *duty_cmd) {
+SCARA_Gcode_Cor_TypeDef		Gcode_Cor[125];
+uint16_t point_counter = 0;
+Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_command, DUTY_Command_TypeDef *duty_cmd) {
 	Transfer_Protocol protocol_id = message[0];
-    Robot_CommandTypedef command_id = message[1];
-    duty_cmd->id_command = command_id;
+    duty_cmd->id_command = message[1];
 	int32_t temp_pointer = 2;
     switch(protocol_id) 
     {
-
         // reserved for Gcode file transfer
         case FILE_TRANSMISION:
         {
-            ;
+        	temp_pointer = 1;
+
+        	do {
+        		Gcode_Packet_Command_TypeDef move_type 	 = message[temp_pointer] & 0x0f;
+				switch (move_type){
+				case FIRST_PACKET:{
+					temp_pointer++;
+					down_z_height = (double)B2I(temp_pointer)*COR_INVERSE_SCALE; temp_pointer+=4;
+					up_z_height   = (double)B2I(temp_pointer)*COR_INVERSE_SCALE; temp_pointer+=4;
+					total_num_of_point = B2I(temp_pointer);						 temp_pointer+=4;
+					point_counter = 0;
+				}
+				break;
+				case LINEAR_TYPE:{
+					Gcode_Cor[point_counter].type_define[0] = move_type;
+					Gcode_Cor[point_counter].type_define[1]	= message[temp_pointer++] >> 4 & 0x0f;
+					Gcode_Cor[point_counter].X = B2I(temp_pointer);	temp_pointer+=4;
+					Gcode_Cor[point_counter].Y = B2I(temp_pointer);	temp_pointer+=4;
+					Gcode_Cor[point_counter].F = B2I(temp_pointer);	temp_pointer+=4;
+					point_counter++;
+				}
+				break;
+				case ARC_CW_TYPE:
+				case ARC_AW_TYPE:{
+					Gcode_Cor[point_counter].type_define[0] = move_type;
+					Gcode_Cor[point_counter].type_define[1]	= message[temp_pointer++] >> 4 & 0x0f;
+					Gcode_Cor[point_counter].X = B2I(temp_pointer);	temp_pointer+=4;
+					Gcode_Cor[point_counter].Y = B2I(temp_pointer);	temp_pointer+=4;
+					Gcode_Cor[point_counter].F = B2I(temp_pointer);	temp_pointer+=4;
+					Gcode_Cor[point_counter].I = B2I(temp_pointer);	temp_pointer+=4;
+					Gcode_Cor[point_counter].J = B2I(temp_pointer);	temp_pointer+=4;
+					point_counter++;
+				}
+				break;
+				}
+        	}while(temp_pointer < length);
+        	return CMD_GCODE;
+
         }
         break;
 
         // command control from pc
         case COMMAND_TRANSMISION:
         {
+        	Robot_CommandTypedef command_id = message[1];
             switch(command_id)
             {
                 // Stop now
@@ -247,8 +284,8 @@ Robot_CommandTypedef 	commandRead	(uint8_t *message, int32_t length, int32_t *id
 							duty_cmd->robot_method = SCARA_METHOD_MANUAL;
 						} else if (SCARA_METHOD_SEMI_AUTO == method) {
 							duty_cmd->robot_method = SCARA_METHOD_SEMI_AUTO;
-						} else if (SCARA_METHOD_AUTO == method) {
-							duty_cmd->robot_method = SCARA_METHOD_AUTO;
+						} else if (SCARA_METHOD_GCODE == method) {
+							duty_cmd->robot_method = SCARA_METHOD_GCODE;
 						}else if(SCARA_METHOD_TEST == method){
 							duty_cmd->robot_method = SCARA_METHOD_TEST;
 						}else if(SCARA_METHOD_PICK_AND_PLACE == method){
@@ -466,6 +503,15 @@ Robot_RespondTypedef	commandReply	(Robot_CommandTypedef cmd_type,
 	case CMD_METHOD_CHANGE:
 		ret = RPD_DUTY;
 		break;
+	case CMD_GCODE:{
+		if(point_counter == total_num_of_point){
+			detail[(*detail_length)++] = GCODE_TRANSFER_FINISH;
+			ret = RPD_OK;
+		}else{
+			ret = RPD_TRANSFER;
+		}
+	}
+	break;
 	case CMD_JOB_NEW:
 		break;
 	case CMD_JOB_DELETE:

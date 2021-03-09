@@ -54,9 +54,9 @@ class Gcode_Decoder: public QObject
 public:
     Gcode_Decoder();
     void Clear_Data();
-    void Write_Data_To_File(QString path);
+    Gcode_Decoder_DTC_TypeDef Write_Data_To_File(QString path);
     void Init_Current_Data(double x, double y, double z, double feed);
-    void Process_Line(QString Line);
+    Gcode_Decoder_DTC_TypeDef Process_Line(QString Line);
     Gcode_Decoder_DTC_TypeDef package_data();
     Gcode_Decoder_DTC_TypeDef Process_Compress_Gcode_Data();
     double calculate_linear_distance(GCode_Coordinate_TypeDef start, GCode_Coordinate_TypeDef end);

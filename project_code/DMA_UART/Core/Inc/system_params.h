@@ -142,18 +142,18 @@
 #define COR_INVERSE_SCALE 0.000001f
 
 /* Auto pick and place operation parameter definition */
-#define PUT_DOWN_TIME_ON_SLOT 	0.8f
-#define PUT_DOWN_TIME_ON_OBJECT	0.1f
-#define PICK_UP_TIME_ON_OBJECT 	0.1f
-#define PICK_UP_TIME_ON_SLOT	0.8f
-#define MOVE_TIME 				0.7f
+#define PUT_DOWN_TIME_ON_SLOT 	0.6f
+#define PUT_DOWN_TIME_ON_OBJECT	0.6f
+#define PICK_UP_TIME_ON_OBJECT 	0.6f
+#define PICK_UP_TIME_ON_SLOT	0.6f
+#define MOVE_TIME 				1.2f
 #define ATTACH_TIME 			0.01f
 #define	DETACH_TIME 			0.01f
 #define	TOTAL_TIME 				(PUT_DOWN_TIME + PICK_UP_TIME + MOVE_TIME + ATTACH_TIME + DETACH_TIME)
 #define	TIMER_SCALE 			0.000297619f // 25e3/84e6
 #define UP_HEIGHT 				131.0f
 #define DOWN_HEIGHT_ON_OBJECT 	126.5f
-#define DOWN_HEIGHT_ON_SLOT 	120.309f
+#define DOWN_HEIGHT_ON_SLOT 	126.5f
 //#define CONVEYOR_SPEED 30.0f //mm/s
 
 typedef enum{
@@ -165,5 +165,15 @@ typedef enum{
 	GERMANY_FLAG,
 	NUM_OF_OBJECT
 }ObjectType;
+
+typedef enum
+{
+    FIRST_PACKET,                 //these contains in 4 bit low
+    LINEAR_TYPE,   //G00, G01     //these contains in 4 bit low
+    ARC_CW_TYPE,   //G02          //these contains in 4 bit low
+    ARC_AW_TYPE,   //G03          //these contains in 4 bit low
+    UP_Z,                         //these contains in 4 bit high
+    DOWN_Z                        //these contains in 4 bit high
+}Gcode_Packet_Command_TypeDef;
 
 #endif /* INC_SYSTEM_PARAMS_H_ */

@@ -9,12 +9,19 @@ void Gcode_Decoder::Clear_Data()
 {
     raw_data.clear();
     compact_data.clear();
+    data_packet.clear();
 }
-void Gcode_Decoder::Process_Line(QString Line)
+Gcode_Decoder_DTC_TypeDef Gcode_Decoder::Process_Line(QString Line)
 {
     if(Line.startsWith("G0")){
         GCode_Coordinate_TypeDef temper_coordinate;
-        QStringList temper_string = Line.split("(").at(0).split(" "); // seperate the comment section that start with '('
+        QString temper_line = Line.split("(").at(0);
+        if(temper_line.contains(')')){
+            //Gcode error line format
+            return GCODE_ERROR_LINE_FORMAT;
+        }
+        QStringList temper_string = temper_line.split(" "); // seperate the comment section that start with '('
+
         QString component = "";
 
         //categorize command
@@ -105,6 +112,7 @@ void Gcode_Decoder::Process_Line(QString Line)
         }
         raw_data.append(temper_coordinate);
     }
+    return GCODE_OK;
 }
 
 Gcode_Decoder_DTC_TypeDef Gcode_Decoder::Process_Compress_Gcode_Data()
@@ -158,7 +166,7 @@ Gcode_Decoder_DTC_TypeDef Gcode_Decoder::Process_Compress_Gcode_Data()
         check_count++; //count value must end before check_count to ensure successful compression
         if(check_count > raw_data.count()*2) return GCODE_PROCESS_ERROR; //make sure the algorithm wont stuck in the loop
     }
-    return COMPRESS_SUCCESSFULLY;
+    return GCODE_OK;
 }
 
 Gcode_Decoder_DTC_TypeDef Gcode_Decoder::package_data()
@@ -172,40 +180,29 @@ Gcode_Decoder_DTC_TypeDef Gcode_Decoder::package_data()
     }
     std::sort(Z_cor.begin(), Z_cor.end(), [](double x, double y){ return (x<y);});
     Min_Z = Z_cor.at(0);
-    Max_Z = *(Z_cor.end());
+    Max_Z = *(Z_cor.end()-1);
 
     //init first packet
-    temper_array.append(0x28);
+    temper_array.append(START_CHAR);
+    temper_array.append('\0');
     temper_array.append(FILE_TRANSMISION);
     temper_array.append(FIRST_PACKET);
     ADD_VALUE(&temper_array, Min_Z, SCARA_COR_VALUE_DOUBLE);
     ADD_VALUE(&temper_array, Max_Z, SCARA_COR_VALUE_DOUBLE);
-    temper_array.append(0x29);
+    ADD_VALUE(&temper_array, compact_data.count(), INT32_VALUE);
+    temper_array.append(RECEIVE_END);
+    temper_array[1] = temper_array.length() - 2;
     data_packet.append(temper_array);
     temper_array.clear();
 
     //init 10 point in a row to 1 packet
     int count = 0;
-    Packet_Command_TypeDef move_type, tool_height;
+    Packet_Command_TypeDef tool_height;
     for(int i = 0; i < compact_data.count(); i++){
         if(count == 0){
-            temper_array.append(0x28);
+            temper_array.append(START_CHAR);
+            temper_array.append('\0');
             temper_array.append(FILE_TRANSMISION);
-        }else{
-
-        }
-
-        switch(compact_data.at(i).Command){
-            case G00:
-            case G01:
-                move_type = LINEAR_TYPE;
-            break;
-            case G02:
-                move_type = ARC_CW_TYPE;
-            break;
-            case G03:
-                move_type = ARC_AW_TYPE;
-            break;
         }
 
         if(abs(compact_data.at(i).Z - Max_Z) < 0.001){
@@ -213,11 +210,54 @@ Gcode_Decoder_DTC_TypeDef Gcode_Decoder::package_data()
         }else if(abs(compact_data.at(i).Z - Min_Z) < 0.001){
             tool_height = DOWN_Z;
         }else{
-            return
+            return UNMATCH_Z_HEIGHT;
         }
 
+        switch(compact_data.at(i).Command){
+            case G00:
+            case G01:{
+                temper_array.append(tool_height << 4 | LINEAR_TYPE);
+                ADD_VALUE(&temper_array, compact_data.at(i).X, SCARA_COR_VALUE_DOUBLE);
+                ADD_VALUE(&temper_array, compact_data.at(i).Y, SCARA_COR_VALUE_DOUBLE);
+                ADD_VALUE(&temper_array, compact_data.at(i).Feed, SCARA_COR_VALUE_DOUBLE);
+            }
+            break;
+            case G02:{
+                temper_array.append(tool_height << 4 | ARC_CW_TYPE);
+                ADD_VALUE(&temper_array, compact_data.at(i).X, SCARA_COR_VALUE_DOUBLE);
+                ADD_VALUE(&temper_array, compact_data.at(i).Y, SCARA_COR_VALUE_DOUBLE);
+                ADD_VALUE(&temper_array, compact_data.at(i).Feed, SCARA_COR_VALUE_DOUBLE);
+                ADD_VALUE(&temper_array, compact_data.at(i).I, SCARA_COR_VALUE_DOUBLE);
+                ADD_VALUE(&temper_array, compact_data.at(i).J, SCARA_COR_VALUE_DOUBLE);
+            }
+            break;
+            case G03:{
+                temper_array.append(tool_height << 4 | ARC_AW_TYPE);
+                ADD_VALUE(&temper_array, compact_data.at(i).X, SCARA_COR_VALUE_DOUBLE);
+                ADD_VALUE(&temper_array, compact_data.at(i).Y, SCARA_COR_VALUE_DOUBLE);
+                ADD_VALUE(&temper_array, compact_data.at(i).Feed, SCARA_COR_VALUE_DOUBLE);
+                ADD_VALUE(&temper_array, compact_data.at(i).I, SCARA_COR_VALUE_DOUBLE);
+                ADD_VALUE(&temper_array, compact_data.at(i).J, SCARA_COR_VALUE_DOUBLE);
+            }
+            break;
+        }             
+
+        if(count == 9){
+            temper_array.append(RECEIVE_END);
+            temper_array[1] = temper_array.length() - 2;
+            data_packet.append(temper_array);
+            temper_array.clear();
+        }
         count = (count+1)%10;
     }
+    if(count != 0){ //uneven element in 1 packet
+        temper_array.append(RECEIVE_END);
+        temper_array[1] = temper_array.length() - 2;
+        data_packet.append(temper_array);
+        temper_array.clear();
+    }
+    return GCODE_OK;
+
 }
 double Gcode_Decoder::calculate_circle_distance(GCode_Coordinate_TypeDef start, GCode_Coordinate_TypeDef end)
 {
@@ -274,7 +314,7 @@ void Gcode_Decoder::Init_Current_Data(double x, double y, double z, double feed)
     raw_data.append(current_data);
 }
 
-void Gcode_Decoder::Write_Data_To_File(QString path)
+Gcode_Decoder_DTC_TypeDef Gcode_Decoder::Write_Data_To_File(QString path)
 {
     QString file_content = "";
     for(int i = 0; i < compact_data.count(); i++){
@@ -306,6 +346,9 @@ void Gcode_Decoder::Write_Data_To_File(QString path)
     if(file.open(QIODevice::WriteOnly | QIODevice::Text)){
         file.write(file_content.toStdString().c_str(), file_content.length());
         file.close();
+    }else{
+        return ERROR_WRITE_FILE;
     }
+    return GCODE_OK;
 }
 Gcode_Decoder *gcode = new Gcode_Decoder();
