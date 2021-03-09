@@ -62,5 +62,6 @@ public slots:
     void display_event(Display_packet data);
 private:
     Ui::MainWindow *ui;
+    void object_detected(double x, double y, double roll);
 };
 #endif // MAINWINDOW_H

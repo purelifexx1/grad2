@@ -365,58 +365,68 @@ void MainWindow::on_bt_testmt()
     mSerial->write(command, command.length());
 }
 
+void MainWindow::object_detected(double x, double y, double roll)
+{
+    QByteArray command;
+    command.append(0x28);
+    command.append('\0');
+    command.append(0x01);
+    command.append(24);
+    int32_t number = (int32_t)(x * 1000000);
+    command.append(reinterpret_cast<const char*>(&number), sizeof(number));
+    number = (int32_t)(y * 1000000);
+    command.append(reinterpret_cast<const char*>(&number), sizeof(number));
+    number = (int32_t)(roll* 1000000);
+    command.append(reinterpret_cast<const char*>(&number), sizeof(number));
+    command.append('\0');
+    command.append("})");
+    command[1] = command.length() - 2;
+    mSerial->write(command, command.length());
+}
+
 void MainWindow::on_testing_clicked()
 {
-//    QByteArray command;
-//    command.append(START_CHAR);
-//    command.append(COMMAND_TRANSMISION);
-//    command.append(CMD_OBJECT_DETECTED);
-//    ADD_VALUE(&command, "338.4816", SCARA_COR_VALUE);
-//    ADD_VALUE(&command, "-3.7336", SCARA_COR_VALUE);
-//    ADD_VALUE(&command, "0.0", SCARA_COR_VALUE);
-//    command.append(VIETNAM_FLAG);
-//    command.append(RECEIVE_END);
-//    mSerial->write(command, command.length());
-    Gcode_Decoder_DTC_TypeDef Gcode_DTC;
-    gcode->Init_Current_Data(0, 0, 0, 0.5);
-    QString file_directory = QFileDialog::getOpenFileName(this, "Open A File", "D:\\");
-    QFile file(file_directory);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
-        log_console("Cannot open a file");
-        return;
-    }
-    QTextStream in(&file);
-    while (!in.atEnd()) {
-        QString line = in.readLine();
-        Gcode_DTC = gcode->Process_Line(line);
-        if(Gcode_DTC != GCODE_OK){
-            log_console("Failed to read Gcode file. DTC code: " + QString::number(Gcode_DTC));
-            return;
-        }
-    }
-    file.close();
 
-    Gcode_DTC = gcode->Process_Compress_Gcode_Data();
-    if(Gcode_DTC == GCODE_OK){
-        log_console("Gcode file compresses successfully");
-    }else{
-        log_console("Failed to compress Gcode file. DTC code: " + QString::number(Gcode_DTC));
-        return;
-    }
-    Gcode_DTC = gcode->Write_Data_To_File("D:/gcode/file.gcode");
-    if(Gcode_DTC == GCODE_OK){
-        log_console("Gcode file writes successfully");
-    }else{
-        log_console("Failed to write Gcode file. DTC code: " + QString::number(Gcode_DTC));
-    }
-    gcode->package_data();
-    QByteArray send_packet;
-    for(int c = 0; c < gcode->data_packet.count(); c++){
-        send_packet.append(gcode->data_packet.at(c));
-    }
-    mSerial->write(send_packet, send_packet.length());
-    gcode->Clear_Data();
-    qDebug()<<"end";
+//    Gcode_Decoder_DTC_TypeDef Gcode_DTC;
+//    gcode->Init_Current_Data(0, 0, 0, 0.5);
+//    QString file_directory = QFileDialog::getOpenFileName(this, "Open A File", "D:\\");
+//    QFile file(file_directory);
+//    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
+//        log_console("Cannot open a file");
+//        return;
+//    }
+//    QTextStream in(&file);
+//    while (!in.atEnd()) {
+//        QString line = in.readLine();
+//        Gcode_DTC = gcode->Process_Line(line);
+//        if(Gcode_DTC != GCODE_OK){
+//            log_console("Failed to read Gcode file. DTC code: " + QString::number(Gcode_DTC));
+//            return;
+//        }
+//    }
+//    file.close();
+
+//    Gcode_DTC = gcode->Process_Compress_Gcode_Data();
+//    if(Gcode_DTC == GCODE_OK){
+//        log_console("Gcode file compresses successfully");
+//    }else{
+//        log_console("Failed to compress Gcode file. DTC code: " + QString::number(Gcode_DTC));
+//        return;
+//    }
+//    Gcode_DTC = gcode->Write_Data_To_File("D:/gcode/file.gcode");
+//    if(Gcode_DTC == GCODE_OK){
+//        log_console("Gcode file writes successfully");
+//    }else{
+//        log_console("Failed to write Gcode file. DTC code: " + QString::number(Gcode_DTC));
+//    }
+//    gcode->package_data();
+//    QByteArray send_packet;
+//    for(int c = 0; c < gcode->data_packet.count(); c++){
+//        send_packet.append(gcode->data_packet.at(c));
+//    }
+//    mSerial->write(send_packet, send_packet.length());
+//    gcode->Clear_Data();
+//    qDebug()<<"end";
 }
 
 
