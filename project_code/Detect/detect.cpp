@@ -56,9 +56,9 @@ void detect::run()
         while (true)
         {
             mVideoCap >> mFrame;
-
+            m_time.start();
             U_mFrame = mFrame.getUMat(ACCESS_READ) ;
-            resize(U_mFrame,U_mFrame_resize,Size(416,416));
+            resize(U_mFrame,U_mFrame_resize,Size(inpWidth,inpHeight));
 
             //mFrame = imread("D:/Downloads/YASKAWA/LV/Code/50.jpg");
             // Create a 4D blob from a frame.
@@ -76,17 +76,17 @@ void detect::run()
 
             //cout<<"Width "<<mFrame.cols<< "Height"<<mFrame.rows<< endl;
             // Remove the bounding boxes with low confidence
-            m_time.start();
+
             buffer.clear();
             postprocess(mFrame, outs, buffer);
-
+            string label = format("FPS : %f ", (double)m_time.elapsed());
             // Put efficiency information. The function getPerfProfile returns the overall time for inference(t) and the timings for each of the layers(in layersTimes)
             //vector<double> layersTimes;
             //double freq = getTickFrequency() ;
             //double t = freq/net.getPerfProfile(layersTimes)  ;
             //string label = format("FPS : %.2f ", t);
 
-            string label = format("FPS : %f ", (double)m_time.elapsed());
+
             putText(mFrame, label, Point(0, 15), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 0, 255));
 
             if (!mFrame.empty())
@@ -149,11 +149,12 @@ void postprocess(Mat& frame, const vector<Mat>& outs, vector<vector<double>>& bu
                  box.x + box.width, box.y + box.height, frame, center, theta);
         //Add data
         buffer_tmp.push_back(classIds[idx]);
-        buffer_tmp.push_back(center.x);
-        buffer_tmp.push_back(center.y);
+        buffer_tmp.push_back(center.x - frame.cols/2);
+        buffer_tmp.push_back(center.y - frame.rows/2);
         buffer_tmp.push_back(theta);
-
+        //cout<< "X = "<<(center.x - frame.cols/2)<<"Y = "<<(center.y - frame.rows/2)<<endl;
         buffer.push_back(buffer_tmp);
+
     }
 }
 
@@ -205,6 +206,7 @@ void imageProcess(Mat input, Mat& output, int x_crop, int y_crop, Point& center_
     //Split S channel in HSV image
     cvtColor(input,hsv, COLOR_BGR2HSV);
     split(hsv,hsv_changed);
+
     s_image = hsv_changed[1];
     UMat u_s_image = s_image.getUMat(ACCESS_RW);
     //Blur and Threshold
@@ -239,6 +241,11 @@ void imageProcess(Mat input, Mat& output, int x_crop, int y_crop, Point& center_
                 }
                 // Draw Contours and center
                 drawContours(output, hull, i, Scalar(0, 255, 0),1 );
+                /*float z_cam = 28.7;
+                float scale = (16.0/44.685);
+                float size = sqrt((hull[i][1].y - hull[i][2].y)*(hull[i][1].y - hull[i][2].y)
+                        + (hull[i][1].x-hull[i][2].x)*(hull[i][1].x-hull[i][2].x))*scale;
+                cout<< "Size = "<<size<<endl;*/
                 center.push_back((Point(hull[i][0] + hull[i][1] + hull[i][2] + hull[i][3])/4)) ;
                 //Calculate Theta
                 theta_edges[0] = (-atan2((hull[i][1].y - hull[i][0].y),(hull[i][1].x-hull[i][0].x))/pi * 180);

@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui serialport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -19,12 +19,14 @@ SOURCES += \
     calib.cpp \
     detect.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    object_detect_handler.cpp
 
 HEADERS += \
     calib.h \
     detect.h \
-    mainwindow.h
+    mainwindow.h \
+    object_detect_handler.h
 
 FORMS += \
     mainwindow.ui

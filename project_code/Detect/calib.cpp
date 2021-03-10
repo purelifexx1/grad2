@@ -20,6 +20,9 @@ Mat distCoeffs = (Mat_<double>(1,5) <<   -0.0815, 1.2361, -0.0116, 0.0135, -4.34
 UMat U_cameraMatrix = cameraMatrix.getUMat(ACCESS_READ);
 UMat U_distCoeffs = distCoeffs.getUMat(ACCESS_READ);
 
+float z_cam = 290 ;//z camera = 287 mm
+float scale = (16.0/44.685);
+
 void Transfer_CorRobot(float x_cam, float y_cam, float z_cam,
                       float &x_robot, float &y_robot, float &z_robot);
 
@@ -43,9 +46,11 @@ void Calib::run()
                 undistortPoints(center_org, center_undis, U_cameraMatrix, U_distCoeffs, noArray(), U_cameraMatrix);
                 //cout<<center_undis<<endl;
                 //Transfer to Coordinate of Robot
-                //with z = 1
+                //with z = 290 mm
                 float x_robot, y_robot, z_robot = 0;
-                Transfer_CorRobot(center_undis(0).x,center_undis(0).y,1,
+                float x_cam = (center_undis(0).x)*scale;
+                float y_cam = (center_undis(0).y)*scale;
+                Transfer_CorRobot(x_cam,y_cam,z_cam,
                                   x_robot,y_robot,z_robot);
                 vector<double> buffer_tmp;
                 buffer_tmp.push_back(buffer[i][0]);
@@ -53,9 +58,9 @@ void Calib::run()
                 buffer_tmp.push_back(y_robot);
                 buffer_tmp.push_back(z_robot);
                 buffer_tmp.push_back(buffer[i][3]);
-
+                cout<<" X = "<< x_robot<< " Y = "<< y_robot <<" Z = "<<z_robot<<endl;
                 Trans_buffer.push_back(buffer_tmp);
-
+                //cout<<scale<<endl;
 
             }
 
@@ -80,10 +85,10 @@ void Transfer_CorRobot(float x_cam, float y_cam, float z_cam,
     //Tranfer Matrix
     float A[4][4] =
       {
-        {     1,     0,     0,      238 },
-        {     0,     0,    -1,     -303 },
-        {     0,     1,     0,     145.7},
-        {     0,     0,     0,        1 },
+        {     -1,     0,    0,      327.3 },
+        {     0,     1,     0,      150.7 },
+        {     0,     0,     -1,     416.5 },
+        {     0,     0,     0,          1 },
       };
      // Position of Object in Camera Coordinate
     float B[4][1]=
