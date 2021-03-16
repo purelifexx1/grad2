@@ -88,9 +88,12 @@ void packet_handler::routing(QByteArray packet)
                 case RPD_DUTY:
                 case RPD_STOP:
                 case RPD_ERROR:
-                    Detail_Status_Handler(packet.mid(1, packet_length-1));
+                    Detail_Status_Handler(packet.mid(1, packet_length-1), DISPLAY_RPD_DETAIL);
                 break;
-
+                case RDP_GCODE_PROCESS:{
+                    Detail_Status_Handler(packet.mid(1, packet_length-1), DISPLAY_GCODE_PROCESS);
+                }
+                break;
                 case NUM_OF_RESPOND:
 
                 break;
@@ -115,15 +118,24 @@ void packet_handler::Scara_position_received(QByteArray data)
     emit on_display_event(display_packet);
 }
 
-void packet_handler::Detail_Status_Handler(QByteArray data)
+void packet_handler::Detail_Status_Handler(QByteArray data, display_id id)
 {
     Display_packet display_packet;
     display_packet.Respond_Type = (Robot_RespondTypedef)data.at(0);
-    display_packet.action_id = DISPLAY_RPD_DETAIL;
-    display_packet.Command_ID = (Robot_CommandTypedef)data.at(1);
-    int packet_length = data.length();
-    for(int i = 2; i < packet_length; i++){
-        display_packet.Reference_String.append((Response_ID)data.at(i));
+    display_packet.action_id = id;
+    switch (id) {
+    case DISPLAY_RPD_DETAIL:{
+        display_packet.Command_ID = (Robot_CommandTypedef)data.at(1);
+        int packet_length = data.length();
+        for(int i = 2; i < packet_length; i++){
+            display_packet.Reference_String.append((Response_ID)data.at(i));
+        }
+    }break;
+    case DISPLAY_GCODE_PROCESS:{
+        display_packet.Command_ID = (Robot_CommandTypedef)data.at(1);
+        display_packet.Contain_Data.append(data.at(2));
+    }break;
     }
+
     emit on_display_event(display_packet);
 }

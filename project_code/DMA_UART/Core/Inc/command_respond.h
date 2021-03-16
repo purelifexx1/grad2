@@ -37,13 +37,13 @@ typedef enum
 	CMD_METHOD_CHANGE,
     CMD_MOTOR_TEST,
 
-    CMD_JOB_NEW,
-    CMD_JOB_DELETE,
+    CMD_GCODE_STOP,
+    CMD_GCODE_PAUSE,
     CMD_JOB_PUSH_MOVE_LINE,
     CMD_JOB_PUSH_MOVE_JOINT,
     CMD_JOB_PUSH_OUTPUT,
-    CMD_JOB_TEST,
-    CMD_JOB_RUN,// 7 job
+    CMD_GCODE_RESUME,
+    CMD_GCODE_RUN,// 7 job
 
     CMD_KEYBOARD,// 2 key board
 	CMD_KEY_SPEED,
@@ -70,7 +70,8 @@ typedef enum
 	RPD_OK 					= 0x08,
 	RPD_DUTY				= 0x09,
 	RPD_TRANSFER			= 0x0A,
-    NUM_OF_RESPOND			= 0x0B
+	RDP_GCODE_PROCESS		= 0x0B,
+    NUM_OF_RESPOND			= 0x0C
 }Robot_RespondTypedef;
 
 typedef enum

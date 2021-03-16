@@ -14,7 +14,8 @@
 typedef enum
 {
     DISPLAY_POSITION,
-    DISPLAY_RPD_DETAIL
+    DISPLAY_RPD_DETAIL,
+    DISPLAY_GCODE_PROCESS,
 }display_id ;
 
 typedef enum
@@ -101,6 +102,7 @@ typedef enum
     RPD_OK 		,
     RPD_DUTY	,
     RDP_TRANSFER,
+    RDP_GCODE_PROCESS,
     NUM_OF_RESPOND
 }Robot_RespondTypedef;
 
@@ -161,13 +163,13 @@ typedef enum
     CMD_METHOD_CHANGE,
     CMD_MOTOR_TEST,
 
-    CMD_JOB_NEW,
-    CMD_JOB_DELETE,
+    CMD_GCODE_STOP,
+    CMD_GCODE_PAUSE,
     CMD_JOB_PUSH_MOVE_LINE,
     CMD_JOB_PUSH_MOVE_JOINT,
     CMD_JOB_PUSH_OUTPUT,
-    CMD_JOB_TEST,
-    CMD_JOB_RUN,// 7 job
+    CMD_GCODE_RESUME,
+    CMD_GCODE_RUN,// 7 job
 
     CMD_KEYBOARD,// 2 key board
     CMD_KEY_SPEED,
@@ -250,6 +252,7 @@ typedef struct
     Robot_CommandTypedef Command_ID;
     Robot_RespondTypedef Respond_Type;
     QList<Response_ID> Reference_String;
+    QByteArray         Contain_Data;
 }Display_packet ;
 
 typedef enum

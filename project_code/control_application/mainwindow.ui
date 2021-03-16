@@ -953,11 +953,11 @@
       <x>730</x>
       <y>230</y>
       <width>241</width>
-      <height>141</height>
+      <height>161</height>
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -1196,6 +1196,112 @@
       </widget>
      </widget>
     </widget>
+    <widget class="QWidget" name="tab_3">
+     <attribute name="title">
+      <string>Tab 3</string>
+     </attribute>
+     <widget class="QLineEdit" name="tb_file_dir">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>70</y>
+        <width>221</width>
+        <height>21</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="bt_browse">
+      <property name="geometry">
+       <rect>
+        <x>70</x>
+        <y>40</y>
+        <width>51</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Browse</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="bt_process">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>101</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Process and send</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="bt_gcode_pause">
+      <property name="geometry">
+       <rect>
+        <x>120</x>
+        <y>10</y>
+        <width>41</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Pause</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="bt_gcode_resume">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>40</y>
+        <width>51</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Resume</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="bt_gcode_stop">
+      <property name="geometry">
+       <rect>
+        <x>170</x>
+        <y>10</y>
+        <width>41</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Stop</string>
+      </property>
+     </widget>
+     <widget class="QProgressBar" name="pb_gcode_process">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>100</y>
+        <width>211</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="value">
+       <number>0</number>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="bt_gcode_start">
+      <property name="geometry">
+       <rect>
+        <x>130</x>
+        <y>40</y>
+        <width>51</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Start</string>
+      </property>
+     </widget>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -1204,7 +1310,7 @@
      <x>0</x>
      <y>0</y>
      <width>1079</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
   </widget>

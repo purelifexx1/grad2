@@ -11,40 +11,40 @@
 #include <string.h>
 extern const char *DETAIL_STATUS[NUM_OF_STATUS];
 
-const char *ROBOTCOMMAND[NUM_OF_COMMAND - 1]  = {"STOP",
-												"SCAN",
-												"HOME",
-												"MOVL",
-												"MOVC",
-												"MOVJ",
-												"ROTA",
-												"OUTP",
-												"READ",
-												"POSI",
-												"SETT",
-												"METH",  // 12 nomal
-
-										        "JNEW",
-										        "JDEL",
-										        "JPML",
-										        "JPMJ",
-										        "JPOP",
-										        "JTES",
-										        "JRUN ", // 7 job
-
-										        "KEYB",  // 2 key board
-												"KSPE"
-												};
-
-const char *ROBOTRESPOND[NUM_OF_RESPOND]  	  = {"IDLE",
-												"BUSY",
-												"POSI",
-												"STAR",
-												"RUNN",
-												"DONE",
-												"STOP",
-												"ERRO",
-												"OKAY"};
+//const char *ROBOTCOMMAND[NUM_OF_COMMAND - 1]  = {"STOP",
+//												"SCAN",
+//												"HOME",
+//												"MOVL",
+//												"MOVC",
+//												"MOVJ",
+//												"ROTA",
+//												"OUTP",
+//												"READ",
+//												"POSI",
+//												"SETT",
+//												"METH",  // 12 nomal
+//
+//										        "JNEW",
+//										        "JDEL",
+//										        "JPML",
+//										        "JPMJ",
+//										        "JPOP",
+//										        "JTES",
+//										        "JRUN ", // 7 job
+//
+//										        "KEYB",  // 2 key board
+//												"KSPE"
+//												};
+//
+//const char *ROBOTRESPOND[NUM_OF_RESPOND]  	  = {"IDLE",
+//												"BUSY",
+//												"POSI",
+//												"STAR",
+//												"RUNN",
+//												"DONE",
+//												"STOP",
+//												"ERRO",
+//												"OKAY"};
 
 Position_DataType position_type;
 SCARA_Gcode_Cor_TypeDef		Gcode_Cor[125];
@@ -176,6 +176,9 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
 						}else if(mode_init == DUTY_MODE_INIT_QT){
 							duty_cmd->modeInit_type = DUTY_MODE_INIT_QT;
 							duty_cmd->time_total = (double)(*(int32_t*)(&message[temp_pointer+=1]))*COR_INVERSE_SCALE;
+						}else if(mode_init == DUTY_MODE_INIT_QV){
+							duty_cmd->modeInit_type = DUTY_MODE_INIT_QV;
+							duty_cmd->v_factor = (double)(*(int32_t*)(&message[temp_pointer+=1]))*COR_INVERSE_SCALE;
 						}else{
 							return CMD_ERROR;
 						}
@@ -389,7 +392,34 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
 					}
 				}
 				break;
-
+				case CMD_GCODE_RUN:
+				{
+					duty_cmd->robot_method = SCARA_METHOD_GCODE;
+					duty_cmd->change_method = FALSE;
+					return CMD_GCODE_RUN;
+				}
+				break;
+				case CMD_GCODE_STOP:
+				{
+					duty_cmd->robot_method = SCARA_METHOD_GCODE;
+					duty_cmd->change_method = FALSE;
+					return CMD_GCODE_STOP;
+				}
+				break;
+				case CMD_GCODE_PAUSE:
+				{
+					duty_cmd->robot_method = SCARA_METHOD_GCODE;
+					duty_cmd->change_method = FALSE;
+					return CMD_GCODE_PAUSE;
+				}
+				break;
+				case CMD_GCODE_RESUME:
+				{
+					duty_cmd->robot_method = SCARA_METHOD_GCODE;
+					duty_cmd->change_method = FALSE;
+					return CMD_GCODE_RESUME;
+				}
+				break;
 				//Unknow command id
 				default:
 				{
@@ -512,19 +542,13 @@ Robot_RespondTypedef	commandReply	(Robot_CommandTypedef cmd_type,
 		}
 	}
 	break;
-	case CMD_JOB_NEW:
-		break;
-	case CMD_JOB_DELETE:
-		break;
+	case CMD_GCODE_STOP:
+	case CMD_GCODE_PAUSE:
 	case CMD_JOB_PUSH_MOVE_LINE:
-		break;
 	case CMD_JOB_PUSH_MOVE_JOINT:
-		break;
 	case CMD_JOB_PUSH_OUTPUT:
-		break;
-	case CMD_JOB_TEST:
-		break;
-	case CMD_JOB_RUN:
+	case CMD_GCODE_RESUME:
+	case CMD_GCODE_RUN:
 		ret = RPD_DUTY;
 		break;
 	case CMD_KEYBOARD:
@@ -559,14 +583,14 @@ int32_t				commandRespond	(Robot_RespondTypedef rpd,
 	case RPD_IDLE:
 	case RPD_BUSY:
 		{
-			uint8_t		isScanLitmit;
-			isScanLitmit = scaraIsScanLimit();
-			out_lenght = snprintf( (char *)respond,
-									20,
-									"%d %s %d",
-									(int)id_command,
-									ROBOTRESPOND[rpd],
-									(int)isScanLitmit);
+//			uint8_t		isScanLitmit;
+//			isScanLitmit = scaraIsScanLimit();
+//			out_lenght = snprintf( (char *)respond,
+//									20,
+//									"%d %s %d",
+//									(int)id_command,
+//									ROBOTRESPOND[rpd],
+//									(int)isScanLitmit);
 		}
 		break;
 	case RPD_POSITION:
@@ -578,12 +602,12 @@ int32_t				commandRespond	(Robot_RespondTypedef rpd,
 	case RPD_OK:
 
 		{
-			out_lenght = snprintf( (char *)respond,
-									145,
-									"%d %s %s",
-									(int)id_command,
-									ROBOTRESPOND[rpd],
-									(char *)detail);
+//			out_lenght = snprintf( (char *)respond,
+//									145,
+//									"%d %s %s",
+//									(int)id_command,
+//									ROBOTRESPOND[rpd],
+//									(char *)detail);
 		}
 		break;
 	default:

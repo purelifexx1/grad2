@@ -57,6 +57,18 @@ private slots:
 
     void on_bt_conveyor_sp_clicked();
 
+    void on_bt_browse_clicked();
+
+    void on_bt_process_clicked();
+
+    void on_bt_gcode_start_clicked();
+
+    void on_bt_gcode_stop_clicked();
+
+    void on_bt_gcode_pause_clicked();
+
+    void on_bt_gcode_resume_clicked();
+
 public slots:
     void received_callback(QByteArray data);
     void display_event(Display_packet data);

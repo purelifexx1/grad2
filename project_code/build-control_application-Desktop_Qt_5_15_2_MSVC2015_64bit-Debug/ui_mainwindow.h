@@ -18,6 +18,7 @@
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenuBar>
+#include <QtWidgets/QProgressBar>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QRadioButton>
 #include <QtWidgets/QSlider>
@@ -127,6 +128,15 @@ public:
     QLabel *label_16;
     QLabel *label_17;
     QPushButton *bt_stop_test;
+    QWidget *tab_3;
+    QLineEdit *tb_file_dir;
+    QPushButton *bt_browse;
+    QPushButton *bt_process;
+    QPushButton *bt_gcode_pause;
+    QPushButton *bt_gcode_resume;
+    QPushButton *bt_gcode_stop;
+    QProgressBar *pb_gcode_process;
+    QPushButton *bt_gcode_start;
     QMenuBar *menubar;
     QStatusBar *statusbar;
 
@@ -369,7 +379,7 @@ public:
         testing->setGeometry(QRect(1000, 170, 80, 21));
         tabWidget = new QTabWidget(centralwidget);
         tabWidget->setObjectName(QString::fromUtf8("tabWidget"));
-        tabWidget->setGeometry(QRect(730, 230, 241, 141));
+        tabWidget->setGeometry(QRect(730, 230, 241, 161));
         tab = new QWidget();
         tab->setObjectName(QString::fromUtf8("tab"));
         groupBox_8 = new QGroupBox(tab);
@@ -430,10 +440,38 @@ public:
         bt_stop_test->setObjectName(QString::fromUtf8("bt_stop_test"));
         bt_stop_test->setGeometry(QRect(150, 40, 61, 21));
         tabWidget->addTab(tab_2, QString());
+        tab_3 = new QWidget();
+        tab_3->setObjectName(QString::fromUtf8("tab_3"));
+        tb_file_dir = new QLineEdit(tab_3);
+        tb_file_dir->setObjectName(QString::fromUtf8("tb_file_dir"));
+        tb_file_dir->setGeometry(QRect(10, 70, 221, 21));
+        bt_browse = new QPushButton(tab_3);
+        bt_browse->setObjectName(QString::fromUtf8("bt_browse"));
+        bt_browse->setGeometry(QRect(70, 40, 51, 21));
+        bt_process = new QPushButton(tab_3);
+        bt_process->setObjectName(QString::fromUtf8("bt_process"));
+        bt_process->setGeometry(QRect(10, 10, 101, 21));
+        bt_gcode_pause = new QPushButton(tab_3);
+        bt_gcode_pause->setObjectName(QString::fromUtf8("bt_gcode_pause"));
+        bt_gcode_pause->setGeometry(QRect(120, 10, 41, 21));
+        bt_gcode_resume = new QPushButton(tab_3);
+        bt_gcode_resume->setObjectName(QString::fromUtf8("bt_gcode_resume"));
+        bt_gcode_resume->setGeometry(QRect(10, 40, 51, 21));
+        bt_gcode_stop = new QPushButton(tab_3);
+        bt_gcode_stop->setObjectName(QString::fromUtf8("bt_gcode_stop"));
+        bt_gcode_stop->setGeometry(QRect(170, 10, 41, 21));
+        pb_gcode_process = new QProgressBar(tab_3);
+        pb_gcode_process->setObjectName(QString::fromUtf8("pb_gcode_process"));
+        pb_gcode_process->setGeometry(QRect(20, 100, 211, 21));
+        pb_gcode_process->setValue(0);
+        bt_gcode_start = new QPushButton(tab_3);
+        bt_gcode_start->setObjectName(QString::fromUtf8("bt_gcode_start"));
+        bt_gcode_start->setGeometry(QRect(130, 40, 51, 21));
+        tabWidget->addTab(tab_3, QString());
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 1079, 21));
+        menubar->setGeometry(QRect(0, 0, 1079, 20));
         MainWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
@@ -441,7 +479,7 @@ public:
 
         retranslateUi(MainWindow);
 
-        tabWidget->setCurrentIndex(0);
+        tabWidget->setCurrentIndex(2);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -524,6 +562,13 @@ public:
         label_17->setText(QCoreApplication::translate("MainWindow", "Negative", nullptr));
         bt_stop_test->setText(QCoreApplication::translate("MainWindow", "Stop test", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QCoreApplication::translate("MainWindow", "Tab 2", nullptr));
+        bt_browse->setText(QCoreApplication::translate("MainWindow", "Browse", nullptr));
+        bt_process->setText(QCoreApplication::translate("MainWindow", "Process and send", nullptr));
+        bt_gcode_pause->setText(QCoreApplication::translate("MainWindow", "Pause", nullptr));
+        bt_gcode_resume->setText(QCoreApplication::translate("MainWindow", "Resume", nullptr));
+        bt_gcode_stop->setText(QCoreApplication::translate("MainWindow", "Stop", nullptr));
+        bt_gcode_start->setText(QCoreApplication::translate("MainWindow", "Start", nullptr));
+        tabWidget->setTabText(tabWidget->indexOf(tab_3), QCoreApplication::translate("MainWindow", "Tab 3", nullptr));
     } // retranslateUi
 
 };

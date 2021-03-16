@@ -123,7 +123,7 @@ Gcode_Decoder_DTC_TypeDef Gcode_Decoder::Process_Compress_Gcode_Data()
     int count = 1;
     int check_count = -2;
     Gcode_Compress_State_TypeDef current_state = ROUTE_COMMAND;
-    GCode_Coordinate_TypeDef  last_data = current_data;
+    //GCode_Coordinate_TypeDef  last_data = current_data;
     double current_s = 0;
     while(count < raw_data.count()){
         switch (current_state) {

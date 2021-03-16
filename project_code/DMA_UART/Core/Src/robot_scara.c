@@ -272,7 +272,11 @@ SCARA_StatusTypeDef	scaraInitDuty		(DUTY_Command_TypeDef command) {
 			myDUTY.task.trajectory_roll.linear.dir = dir_angle;
 			myDUTY.task.trajectory_3d.trajectory_type = DUTY_TRAJECTORY_LINEAR;
 			myDUTY.task.trajectory_roll.trajectory_type = DUTY_TRAJECTORY_LINEAR;
-			status1 = scaraInitLinear(&(myDUTY.task.trajectory_3d.linear), TRAJECTORY_3D, total_s, DUTY_MODE_INIT_QT, command.time_total);
+			if(command.modeInit_type == DUTY_MODE_INIT_QT){
+				status1 = scaraInitLinear(&(myDUTY.task.trajectory_3d.linear), TRAJECTORY_3D, total_s, DUTY_MODE_INIT_QT, command.time_total);
+			}else if(command.modeInit_type == DUTY_MODE_INIT_QV){
+				status1 = scaraInitLinear(&(myDUTY.task.trajectory_3d.linear), TRAJECTORY_3D, total_s, DUTY_MODE_INIT_QV, command.v_factor);
+			}
 			status2 = scaraInitLinear(&(myDUTY.task.trajectory_roll.linear), TRAJECTORY_ROLL, angle_s*dir_angle, DUTY_MODE_INIT_QT, command.time_total);
 		}else {
 			return SCARA_STATUS_ERROR_TRAJECTORY;
@@ -679,7 +683,7 @@ SCARA_StatusTypeDef	scaraInitCircle		(Path_Circle_TypeDef *circle,
 }
 
 SCARA_StatusTypeDef scaraInitLinear(Trajectory_Linear_TypeDef *linear, Trajectory_TargetTypeDef target, double total_s,
-									ModeInitTypeDef modeinit, double time)
+									ModeInitTypeDef modeinit, double additional_factor)
 {
 
 	if(target == TRAJECTORY_3D){
@@ -691,10 +695,11 @@ SCARA_StatusTypeDef scaraInitLinear(Trajectory_Linear_TypeDef *linear, Trajector
 	}
 
 	if(modeinit == DUTY_MODE_INIT_QT){
-		linear->constant_v = total_s / time;
-		linear->number_of_sample = ceilf(time / T_SAMPLING); // ceiling
+		linear->constant_v = total_s / additional_factor;
+		linear->number_of_sample = ceilf(additional_factor / T_SAMPLING); // ceiling
 	}else if(modeinit == DUTY_MODE_INIT_QV){
-
+		linear->constant_v = additional_factor * V_MOVE_MAX;
+		myDUTY.time_total = total_s / linear->constant_v;
 	}else{
 		return SCARA_STATUS_ERROR_PARA;
 	}

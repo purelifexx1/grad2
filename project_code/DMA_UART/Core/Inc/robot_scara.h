@@ -497,6 +497,6 @@ SCARA_StatusTypeDef			scaraKeyFlow(double time,
 										SCARA_PositionTypeDef *pos_Next,
 										SCARA_PositionTypeDef pos_Current);
 SCARA_StatusTypeDef scaraInitLinear(Trajectory_Linear_TypeDef *lspb, Trajectory_TargetTypeDef target, double total_s,
-									ModeInitTypeDef modeinit, double time);
+									ModeInitTypeDef modeinit, double additional_factor);
 SCARA_StatusTypeDef scaraTestFlowDuty(double time, SCARA_PositionTypeDef *pos_next, SCARA_PositionTypeDef pos_current);									
 #endif /* INC_ROBOT_SCARA_H_ */

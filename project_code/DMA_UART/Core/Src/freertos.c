@@ -42,7 +42,7 @@
 #include "usbd_cdc_if.h"
 #include "fsmc.h"
 #include "gpio.h"
-
+#include "gcode_handler.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -477,7 +477,18 @@ void StartDefaultTask(void const * argument)
 					  break;
 				  	  case SCARA_METHOD_GCODE:
 				  	  {
-
+				  		  if(current_duty_state == SCARA_DUTY_STATE_READY && duty_cmd.id_command == CMD_GCODE_RUN){
+				  			  run_point = 1;
+				  			  current_duty_state = SCARA_DUTY_STATE_OPERATION;
+				  		  }else if(current_duty_state == SCARA_DUTY_STATE_INIT && duty_cmd.id_command == CMD_GCODE_RESUME){
+				  			  lowlayer_readTruePosition(&positionCurrent);
+				  			  kinematicForward(&positionCurrent);
+				  			  current_duty_state = SCARA_DUTY_STATE_INIT;
+				  		  }else if(duty_cmd.id_command == CMD_GCODE_STOP){
+				  			  current_duty_state = SCARA_DUTY_STATE_READY;
+				  		  }else if(duty_cmd.id_command == CMD_GCODE_PAUSE){
+				  			  current_duty_state = SCARA_DUTY_STATE_INIT;
+				  		  }
 				  	  }
 				  	  break;
 				  	  case SCARA_METHOD_PICK_AND_PLACE:{
@@ -774,36 +785,58 @@ void StartDefaultTask(void const * argument)
 		  switch (current_duty_state)
 		  {
 		  case SCARA_DUTY_STATE_READY:{
-			  run_point = 1;
+			  //run_point = 1;
 		  }
 		  break;
 		  case SCARA_DUTY_STATE_INIT:{
-			  duty_cmd.target_point.x = (double)Gcode_Cor[run_point].X * COR_INVERSE_SCALE;
-			  duty_cmd.target_point.y = (double)Gcode_Cor[run_point].Y * COR_INVERSE_SCALE;
-			  if(Gcode_Cor[run_point].type_define[1] == UP_Z){
-				  duty_cmd.target_point.z = up_z_height;
-			  }else{
-				  duty_cmd.target_point.z = down_z_height;
-			  }
-			  duty_cmd.target_point.roll = 0;
-			  duty_cmd.v_factor = (double)Gcode_Cor[run_point].F * COR_INVERSE_SCALE / V_MOVE_MAX;
-			  duty_cmd.trajec_type = DUTY_TRAJECTORY_LINEAR;
-			  duty_cmd.coordinate_type = DUTY_COORDINATES_ABS;
-			  if(Gcode_Cor[run_point].type_define[0] == LINEAR_TYPE){
-				  duty_cmd.path_type = DUTY_PATH_LINE;
-			  }else if(Gcode_Cor[run_point].type_define[0] == ARC_AW_TYPE){
-
-			  }else if(Gcode_Cor[run_point].type_define[0] == ARC_CW_TYPE){
-
-			  }
-			  duty_cmd.path_type = DUTY_PATH_LINE;
-			  duty_cmd.space_type = DUTY_SPACE_TASK;
 
 		  }
 		  break;
+		  case SCARA_DUTY_STATE_OPERATION:{
+			  update_gcode_point(&duty_cmd, Gcode_Cor[run_point]);
+			  SCARA_StatusTypeDef status;
+			  status = scaraInitDuty(duty_cmd);
+			  if(status == SCARA_STATUS_OK){
+				  run_time = 0;
+				  current_duty_state = SCARA_DUTY_STATE_FLOW;
+				  detail_array[0] = (uint8_t)(run_point * 100.0f / total_num_of_point );
+				  respond_lenght = commandRespond1(RDP_GCODE_PROCESS, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
+				  total_respond_length += respond_lenght;
+			  }else{
+				  current_duty_state = SCARA_DUTY_STATE_FINISH;
+				  detail_array[0] = status;
+				  respond_lenght = commandRespond1(RPD_ERROR, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
+				  total_respond_length += respond_lenght;
+				  break;
+			  }
+		  }
+		  //break;
 
 		  case SCARA_DUTY_STATE_FLOW:{
+			  run_time += T_SAMPLING;
+			  // Check Time Out
+			  if (scaraIsFinish(run_time)) {
+				if(run_point >= total_num_of_point){
+					current_duty_state = SCARA_DUTY_STATE_READY;
+				}else{
+					current_duty_state = SCARA_DUTY_STATE_OPERATION;
+					run_point++;
+					memcpy(&positionNext, &duty_cmd.target_point, sizeof(SCARA_PositionTypeDef));
+				}
 
+//				lowlayer_readTruePosition(&positionNext);
+//				kinematicForward(&positionNext);
+			  } else{
+				SCARA_StatusTypeDef status = scaraFlowDuty(run_time , &positionNext, positionCurrent);
+				if ( SCARA_STATUS_OK == status) {
+					lowlayer_computeAndWritePulse(positionCurrent, positionNext);
+				  }else{
+					  current_duty_state = SCARA_DUTY_STATE_FINISH;
+					  detail_array[0] = status;
+					  respond_lenght = commandRespond1(RPD_ERROR, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
+					  total_respond_length += respond_lenght;
+				  }
+			  }
 		  }
 		  break;
 
@@ -947,12 +980,16 @@ void StartDefaultTask(void const * argument)
 					lowlayer_computeAndWritePulse(positionCurrent, positionNext);
 				  }else{
 					  current_duty_state = SCARA_DUTY_STATE_FINISH;
+					  detail_array[0] = status;
+					  respond_lenght = commandRespond1(RPD_ERROR, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
+					  total_respond_length += respond_lenght;
 				  }
 			  }
 		  }
 		  break;
 
 		  case SCARA_DUTY_STATE_FINISH:
+
 			  //error
 			  //free(Object);
 		  break;
