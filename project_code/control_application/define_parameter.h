@@ -79,6 +79,7 @@ typedef enum
     PICK_AND_PLACE_METHOD,
     OBJECT_DETECTED ,
     GCODE_TRANSFER_FINISH,
+    GCODE_OFFSET_CONFIGURE,
     STOP_NOW        ,
     START_SCAN      ,
     BUSY            ,
@@ -167,7 +168,7 @@ typedef enum
     CMD_GCODE_PAUSE,
     CMD_JOB_PUSH_MOVE_LINE,
     CMD_JOB_PUSH_MOVE_JOINT,
-    CMD_JOB_PUSH_OUTPUT,
+    CMD_GCODE_CONFIGURE,
     CMD_GCODE_RESUME,
     CMD_GCODE_RUN,// 7 job
 
@@ -323,6 +324,7 @@ public:
                                              "Changed PICK_AND_PLACE Method",
                                              "Object Detected",
                                              "Gcode transfer process completed",
+                                             "Gcode offset data configured succesfully",
                                              "Stop Now",
                                              "Start scan",
                                              "Busy",
@@ -346,13 +348,13 @@ public:
         "CMD_METHOD_CHANGE",
         "CMD_MOTOR_TEST",
 
-        "CMD_JOB_NEW",
-        "CMD_JOB_DELETE",
+        "CMD_GCODE_STOP",
+        "CMD_GCODE_PAUSE",
         "CMD_JOB_PUSH_MOVE_LINE",
         "CMD_JOB_PUSH_MOVE_JOINT",
-        "CMD_JOB_PUSH_OUTPUT",
-        "CMD_JOB_TEST",
-        "CMD_JOB_RUN",// 7 job
+        "CMD_GCODE_CONFIGURE",
+        "CMD_GCODE_RESUME",
+        "CMD_GCODE_RUN",// 7 job
 
         "CMD_KEYBOARD",// 2 key board
         "CMD_KEY_SPEED",

@@ -70,13 +70,13 @@ extern SCARA_PositionTypeDef		positionPrevios;
 extern SCARA_PositionTypeDef		positionCurrent;
 extern SCARA_PositionTypeDef		positionNext;
 extern SCARA_PositionTypeDef		positionTrue;
-extern SCARA_Gcode_Cor_TypeDef		Gcode_Cor[125];
+extern SCARA_Gcode_Cor_TypeDef		Gcode_Cor[1000];
 extern int32_t						current_key_speed1 = 1;
 extern double						conveyor_speed = 0;
 extern double						up_z_height;
 extern double 						down_z_height;
 extern int32_t						total_num_of_point;
-
+double *testing_array;
 extern TIM_HandleTypeDef htim7;
 osMailQId commandMailHandle;
 /* USER CODE END Variables */
@@ -298,6 +298,7 @@ void StartDefaultTask(void const * argument)
 			  if (SCARA_METHOD_MANUAL == duty_cmd.robot_method) {
 				  // Need add check condition idle in each method
 				  current_method = SCARA_METHOD_MANUAL;
+				  current_duty_state = SCARA_DUTY_STATE_READY;
 				//   respond_lenght = commandRespond(RPD_OK,
 				// 								duty_cmd.id_command,
 				// 								"Changed MANUAL Method",
@@ -307,6 +308,7 @@ void StartDefaultTask(void const * argument)
 				total_respond_length += respond_lenght;
 			  } else if (SCARA_METHOD_SEMI_AUTO == duty_cmd.robot_method) {
 				  current_method = SCARA_METHOD_SEMI_AUTO;
+				  current_duty_state = SCARA_DUTY_STATE_READY;
 				//   respond_lenght = commandRespond(RPD_OK,
 				// 								duty_cmd.id_command,
 				// 								"Changed SEMI AUTO Method",
@@ -315,6 +317,15 @@ void StartDefaultTask(void const * argument)
 				respond_lenght = commandRespond1(RPD_OK, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
 				total_respond_length += respond_lenght;
 			  } else if (SCARA_METHOD_GCODE == duty_cmd.robot_method) {
+//				  Gcode_Cor = (SCARA_Gcode_Cor_TypeDef*)malloc(1*sizeof(SCARA_Gcode_Cor_TypeDef));
+//				  if(Gcode_Cor == NULL){
+//					  int t = 2;
+//				  }
+//				  testing_array = (double*)malloc(2*sizeof(double));
+//				  if(testing_array == NULL){
+//					  int t = 2;
+//				  }
+				  current_duty_state = SCARA_DUTY_STATE_READY;
 				  current_method = SCARA_METHOD_GCODE;
 				//   respond_lenght = commandRespond(RPD_OK,
 				// 								duty_cmd.id_command,
@@ -375,8 +386,7 @@ void StartDefaultTask(void const * argument)
 
 						  case SCARA_MODE_SCAN:
 							  {
-								  if (SCARA_MODE_DUTY == current_mode
-									  && SCARA_DUTY_STATE_READY == current_duty_state) {
+								  if (SCARA_MODE_DUTY == current_mode && SCARA_DUTY_STATE_READY == current_duty_state) {
 									  current_mode = SCARA_MODE_SCAN;
 									  current_scan_state = SCARA_SCAN_STATE_INIT;
 									//   respond_lenght = commandRespond(RPD_OK,
@@ -674,7 +684,6 @@ void StartDefaultTask(void const * argument)
 				  case SCARA_DUTY_STATE_READY:
 					  {
 						  // Do nothing();
-						  __NOP();
 
 					  }
 				  break;
@@ -818,6 +827,8 @@ void StartDefaultTask(void const * argument)
 			  if (scaraIsFinish(run_time)) {
 				if(run_point >= total_num_of_point){
 					current_duty_state = SCARA_DUTY_STATE_READY;
+					lowlayer_readTruePosition(&positionNext);
+				    kinematicForward(&positionNext);
 				}else{
 					current_duty_state = SCARA_DUTY_STATE_OPERATION;
 					run_point++;

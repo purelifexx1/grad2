@@ -116,10 +116,11 @@ void MainWindow::on_bt_connect_clicked()
     }
 }
 
-void MainWindow::received_callback(QByteArray data)
+void MainWindow::received_callback(QByteArray log_data)
 {
-    qDebug() << data;
-    _packet_handler->categorize(data);
+    qDebug() << log_data;
+    FIFO_Buffer.insert(FIFO_Buffer.end(), log_data.begin(), log_data.end());
+    _packet_handler->categorize(&FIFO_Buffer);
 }
 
 void MainWindow::on_bt_robot_stop_clicked()
@@ -391,7 +392,11 @@ void MainWindow::object_detected(double x, double y, double roll)
 
 void MainWindow::on_testing_clicked()
 {
-
+    FIFO_Buffer.push_back(12);
+    FIFO_Buffer.push_back(13);
+    FIFO_Buffer.push_back(14);
+    _packet_handler->categorize(&FIFO_Buffer);
+    qDebug()<<FIFO_Buffer;
 }
 
 
@@ -501,6 +506,22 @@ void MainWindow::on_bt_gcode_resume_clicked()
     command.append('\0');
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_GCODE_RESUME);
+    command.append(RECEIVE_END);
+    command[1] = command.length() - 2;
+    mSerial->write(command, command.length());
+}
+
+void MainWindow::on_bt_gcode_configure_clicked()
+{
+    QByteArray command;
+    command.append(START_CHAR);
+    command.append('\0');
+    command.append(COMMAND_TRANSMISION);
+    command.append(CMD_GCODE_CONFIGURE);
+    ADD_VALUE(&command, ui->tb_x_offset->text(), SCARA_COR_VALUE_TEXT);
+    ADD_VALUE(&command, ui->tb_y_offset->text(), SCARA_COR_VALUE_TEXT);
+    ADD_VALUE(&command, ui->tb_z_offset->text(), SCARA_COR_VALUE_TEXT);
+    ADD_VALUE(&command, ui->tb_hold_roll_angle->text(), SCARA_COR_VALUE_TEXT);
     command.append(RECEIVE_END);
     command[1] = command.length() - 2;
     mSerial->write(command, command.length());

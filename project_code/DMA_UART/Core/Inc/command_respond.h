@@ -12,6 +12,7 @@
 #include  "robot_scara.h"
 #include  "robot_lowlayer.h"
 #include  "kinematic.h"
+#include  "gcode_handler.h"
 
 #define B2I(temp_pointer) 		(*(int32_t*)(&message[temp_pointer]))
 #define LINEAR_PACKET_LENGTH	13 // 12 byte for x y feedrate, 1 byte define
@@ -41,7 +42,7 @@ typedef enum
     CMD_GCODE_PAUSE,
     CMD_JOB_PUSH_MOVE_LINE,
     CMD_JOB_PUSH_MOVE_JOINT,
-    CMD_JOB_PUSH_OUTPUT,
+    CMD_GCODE_CONFIGURE,
     CMD_GCODE_RESUME,
     CMD_GCODE_RUN,// 7 job
 
@@ -114,6 +115,7 @@ typedef enum
 	PICK_AND_PLACE_METHOD,
 	OBJECT_DETECTED 	,
 	GCODE_TRANSFER_FINISH,
+	GCODE_OFFSET_CONFIGURE,
     STOP_NOW        ,
     START_SCAN      ,
     BUSY            ,

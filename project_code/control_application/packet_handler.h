@@ -4,14 +4,14 @@
 #include <QObject>
 #include <QtCore>
 #include "define_parameter.h"
-
+#define RECEIVE_END "})"
 class packet_handler: public QObject
 {
     Q_OBJECT
 public:
     packet_handler();
     define_parameter *system_parameter;
-    void categorize(QByteArray packet);
+    void categorize(std::vector<uint8_t> *packet);
     int32_t number_of_packet;
 signals:
     void on_display_event(Display_packet);
@@ -22,6 +22,7 @@ private:
     void Detail_Status_Handler(QByteArray data, display_id id);
     QByteArray archive_buffer;
     bool archive_status = false;
+    const char* end_header = RECEIVE_END;
 };
 
 #endif // PACKET_HANDLER_H

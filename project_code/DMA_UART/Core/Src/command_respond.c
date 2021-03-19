@@ -47,7 +47,7 @@ extern const char *DETAIL_STATUS[NUM_OF_STATUS];
 //												"OKAY"};
 
 Position_DataType position_type;
-SCARA_Gcode_Cor_TypeDef		Gcode_Cor[125];
+SCARA_Gcode_Cor_TypeDef		Gcode_Cor[1000];
 uint16_t point_counter = 0;
 Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_command, DUTY_Command_TypeDef *duty_cmd) {
 	Transfer_Protocol protocol_id = message[0];
@@ -392,6 +392,20 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
 					}
 				}
 				break;
+				case CMD_GCODE_CONFIGURE:
+				{
+					if(length == 18) { // 4 int32_t number + 2 define byte
+						temp_pointer = -2;
+						offset_x = 	(double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
+						offset_y = 	(double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
+						offset_z = 	(double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
+						roll_angle =(double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
+						return CMD_GCODE_CONFIGURE;
+					}else{
+						return CMD_ERROR;
+					}
+				}
+				break;
 				case CMD_GCODE_RUN:
 				{
 					duty_cmd->robot_method = SCARA_METHOD_GCODE;
@@ -542,11 +556,16 @@ Robot_RespondTypedef	commandReply	(Robot_CommandTypedef cmd_type,
 		}
 	}
 	break;
+	case CMD_GCODE_CONFIGURE:
+	{
+		detail[(*detail_length)++] = GCODE_OFFSET_CONFIGURE;
+		ret = RPD_OK;
+	}
+	break;
 	case CMD_GCODE_STOP:
 	case CMD_GCODE_PAUSE:
 	case CMD_JOB_PUSH_MOVE_LINE:
 	case CMD_JOB_PUSH_MOVE_JOINT:
-	case CMD_JOB_PUSH_OUTPUT:
 	case CMD_GCODE_RESUME:
 	case CMD_GCODE_RUN:
 		ret = RPD_DUTY;
@@ -624,6 +643,7 @@ int32_t				commandRespond1	(Robot_RespondTypedef rpd,
 										char *respond) {
 	int32_t out_length = 0;
 	respond[out_length++] = 0x28;
+	respond[out_length++] = 0;
 	respond[out_length++] = RESPONSE_TRANSMISION;
 	respond[out_length++] = rpd;
 	respond[out_length++] = id_command;
@@ -633,8 +653,9 @@ int32_t				commandRespond1	(Robot_RespondTypedef rpd,
 	}else{
 		respond[out_length++] = NONE;
 	}
+	respond[out_length++] = 0x7d;
 	respond[out_length++] = 0x29;
-
+	respond[1] = out_length - 2;
 	return out_length;
 }
 

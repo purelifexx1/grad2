@@ -21,7 +21,7 @@ public:
     ~MainWindow();
     ReceiveThread *Received_Thread;    
     packet_handler *_packet_handler = new packet_handler();
-
+    std::vector<uint8_t> FIFO_Buffer;
 
 private slots:
     void on_bt_refresh_clicked();
@@ -69,8 +69,10 @@ private slots:
 
     void on_bt_gcode_resume_clicked();
 
+    void on_bt_gcode_configure_clicked();
+
 public slots:
-    void received_callback(QByteArray data);
+    void received_callback(QByteArray log_data);
     void display_event(Display_packet data);
 private:
     Ui::MainWindow *ui;

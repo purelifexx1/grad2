@@ -5,55 +5,51 @@ packet_handler::packet_handler()
 
 }
 
-void packet_handler::categorize(QByteArray packet)
+void packet_handler::categorize(std::vector<uint8_t> *packet)
 {
-
-    int packet_length = packet.length();
-    if(packet.at(0) == 0x28 && packet.at(packet_length-1) == 0x29){              
-        //full packet receive
-        archive_buffer.clear();
-        packet_extract(packet);
-        //routing(packet.mid(1, packet_length - 2));
-    }else if(packet.at(0) == 0x28 && packet.at(packet_length-1) != 0x29){
-        //packet to long, receive first half
-        archive_buffer.append(packet);
-        archive_status = true;
-    }else if(packet.at(0) != 0x28 && packet.at(packet_length-1) == 0x29){
-        //receive rest
-        if(archive_status == true){
-            archive_status = false;
-            archive_buffer.append(packet);
-            packet_extract(archive_buffer);
-            //routing(archive_buffer.mid(1, archive_buffer.length() - 2));
-            archive_buffer.clear();
+    int number_of_state = strlen(end_header);
+    int sync_state = 0;
+    int distance = 0;
+    int packet_size = packet->size();
+    int count = 0;
+    do{
+        if(packet->at(count) == (uint8_t)(end_header[sync_state])){
+            sync_state++;
+        }else if(packet->at(count) == (uint8_t)(end_header[0])){
+            sync_state = 1;
         }else{
-            //error packet format
+            sync_state = 0;
         }
-    }else{
-        //error packet format
-    }
+        distance++;
+        count++;
+        if(number_of_state == sync_state){
+            QByteArray temper; // empty byte array
+            for(auto val: *packet){
+                temper.push_back(val);
+            }
+            packet_extract(temper);
+            packet->erase(packet->begin(), packet->begin() + distance);
+            distance = 0;
+            sync_state = 0;
+            count = 0;
+            packet_size = packet->size();
+        }
+    }while(count < packet_size);
 }
 
 void packet_handler::packet_extract(QByteArray packet)
 {
-    QList<QByteArray> processed_packet_list;
-    QList<QByteArray> raw_packet_list = packet.split(')');
-    int packet_ptr = -1;
-    //using traditional for loop is much faster than foreach loop when applying for list object
-    for(int i = 0; i < raw_packet_list.count() - 1; i++){ //detach the last empty component
-        if(raw_packet_list.at(i).at(0) == 0x28){
-            processed_packet_list.append(raw_packet_list.at(i));
-            packet_ptr++;
+    if(packet.at(0) == 0x28){
+        if(packet.at(1) == packet.count() - 2){
+            routing(packet.mid(2, packet.at(1) - 2));
         }else{
-            processed_packet_list[packet_ptr].append(raw_packet_list.at(i));
+            //packet length error
+            return;
         }
+    }else{
+        //header error
+        return;
     }
-    //action for each packet
-    number_of_packet = processed_packet_list.count();
-    for(int i = 0; i < processed_packet_list.count(); i++){
-        routing(processed_packet_list[i].mid(1, processed_packet_list[i].length()-1));
-    }
-
 }
 
 void packet_handler::routing(QByteArray packet)

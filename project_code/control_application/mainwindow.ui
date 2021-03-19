@@ -952,8 +952,8 @@
      <rect>
       <x>730</x>
       <y>230</y>
-      <width>241</width>
-      <height>161</height>
+      <width>341</width>
+      <height>171</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -1205,7 +1205,7 @@
        <rect>
         <x>10</x>
         <y>70</y>
-        <width>221</width>
+        <width>181</width>
         <height>21</height>
        </rect>
       </property>
@@ -1213,7 +1213,7 @@
      <widget class="QPushButton" name="bt_browse">
       <property name="geometry">
        <rect>
-        <x>70</x>
+        <x>60</x>
         <y>40</y>
         <width>51</width>
         <height>21</height>
@@ -1228,7 +1228,7 @@
        <rect>
         <x>10</x>
         <y>10</y>
-        <width>101</width>
+        <width>91</width>
         <height>21</height>
        </rect>
       </property>
@@ -1239,7 +1239,7 @@
      <widget class="QPushButton" name="bt_gcode_pause">
       <property name="geometry">
        <rect>
-        <x>120</x>
+        <x>100</x>
         <y>10</y>
         <width>41</width>
         <height>21</height>
@@ -1265,7 +1265,7 @@
      <widget class="QPushButton" name="bt_gcode_stop">
       <property name="geometry">
        <rect>
-        <x>170</x>
+        <x>140</x>
         <y>10</y>
         <width>41</width>
         <height>21</height>
@@ -1278,9 +1278,9 @@
      <widget class="QProgressBar" name="pb_gcode_process">
       <property name="geometry">
        <rect>
-        <x>20</x>
+        <x>10</x>
         <y>100</y>
-        <width>211</width>
+        <width>181</width>
         <height>21</height>
        </rect>
       </property>
@@ -1291,7 +1291,7 @@
      <widget class="QPushButton" name="bt_gcode_start">
       <property name="geometry">
        <rect>
-        <x>130</x>
+        <x>110</x>
         <y>40</y>
         <width>51</width>
         <height>21</height>
@@ -1299,6 +1299,111 @@
       </property>
       <property name="text">
        <string>Start</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="tb_x_offset">
+      <property name="geometry">
+       <rect>
+        <x>200</x>
+        <y>10</y>
+        <width>81</width>
+        <height>21</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="tb_y_offset">
+      <property name="geometry">
+       <rect>
+        <x>200</x>
+        <y>40</y>
+        <width>81</width>
+        <height>21</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="tb_z_offset">
+      <property name="geometry">
+       <rect>
+        <x>200</x>
+        <y>70</y>
+        <width>81</width>
+        <height>21</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_18">
+      <property name="geometry">
+       <rect>
+        <x>290</x>
+        <y>10</y>
+        <width>47</width>
+        <height>13</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>offset X</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_19">
+      <property name="geometry">
+       <rect>
+        <x>290</x>
+        <y>40</y>
+        <width>47</width>
+        <height>13</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>offset Y</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_20">
+      <property name="geometry">
+       <rect>
+        <x>290</x>
+        <y>70</y>
+        <width>47</width>
+        <height>13</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>offset Z</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="bt_gcode_configure">
+      <property name="geometry">
+       <rect>
+        <x>200</x>
+        <y>120</y>
+        <width>80</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Configure</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="tb_hold_roll_angle">
+      <property name="geometry">
+       <rect>
+        <x>200</x>
+        <y>100</y>
+        <width>81</width>
+        <height>21</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_21">
+      <property name="geometry">
+       <rect>
+        <x>290</x>
+        <y>100</y>
+        <width>47</width>
+        <height>13</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>roll angle</string>
       </property>
      </widget>
     </widget>

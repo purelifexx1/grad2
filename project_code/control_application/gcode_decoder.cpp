@@ -164,7 +164,7 @@ Gcode_Decoder_DTC_TypeDef Gcode_Decoder::Process_Compress_Gcode_Data()
         break;
         }
         check_count++; //count value must end before check_count to ensure successful compression
-        if(check_count > raw_data.count()*2) return GCODE_PROCESS_ERROR; //make sure the algorithm wont stuck in the loop
+        if(check_count > raw_data.count()*10) return GCODE_PROCESS_ERROR; //make sure the algorithm wont stuck in the loop
     }
     return GCODE_OK;
 }
