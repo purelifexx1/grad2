@@ -222,6 +222,12 @@ typedef enum
     SCARA_COR_VALUE_DOUBLE
 }TypeDef_Conversion ;
 
+typedef enum
+{
+    DISPLAY_ONLY,
+    MOVC_TYPE1,
+    MOVC_TYPE2
+}Coordinate_Receive_Handler_TypeDef;
 typedef struct
 {
     double x;

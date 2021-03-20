@@ -71,11 +71,15 @@ private slots:
 
     void on_bt_gcode_configure_clicked();
 
+    void on_bt_movC1_clicked();
+
 public slots:
     void received_callback(QByteArray log_data);
     void display_event(Display_packet data);
 private:
     Ui::MainWindow *ui;
     void object_detected(double x, double y, double roll);
+    Coordinate_Receive_Handler_TypeDef MovC_ACK = DISPLAY_ONLY;
+    void MovC_Hanlder(Coordinate_Receive_Handler_TypeDef type, Display_packet data);
 };
 #endif // MAINWINDOW_H

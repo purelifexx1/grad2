@@ -33,17 +33,22 @@ MainWindow::~MainWindow()
 void MainWindow::display_event(Display_packet data)
 {
     switch (data.action_id) {
-        case DISPLAY_POSITION:
-            ui->tb_x_cur_cor->setText(QString::number(data.RealData.x));
-            ui->tb_y_cur_cor->setText(QString::number(data.RealData.y));
-            ui->tb_z_cur_cor->setText(QString::number(data.RealData.z));
-            ui->tb_roll_cur_cor->setText(QString::number(data.RealData.roll*180.0f/3.141592f));
-            ui->tb_theta1_cur_val->setText(QString::number(data.RealData.theta1));
-            ui->tb_theta2_cur_val->setText(QString::number(data.RealData.theta2));
-            ui->tb_theta4_cur_val->setText(QString::number(data.RealData.theta4));
-            ui->tb_d3_cur_val->setText(QString::number(data.RealData.D3));
-            log_console("Position data received");
-            log_console("--------------------------");
+        case DISPLAY_POSITION:{
+            if(MovC_ACK == DISPLAY_ONLY){
+                ui->tb_x_cur_cor->setText(QString::number(data.RealData.x));
+                ui->tb_y_cur_cor->setText(QString::number(data.RealData.y));
+                ui->tb_z_cur_cor->setText(QString::number(data.RealData.z));
+                ui->tb_roll_cur_cor->setText(QString::number(data.RealData.roll*180.0f/3.141592f));
+                ui->tb_theta1_cur_val->setText(QString::number(data.RealData.theta1));
+                ui->tb_theta2_cur_val->setText(QString::number(data.RealData.theta2));
+                ui->tb_theta4_cur_val->setText(QString::number(data.RealData.theta4));
+                ui->tb_d3_cur_val->setText(QString::number(data.RealData.D3));
+                log_console("Position data received");
+                log_console("--------------------------");
+            }else{
+                MovC_Hanlder(MovC_ACK, data);
+            }
+        }
         break;
         case DISPLAY_RPD_DETAIL:{
             if(_packet_handler->number_of_packet != 0){
@@ -525,4 +530,116 @@ void MainWindow::on_bt_gcode_configure_clicked()
     command.append(RECEIVE_END);
     command[1] = command.length() - 2;
     mSerial->write(command, command.length());
+}
+
+void MainWindow::on_bt_movC1_clicked()
+{
+    QByteArray command;
+    command.append(START_CHAR);
+    command.append('\0');
+    command.append(COMMAND_TRANSMISION);
+    command.append(CMD_READ_POSITION);
+    command.append(REAL_POSITION_DATA);
+    command.append(RECEIVE_END);
+    command[1] = command.length() - 2;
+    mSerial->write(command, command.length());
+    MovC_ACK = MOVC_TYPE1;
+    //process data when current coordinate is received
+}
+void  MainWindow::MovC_Hanlder(Coordinate_Receive_Handler_TypeDef type, Display_packet data)
+{
+    double current_x, current_y, target_x, target_y;
+    double point_distance, D_distance;
+    double input_radius, gradiant, alpha;
+    double center_x1, center_y1, center_x2, center_y2;
+    double angle_current1, angle_target1, angle_current2, angle_target2;
+    double midx, midy;
+    double centerX, centerY;
+    current_x = data.RealData.x;
+    current_y = data.RealData.y; 
+    if(type == MOVC_TYPE1){
+        target_x = ui->tb_x_cor_c1->text().toDouble();
+        target_y = ui->tb_y_cor_c1->text().toDouble();
+        midx = (current_x + target_x) / 2;
+        midy = (current_y + target_y) / 2;
+        gradiant = atan2(target_y - current_y, target_x - current_x);
+        alpha = M_PI/2 - gradiant;
+        input_radius = ui->tb_radius_cor->text().toDouble();
+        point_distance = sqrt(pow(target_x - current_x, 2) + pow(target_y - current_y, 2));
+        D_distance = sqrt(input_radius*input_radius - pow(point_distance/2, 2));
+        center_x1 = midx - D_distance*cos(alpha);
+        center_y1 = midy + D_distance*sin(alpha);
+        center_x2 = midx + D_distance*cos(alpha);
+        center_y2 = midy - D_distance*sin(alpha);
+        angle_current1 = atan2(current_y - center_y1, current_x - center_x1);
+        angle_target1 = atan2(target_y - center_y1, target_x - center_x1);
+        angle_current2 = atan2(current_y - center_y2, current_x - center_x2);
+        angle_target2 = atan2(target_y - center_y2, target_x - center_x2);
+
+        if(input_radius < 0){
+            double denta1 = angle_target1 - angle_current1;
+            double denta2 = angle_target2 - angle_current2;
+            if(ui->rb_aw_c1->isChecked() == true){
+                if((denta1 > 0 && abs(denta1) > M_PI) || (denta2 > 0 && abs(denta2) <= M_PI)){
+                    centerX = center_x1;
+                    centerY = center_y1;
+                }else if((denta1 > 0 && abs(denta1) <= M_PI) || (denta2 > 0 && abs(denta2) > M_PI)){
+                    centerX = center_x2;
+                    centerY = center_y2;
+                }
+            }else if(ui->rb_cw_c1->isChecked() == true){
+                if((denta1 < 0 && abs(denta1) > M_PI) || (denta2 < 0 && abs(denta2) <= M_PI)){
+                    centerX = center_x1;
+                    centerY = center_y1;
+                }else if((denta1 < 0 && abs(denta1) <= M_PI) || (denta2 < 0 && abs(denta2) > M_PI)){
+                    centerX = center_x2;
+                    centerY = center_y2;
+                }
+            }
+        }else if(input_radius > 0){
+            double denta1 = angle_target1 - angle_current1;
+            double denta2 = angle_target2 - angle_current2;
+            if(ui->rb_aw_c1->isChecked() == true){
+                if((denta1 > 0 && abs(denta1) < M_PI) || (denta2 > 0 && abs(denta2) >= M_PI)){
+                    centerX = center_x1;
+                    centerY = center_y1;
+                }else if((denta1 > 0 && abs(denta1) >= M_PI) || (denta2 > 0 && abs(denta2) < M_PI)){
+                    centerX = center_x2;
+                    centerY = center_y2;
+                }
+            }else if(ui->rb_cw_c1->isChecked() == true){
+                if((denta1 < 0 && abs(denta1) < M_PI) || (denta2 < 0 && abs(denta2) >= M_PI)){
+                    centerX = center_x1;
+                    centerY = center_y1;
+                }else if((denta1 < 0 && abs(denta1) >= M_PI) || (denta2 < 0 && abs(denta2) < M_PI)){
+                    centerX = center_x2;
+                    centerY = center_y2;
+                }
+            }
+        }else{
+            log_console("Input radius is zero");
+            return;
+        }
+    }else if(type == MOVC_TYPE2){
+
+    }
+
+    QByteArray command;
+    command.append(START_CHAR);
+    command.append('\0');
+    command.append(COMMAND_TRANSMISION);
+    command.append(CMD_MOVE_CIRCLE);
+    ADD_VALUE(&command, target_x, SCARA_COR_VALUE_DOUBLE);
+    ADD_VALUE(&command, target_y, SCARA_COR_VALUE_DOUBLE);
+    ADD_VALUE(&command, centerX, SCARA_COR_VALUE_DOUBLE);
+    ADD_VALUE(&command, centerY, SCARA_COR_VALUE_DOUBLE);
+    if(ui->rb_cw_c1->isChecked() == true){
+        command.append(ARC_CW_TYPE);
+    }else if(ui->rb_aw_c1->isChecked() == true){
+        command.append(ARC_AW_TYPE);
+    }
+    command.append(RECEIVE_END);
+    command[1] = command.length() - 2;
+    mSerial->write(command, command.length());
+
 }
