@@ -1,13 +1,14 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+
 #include "detect.h"
 #include "calib.h"
 
-#define Y_LEVEL 150.7
-#define LOOP_SPACING 3
-int numof_current_point = 0, numof_detected_point = 0;
+#define Y_LEVEL 100 //90.7
+#define LOOP_SPACING 1
+
 int loop_count = 0;
-std::vector<bool> has_sent;
+
 
 QSerialPort *mSerial;
 MainWindow::MainWindow(QWidget *parent)
@@ -20,8 +21,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(VideoCapture, &detect::newPixmapCaptured, this, [&]()
     {
         ui->CameraFrame->setPixmap(VideoCapture->pixmap().scaled(640,480));
+        CalibFrame -> buffer.clear();
         CalibFrame -> buffer = VideoCapture ->buffer ;
-        CalibFrame -> Set = 1;
+        CalibFrame -> Set = true;
+        CalibFrame -> dT = VideoCapture -> dT;
     });
     connect(CalibFrame, &Calib::newPixmapCaptured, this, [&]()
     {
@@ -30,22 +33,31 @@ MainWindow::MainWindow(QWidget *parent)
         if(loop_count++ > LOOP_SPACING && enable == true){
             numof_detected_point = CalibFrame->Trans_buffer.size();
             loop_count = 0;
+            //for(size_t i = 0; i < CalibFrame->Trans_buffer.size(); i++)
+                //qDebug()<<" X = "<< CalibFrame->Trans_buffer[i][1]<< " Y = "<< CalibFrame->Trans_buffer[i][2] <<endl;
             if(numof_detected_point > numof_current_point){
                 numof_current_point++;
                 //for(int i = 0; i < CalibFrame->Trans_buffer.size(); i++)
                 has_sent.push_back(false);
-            }else if(numof_detected_point == numof_current_point){
+            }else if(numof_detected_point == numof_current_point && numof_current_point != 0 && numof_detected_point != 0){
                 std::vector<double> temper_vector;
-                for(int i = 0; i < CalibFrame->Trans_buffer.size(); i++)
+                for(size_t i = 0; i < CalibFrame->Trans_buffer.size(); i++)
                     temper_vector.push_back(CalibFrame->Trans_buffer[i][2]);
                 std::sort(temper_vector.begin(), temper_vector.end(), [](double x, double y){return x < y;});
-                for(int i = 0; i < temper_vector.size(); i++){
+                for(size_t i = 0; i < temper_vector.size(); i++){
                     if(temper_vector[i] < Y_LEVEL && has_sent[i] == false) {
-                        send_packet(CalibFrame->Trans_buffer[i][1], CalibFrame->Trans_buffer[i][2], 0, mSerial);
+                        qDebug()<<" X = "<< CalibFrame->Trans_buffer[i][1]<< " Y = "<< CalibFrame->Trans_buffer[i][2] <<endl;
+                        //qDebug()<<" X1 = "<< VideoCapture ->buffer[i][1]<< " Y1 = "<< VideoCapture ->buffer[i][2] <<endl;
+                        //qDebug()<<" X2 = "<< CalibFrame ->buffer[i][1]<< " Y2 = "<< CalibFrame ->buffer[i][2] <<endl;
+                        if (ui->checkBox_2->isChecked()== true)
+                        {
+                            send_packet(CalibFrame->Trans_buffer[i][1], CalibFrame->Trans_buffer[i][2], 0, mSerial);
+                        }
                         has_sent[i] = true;
                     }
                 }
-            }else if(numof_detected_point < numof_current_point){
+            }else if(numof_detected_point < numof_current_point && has_sent[0] == true){
+
                 numof_current_point--;
                 has_sent.erase(has_sent.begin());
             }
@@ -120,6 +132,7 @@ void MainWindow::on_pushButton_2_clicked()
         }else if(ui->pushButton_2->text() == "Disconnect"){
             ui->pushButton_2->setText("Connect");
             ui->pushButton_2->setStyleSheet("background-color:red");
+            ui->checkBox->setChecked(false);
             //Received_Thread->stop = true;
             mSerial->close();
 //            delete mSerial;

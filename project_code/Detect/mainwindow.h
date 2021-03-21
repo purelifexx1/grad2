@@ -17,6 +17,8 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    size_t numof_current_point, numof_detected_point = 0;
+    std::vector<bool> has_sent;
 private slots:
     void on_CameraOn_Button_clicked();
 

@@ -14,12 +14,12 @@ using namespace std;
 // Initialize the parameters
 float confThreshold = 0.6; // Confidence threshold
 float nmsThreshold = 0.4;  // Non-maximum suppression threshold
-int inpWidth = 416;  // Width of network's input image
-int inpHeight = 416; // Height of network's input image
+int inpWidth = 384;  // Width of network's input image
+int inpHeight = 384; // Height of network's input image
 vector<string> classes;
 
 // Remove the bounding boxes with low confidence using non-maxima suppression
-void postprocess(Mat& frame, const vector<Mat>& out, vector<vector<double>>& buffer);
+void postprocess(Mat& frame, const vector<Mat>& out, vector<vector<double>>& buffer,Point& center, double& theta);
 
 // Draw the predicted bounding box
 void drawPred(int classId, float conf, int left, int top, int right, int bottom, Mat& frame,
@@ -34,6 +34,7 @@ vector<String> getOutputsNames(const Net& net);
 
 void detect::run()
 {
+    buffer.clear();
     if (mVideoCap.isOpened())
     {
         // Load names of classes
@@ -55,6 +56,13 @@ void detect::run()
         net.setPreferableTarget(DNN_TARGET_OPENCL);
         while (true)
         {
+            //Time per frame
+            precTick = ticks;
+            ticks = (double) cv::getTickCount();
+
+            dT = (ticks - precTick) / cv::getTickFrequency(); //seconds
+
+            //Get frame
             mVideoCap >> mFrame;
             m_time.start();
             U_mFrame = mFrame.getUMat(ACCESS_READ) ;
@@ -78,7 +86,7 @@ void detect::run()
             // Remove the bounding boxes with low confidence
 
             buffer.clear();
-            postprocess(mFrame, outs, buffer);
+            postprocess(mFrame, outs, buffer, center, theta);
             string label = format("FPS : %f ", (double)m_time.elapsed());
             // Put efficiency information. The function getPerfProfile returns the overall time for inference(t) and the timings for each of the layers(in layersTimes)
             //vector<double> layersTimes;
@@ -99,7 +107,7 @@ void detect::run()
 }
 
 // Remove the bounding boxes with low confidence using non-maxima suppression
-void postprocess(Mat& frame, const vector<Mat>& outs, vector<vector<double>>& buffer)
+void postprocess(Mat& frame, const vector<Mat>& outs, vector<vector<double>>& buffer, Point& center, double& theta)
 {
     vector<int> classIds;
     vector<float> confidences;
@@ -141,8 +149,7 @@ void postprocess(Mat& frame, const vector<Mat>& outs, vector<vector<double>>& bu
     for (size_t i = 0; i < indices.size(); ++i)
     {
         vector<double> buffer_tmp;
-        Point center;
-        double theta;
+
         int idx = indices[i];
         Rect box = boxes[idx];
         drawPred(classIds[idx], confidences[idx], box.x, box.y,
@@ -224,6 +231,7 @@ void imageProcess(Mat input, Mat& output, int x_crop, int y_crop, Point& center_
     vector<double>theta_edges(4);
     vector<double>theta_total;
     double pi = atan2(1,1)*4;
+
     for( size_t i = 0; i< contours.size(); i++ ) // iterate through each contour.
     {
 
@@ -271,18 +279,19 @@ void imageProcess(Mat input, Mat& output, int x_crop, int y_crop, Point& center_
         }
     }
     //Calculate mean center point
-    center_final = Point(0,0);
-    theta_final = 0;
+
     if (center.size()>0)
     {
+        Point center_final_temp = Point(0,0);
+        double theta_final_temp = 0;
         for( size_t i = 0; i< center.size(); i++ )
         {
-            center_final += center[i];
-            theta_final += theta_total[i];
+            center_final_temp += center[i];
+            theta_final_temp += theta_total[i];
         }
 
-        center_final.x = int(center_final.x/center.size());
-        center_final.y = int(center_final.y/center.size());
+        center_final.x = int(center_final_temp.x/center.size());
+        center_final.y = int(center_final_temp.y/center.size());
         circle(output,center_final,1,Scalar(0, 255, 0),2);
         theta_final = theta_final/theta_total.size();
     }

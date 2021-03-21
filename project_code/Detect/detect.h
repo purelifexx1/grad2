@@ -14,7 +14,7 @@
 #include <QDebug>
 
 
-#define ID_CAMERA 0
+#define ID_CAMERA 1
 
 class detect: public QThread
 {
@@ -26,12 +26,16 @@ public:
         return mPixmap;
     }
     std::vector<std::vector<double>> buffer;
-
+    double ticks, precTick, dT = 0;
+    bool found = false;
+    int notFoundCount = 0;
 signals:
     void newPixmapCaptured();
 protected:
     void run() override;
 private:
+    cv::Point center;
+    double theta;
     QTime m_time;
     QPixmap mPixmap;
     cv::Mat mFrame ;
