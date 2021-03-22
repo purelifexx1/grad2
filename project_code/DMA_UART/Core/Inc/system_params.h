@@ -142,10 +142,10 @@
 #define COR_INVERSE_SCALE 0.000001f
 
 /* Auto pick and place operation parameter definition */
-#define PUT_DOWN_TIME_ON_SLOT 	0.6f
-#define PUT_DOWN_TIME_ON_OBJECT	0.6f
-#define PICK_UP_TIME_ON_OBJECT 	0.6f
-#define PICK_UP_TIME_ON_SLOT	0.6f
+#define PUT_DOWN_TIME_ON_SLOT 	0.3f
+#define PUT_DOWN_TIME_ON_OBJECT	0.3f
+#define PICK_UP_TIME_ON_OBJECT 	0.3f
+#define PICK_UP_TIME_ON_SLOT	0.3f
 #define MOVE_TIME 				1.2f
 #define ATTACH_TIME 			0.01f
 #define	DETACH_TIME 			0.01f

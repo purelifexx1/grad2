@@ -7,6 +7,27 @@
 #include "packet_handler.h"
 #include "gcode_decoder.h"
 #define log_console(content) ui->tb_console->append(content)
+#define METHOD_TAB_ENABLE(index, state) {                    \
+    if(state == true){                                       \
+        ui->tw_method_content->setEnabled(true);             \
+        for(int i = 0; i < 5; i++){                          \
+            if(i == index){                                  \
+              ui->tw_method_content->setTabEnabled(i, true); \
+            }else{                                           \
+              ui->tw_method_content->setTabEnabled(i, false);\
+            }                                                \
+        }                                                    \
+        ui->tw_method_content->setCurrentIndex(index);       \
+    }else{                                                   \
+        ui->tw_method_content->setEnabled(false);            \
+    }                                                        \
+}
+#define SET_CONTROL_UI_STATE(state) {        \
+    ui->tw_method_content->setEnabled(state);\
+    ui->gb_position_read->setEnabled(state); \
+    ui->gb_method_change->setEnabled(state); \
+    ui->gb_output_shaft->setEnabled(state);  \
+}
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -72,6 +93,8 @@ private slots:
     void on_bt_gcode_configure_clicked();
 
     void on_bt_movC1_clicked();
+
+    void on_bt_movC2_clicked();
 
 public slots:
     void received_callback(QByteArray log_data);

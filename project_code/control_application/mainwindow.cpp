@@ -23,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
     connect(ui->bt_start_test, SIGNAL(clicked()), this, SLOT(on_bt_testmt()));
     connect(ui->bt_stop_test, SIGNAL(clicked()), this, SLOT(on_bt_testmt()));
+    SET_CONTROL_UI_STATE(false);
 }
 
 MainWindow::~MainWindow()
@@ -32,6 +33,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::display_event(Display_packet data)
 {
+
     switch (data.action_id) {
         case DISPLAY_POSITION:{
             if(MovC_ACK == DISPLAY_ONLY){
@@ -57,6 +59,31 @@ void MainWindow::display_event(Display_packet data)
             QString detail_string;
             for(int t = 0; t < data.Reference_String.length(); t++){
                 switch (data.Reference_String.at(t)) {
+                case MANUAL_METHOD         :{
+                    METHOD_TAB_ENABLE(1, true);
+                    detail_string += system_parameter->DETAIL_STATUS[data.Reference_String.at(t)] + "; ";
+                }
+                break;
+                case SEMI_AUTO_METHOD      :{
+                    METHOD_TAB_ENABLE(0, true);
+                    detail_string += system_parameter->DETAIL_STATUS[data.Reference_String.at(t)] + "; ";
+                }
+                break;
+                case AUTO_METHOD           :{
+                    METHOD_TAB_ENABLE(3, true);
+                    detail_string += system_parameter->DETAIL_STATUS[data.Reference_String.at(t)] + "; ";
+                }
+                break;
+                case TEST_METHOD           :{
+                    METHOD_TAB_ENABLE(2, true);
+                    detail_string += system_parameter->DETAIL_STATUS[data.Reference_String.at(t)] + "; ";
+                }
+                break;
+                case PICK_AND_PLACE_METHOD :{
+                    METHOD_TAB_ENABLE(4, true);
+                    detail_string += system_parameter->DETAIL_STATUS[data.Reference_String.at(t)] + "; ";
+                }
+                break;
                 case MANUAL_SPEED:{
                     detail_string += system_parameter->DETAIL_STATUS[data.Reference_String.at(t)] +
                             ": " + QString::number(data.Reference_String.at(t+1)) + "; ";
@@ -90,7 +117,7 @@ void MainWindow::on_bt_refresh_clicked()
     ui->com_list->clear();
     const auto list_of_port = QSerialPortInfo::availablePorts();
         for (const QSerialPortInfo &port : list_of_port)
-            ui->com_list->addItem(port.portName());
+            ui->com_list->addItem(port.portName());       
 }
 
 void MainWindow::on_bt_connect_clicked()
@@ -110,7 +137,8 @@ void MainWindow::on_bt_connect_clicked()
         Received_Thread->set_serial_object(mSerial);
         connect(Received_Thread, SIGNAL(packet_received(QByteArray)), this, SLOT(received_callback(QByteArray)));
         Received_Thread->start();
-
+        SET_CONTROL_UI_STATE(true);
+        METHOD_TAB_ENABLE(0, false);
     }else if(ui->bt_connect->text() == "Disconnect"){
         ui->bt_connect->setText("Connect");
         ui->bt_connect->setStyleSheet("background-color:red");
@@ -118,6 +146,7 @@ void MainWindow::on_bt_connect_clicked()
         mSerial->close();
         delete mSerial;
         delete Received_Thread;
+        SET_CONTROL_UI_STATE(false);
     }
 }
 
@@ -180,7 +209,11 @@ void MainWindow::on_bt_movL_clicked()
     command.append(START_CHAR);
     command.append('\0');
     command.append(COMMAND_TRANSMISION);
-    command.append(CMD_MOVE_LINE);
+    if(ui->rb_movL->isChecked() == true){
+        command.append(CMD_MOVE_LINE);
+    }else if(ui->rb_movJ->isChecked() == true){
+        command.append(CMD_MOVE_JOINT);
+    }
     ADD_VALUE(&command, ui->tb_x_cor->text(), SCARA_COR_VALUE_TEXT);
     ADD_VALUE(&command, ui->tb_y_cor->text(), SCARA_COR_VALUE_TEXT);
     ADD_VALUE(&command, ui->tb_z_cor->text(), SCARA_COR_VALUE_TEXT);
@@ -397,11 +430,7 @@ void MainWindow::object_detected(double x, double y, double roll)
 
 void MainWindow::on_testing_clicked()
 {
-    FIFO_Buffer.push_back(12);
-    FIFO_Buffer.push_back(13);
-    FIFO_Buffer.push_back(14);
-    _packet_handler->categorize(&FIFO_Buffer);
-    qDebug()<<FIFO_Buffer;
+
 }
 
 
@@ -553,19 +582,25 @@ void  MainWindow::MovC_Hanlder(Coordinate_Receive_Handler_TypeDef type, Display_
     double input_radius, gradiant, alpha;
     double center_x1, center_y1, center_x2, center_y2;
     double angle_current1, angle_target1, angle_current2, angle_target2;
-    double midx, midy;
-    double centerX, centerY;
+    double midx, midy;    
+    double subX, subY;
     current_x = data.RealData.x;
     current_y = data.RealData.y; 
     if(type == MOVC_TYPE1){
         target_x = ui->tb_x_cor_c1->text().toDouble();
         target_y = ui->tb_y_cor_c1->text().toDouble();
+        double centerX, centerY;
         midx = (current_x + target_x) / 2;
         midy = (current_y + target_y) / 2;
         gradiant = atan2(target_y - current_y, target_x - current_x);
         alpha = M_PI/2 - gradiant;
         input_radius = ui->tb_radius_cor->text().toDouble();
         point_distance = sqrt(pow(target_x - current_x, 2) + pow(target_y - current_y, 2));
+        //check if input radius is valid or not
+        if(2*input_radius < point_distance -0.001){ //0.001 is safe distance to get the correct condition
+            log_console("The input radius is invalid");
+            return;
+        }
         D_distance = sqrt(input_radius*input_radius - pow(point_distance/2, 2));
         center_x1 = midx - D_distance*cos(alpha);
         center_y1 = midy + D_distance*sin(alpha);
@@ -620,8 +655,23 @@ void  MainWindow::MovC_Hanlder(Coordinate_Receive_Handler_TypeDef type, Display_
             log_console("Input radius is zero");
             return;
         }
+        subX = centerX - current_x;
+        subY = centerY - current_y;
     }else if(type == MOVC_TYPE2){
-
+        target_x = ui->tb_x_cor_c2->text().toDouble();
+        target_y = ui->tb_y_cor_c2->text().toDouble();
+        double radius1, radius2;
+        double centerX, centerY;
+        centerX = current_x + ui->tb_subpoint_x->text().toDouble();
+        centerY = current_y + ui->tb_subpoint_y->text().toDouble();
+        radius1 = sqrt(pow(current_x - centerX, 2) + pow(current_y - centerY, 2));
+        radius2 = sqrt(pow(target_x - centerX, 2) + pow(target_y - centerY, 2));
+        if(abs(radius1 - radius2) > 0.001){
+            log_console("Invalid subpoint value, unequal radius");
+            return;
+        }
+        subX = centerX - current_x;
+        subY = centerY - current_y;
     }
 
     QByteArray command;
@@ -631,15 +681,59 @@ void  MainWindow::MovC_Hanlder(Coordinate_Receive_Handler_TypeDef type, Display_
     command.append(CMD_MOVE_CIRCLE);
     ADD_VALUE(&command, target_x, SCARA_COR_VALUE_DOUBLE);
     ADD_VALUE(&command, target_y, SCARA_COR_VALUE_DOUBLE);
-    ADD_VALUE(&command, centerX, SCARA_COR_VALUE_DOUBLE);
-    ADD_VALUE(&command, centerY, SCARA_COR_VALUE_DOUBLE);
+    ADD_VALUE(&command, subX, SCARA_COR_VALUE_DOUBLE);
+    ADD_VALUE(&command, subY, SCARA_COR_VALUE_DOUBLE);
+    ADD_VALUE(&command, ui->tb_roll_ang_c1->text(), SCARA_COR_VALUE_TEXT);
+    if(ui->tb_v_factor->text().toDouble() > 1 || ui->tb_v_factor->text().toDouble() < 0){
+        log_console("Invalid for velocity factor");
+        return;
+    }else{
+        ADD_VALUE(&command, ui->tb_v_factor->text(), SCARA_COR_VALUE_TEXT);
+    }
     if(ui->rb_cw_c1->isChecked() == true){
         command.append(ARC_CW_TYPE);
     }else if(ui->rb_aw_c1->isChecked() == true){
         command.append(ARC_AW_TYPE);
+    }       
+    if(ui->rb_qva->isChecked() == true) {
+        command.append(DUTY_MODE_INIT_QVA);
+        ADD_VALUE(&command, ui->tb_a_factor->text(), SCARA_COR_VALUE_TEXT);
+    }else if(ui->rb_qvt->isChecked() == true){
+        command.append(DUTY_MODE_INIT_QVT);
+        ADD_VALUE(&command, ui->tb_time->text(), SCARA_COR_VALUE_TEXT);
+    }else if(ui->rb_qt->isChecked() == true){
+        command.append(DUTY_MODE_INIT_QT);
+        ADD_VALUE(&command, ui->tb_time->text(), SCARA_COR_VALUE_TEXT);
+    }
+    if(ui->rb_abs->isChecked() == true){
+       command.append(DUTY_COORDINATES_ABS);
+    }else if(ui->rb_inc->isChecked() == true){
+       command.append(DUTY_COORDINATES_REL);
+    }
+    if(ui->rb_lspb->isChecked() == true){
+       command.append(DUTY_TRAJECTORY_LSPB);
+    }else if(ui->rb_scur->isChecked() == true){
+       command.append(DUTY_TRAJECTORY_SCURVE);
+    }else if(ui->rb_linear->isChecked() == true){
+        command.append(DUTY_TRAJECTORY_LINEAR);
     }
     command.append(RECEIVE_END);
     command[1] = command.length() - 2;
     mSerial->write(command, command.length());
 
+}
+
+void MainWindow::on_bt_movC2_clicked()
+{
+    QByteArray command;
+    command.append(START_CHAR);
+    command.append('\0');
+    command.append(COMMAND_TRANSMISION);
+    command.append(CMD_READ_POSITION);
+    command.append(REAL_POSITION_DATA);
+    command.append(RECEIVE_END);
+    command[1] = command.length() - 2;
+    mSerial->write(command, command.length());
+    MovC_ACK = MOVC_TYPE2;
+    //process data when current coordinate is received
 }

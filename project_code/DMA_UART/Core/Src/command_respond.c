@@ -152,6 +152,7 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
                 }
                 break;
 
+                case CMD_MOVE_JOINT:
                 // Move line
                 case CMD_MOVE_LINE:
                 {
@@ -184,31 +185,75 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
 						}
 						duty_cmd->coordinate_type = message[temp_pointer+=4];
 						duty_cmd->trajec_type = message[temp_pointer+=1];
-						duty_cmd->path_type = DUTY_PATH_LINE;
-						duty_cmd->space_type = DUTY_SPACE_TASK;
+						if(command_id == CMD_MOVE_LINE){
+							duty_cmd->path_type = DUTY_PATH_LINE;
+							duty_cmd->space_type = DUTY_SPACE_TASK;
+						}else if(command_id == CMD_MOVE_JOINT){
+							duty_cmd->joint_type = DUTY_JOINT_4DOF;
+							duty_cmd->space_type = DUTY_SPACE_JOINT;
+						}else{
+							return CMD_ERROR;
+						}
+
 					}else{
 						return CMD_ERROR;
 					}
 					duty_cmd->robot_mode = SCARA_MODE_DUTY;
 					duty_cmd->robot_method = SCARA_METHOD_SEMI_AUTO;
 					duty_cmd->change_method = FALSE;
-					return CMD_MOVE_LINE;
+					return command_id;
                 }
 				break;
 
-				// Move circle
-				case CMD_MOVE_CIRCLE:
-				{
-					return CMD_MOVE_CIRCLE;
-				}
-				break;
 
-				// Move joint
-				case CMD_MOVE_JOINT:
-				{
-					return CMD_MOVE_JOINT;
-				}
-				break;
+				// Move circle
+                case CMD_MOVE_CIRCLE:{
+                	if(length == 34){ // 7 int32_t number + 4 byte number + 2 define byte
+                		uint8_t mode_init, arc_type;
+                		temp_pointer = -2;
+                		duty_cmd->target_point.x      = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
+                		duty_cmd->target_point.y      = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
+                		duty_cmd->sub_point.x 	      = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
+                		duty_cmd->sub_point.y         = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
+                		duty_cmd->v_factor			  = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
+                		duty_cmd->target_point.roll   = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
+                		arc_type = message[temp_pointer+=4];
+                		if(arc_type == ARC_AW_TYPE){
+                			duty_cmd->arc_dir = 1;
+                		}else if(arc_type == ARC_CW_TYPE){
+                			duty_cmd->arc_dir = -1;
+                		}else{
+                			return CMD_ERROR;
+                		}
+                		mode_init = message[temp_pointer+=1];
+						if(mode_init == DUTY_MODE_INIT_QVA){
+							duty_cmd->modeInit_type = DUTY_MODE_INIT_QVA;
+							duty_cmd->a_factor = (double)(*(int32_t*)(&message[temp_pointer+=1]))*COR_INVERSE_SCALE;
+						}else if(mode_init == DUTY_MODE_INIT_QVT){
+							duty_cmd->modeInit_type = DUTY_MODE_INIT_QVT;
+							duty_cmd->time_total = (double)(*(int32_t*)(&message[temp_pointer+=1]))*COR_INVERSE_SCALE;
+						}else if(mode_init == DUTY_MODE_INIT_QT){
+							duty_cmd->modeInit_type = DUTY_MODE_INIT_QT;
+							duty_cmd->time_total = (double)(*(int32_t*)(&message[temp_pointer+=1]))*COR_INVERSE_SCALE;
+						}else if(mode_init == DUTY_MODE_INIT_QV){
+							duty_cmd->modeInit_type = DUTY_MODE_INIT_QV;
+							duty_cmd->v_factor = (double)(*(int32_t*)(&message[temp_pointer+=1]))*COR_INVERSE_SCALE;
+						}else{
+							return CMD_ERROR;
+						}
+						duty_cmd->coordinate_type = message[temp_pointer+=4];
+						duty_cmd->trajec_type = message[temp_pointer+=1];
+						duty_cmd->path_type = DUTY_PATH_CIRCLE;
+						duty_cmd->space_type = DUTY_SPACE_TASK;
+                	}else{
+                		return CMD_ERROR;
+                	}
+                	duty_cmd->robot_mode = SCARA_MODE_DUTY;
+					duty_cmd->robot_method = SCARA_METHOD_SEMI_AUTO;
+					duty_cmd->change_method = FALSE;
+					return CMD_MOVE_CIRCLE;
+                }
+                break;
 
 				// Rotate Single
 				case CMD_ROTATE_SINGLE:
@@ -222,7 +267,7 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
 				{
 					if(length == 3){ // 1 byte output value + 2 byte define
 						temp_pointer = 2;
-						duty_cmd->sub_para_int = message[temp_pointer];
+						duty_cmd->arc_dir = message[temp_pointer];
 						return CMD_OUTPUT;
 					}else{
 						return CMD_ERROR;
@@ -470,12 +515,12 @@ Robot_RespondTypedef	commandReply	(Robot_CommandTypedef cmd_type,
 		break;
 	case CMD_OUTPUT:
 		{
-			if (1 == duty_cmd.sub_para_int) {
+			if (1 == duty_cmd.arc_dir) {
 				scaraSetOutput(1);
 				// strcpy( (char *)detail, "Output ON");
 				// detail_length += 9;
 				detail[(*detail_length)++] = OUTPUT_ON;
-			} else if (0 == duty_cmd.sub_para_int) {
+			} else if (0 == duty_cmd.arc_dir) {
 				scaraSetOutput(0);
 				detail[(*detail_length)++] = OUTPUT_OFF;
 			} else {

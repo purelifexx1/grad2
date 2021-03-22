@@ -369,7 +369,7 @@ typedef struct
 	JointTypeDef				joint_type;
 	TrajectoryTypeDef			trajec_type;
 	ModeInitTypeDef				modeInit_type;
-	int32_t						sub_para_int;
+	int32_t						arc_dir;
 	double						sub_para_double;
 	double						time_total;
 	SCARA_PositionTypeDef		target_point;
@@ -490,6 +490,7 @@ SCARA_DutyStateTypeDef		scaraGetDutyState	(void);
 uint8_t						scaraIsScanLimit	(void);
 uint8_t						scaraIsFinish		(double run_time);
 int32_t						scaraPosition2String(char *result, SCARA_PositionTypeDef position);
+
 
 SCARA_StatusTypeDef			scaraKeyInit(SCARA_KeyTypeDef key, int32_t speed, double *runtime);
 SCARA_StatusTypeDef  scaraKeyInit1(SCARA_KeyTypeDef key, int32_t speed);
