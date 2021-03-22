@@ -1,0 +1,10 @@
+release/define_parameter.o
+release/gcode_decoder.o
+release/main.o
+release/mainwindow.o
+release/packet_handler.o
+release/receivethread.o
+release/moc_gcode_decoder.o
+release/moc_mainwindow.o
+release/moc_packet_handler.o
+release/moc_receivethread.o

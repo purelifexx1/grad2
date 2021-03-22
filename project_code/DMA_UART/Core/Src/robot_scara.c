@@ -639,7 +639,7 @@ SCARA_StatusTypeDef	scaraInitCircle		(Path_Circle_TypeDef *circle,
 //	if( 1 != dir && -1 != dir) {
 //		return SCARA_STATUS_ERROR_PARA;// error direction param !!!
 //	}
-	if(dir != ARC_AW_TYPE || dir != ARC_CW_TYPE){
+	if(dir != 1 && dir != -1){
 		return SCARA_STATUS_ERROR_PARA;
 	}
 

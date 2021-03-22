@@ -320,6 +320,7 @@ void MainWindow::on_bt_read_position_clicked()
     command.append(RECEIVE_END);
     command[1] = command.length() - 2;
     mSerial->write(command, command.length());
+    MovC_ACK = DISPLAY_ONLY;
 }
 
 void MainWindow::on_bt_keycommand()
