@@ -28,6 +28,14 @@
     ui->gb_method_change->setEnabled(state); \
     ui->gb_output_shaft->setEnabled(state);  \
 }
+#define CHOOSE_CENTER1 { \
+    centerX = center_x1; \
+    centerY = center_y1; \
+}
+#define CHOOSE_CENTER2 { \
+    centerX = center_x2; \
+    centerY = center_y2; \
+}
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE

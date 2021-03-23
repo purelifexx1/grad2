@@ -10,41 +10,18 @@
 #include <stdio.h>
 #include <string.h>
 extern const char *DETAIL_STATUS[NUM_OF_STATUS];
-
-//const char *ROBOTCOMMAND[NUM_OF_COMMAND - 1]  = {"STOP",
-//												"SCAN",
-//												"HOME",
-//												"MOVL",
-//												"MOVC",
-//												"MOVJ",
-//												"ROTA",
-//												"OUTP",
-//												"READ",
-//												"POSI",
-//												"SETT",
-//												"METH",  // 12 nomal
-//
-//										        "JNEW",
-//										        "JDEL",
-//										        "JPML",
-//										        "JPMJ",
-//										        "JPOP",
-//										        "JTES",
-//										        "JRUN ", // 7 job
-//
-//										        "KEYB",  // 2 key board
-//												"KSPE"
-//												};
-//
-//const char *ROBOTRESPOND[NUM_OF_RESPOND]  	  = {"IDLE",
-//												"BUSY",
-//												"POSI",
-//												"STAR",
-//												"RUNN",
-//												"DONE",
-//												"STOP",
-//												"ERRO",
-//												"OKAY"};
+extern int8_t 	test_value_array[4] = {5, 5, 5, 10};
+extern double conveyor_speed = 30.0;
+extern double PUT_DOWN_TIME_ON_SLOT 	= 0.3f;
+extern double PUT_DOWN_TIME_ON_OBJECT	= 0.3f;
+extern double PICK_UP_TIME_ON_OBJECT 	= 0.3f;
+extern double PICK_UP_TIME_ON_SLOT	    = 0.3f;
+extern double MOVE_TIME 				= 1.2f;
+extern double ATTACH_TIME 			    = 0.01f;
+extern double DETACH_TIME 			    = 0.01f;
+extern double UP_HEIGHT 				= 131.0f;
+extern double DOWN_HEIGHT_ON_OBJECT 	= 126.5f;
+extern double DOWN_HEIGHT_ON_SLOT 	    = 126.5f;
 
 Position_DataType position_type;
 SCARA_Gcode_Cor_TypeDef		Gcode_Cor[1000];
@@ -290,31 +267,15 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
 				break;			
 
 				// Setting
-				case CMD_SETTING:
+				case CMD_TEST_METHOD_SETTING:
 				{
-					if (length == 4){ // 2 byte configure + 2 byte define
-						uint8_t mode_traject;
-						uint8_t mode_coordinate;
+					if (length == 6){ // 4 byte configure + 2 byte define
 						temp_pointer = 2;
-						mode_coordinate = message[temp_pointer++];
-						mode_traject = message[temp_pointer];
-
-						if (mode_coordinate == DUTY_COORDINATES_ABS) {
-							duty_cmd->coordinate_type = DUTY_COORDINATES_ABS;
-						} else if (mode_coordinate == DUTY_COORDINATES_REL) {
-							duty_cmd->coordinate_type = DUTY_COORDINATES_REL;
-						} else {
-							return CMD_ERROR;
-						}
-
-						if (mode_traject == DUTY_TRAJECTORY_LSPB) {
-							duty_cmd->trajec_type = DUTY_TRAJECTORY_LSPB;
-						} else if (mode_traject == DUTY_TRAJECTORY_SCURVE) {
-							duty_cmd->trajec_type = DUTY_TRAJECTORY_SCURVE;
-						} else {
-							return CMD_ERROR;
-						}
-						return CMD_SETTING;
+						test_value_array[0] = message[temp_pointer++];
+						test_value_array[1] = message[temp_pointer++];
+						test_value_array[2] = message[temp_pointer++];
+						test_value_array[3] = message[temp_pointer++];
+						return CMD_TEST_METHOD_SETTING;
 					}else{
 						return CMD_ERROR;
 					}
@@ -564,26 +525,8 @@ Robot_RespondTypedef	commandReply	(Robot_CommandTypedef cmd_type,
 			ret =  RPD_POSITION;
 		}
 		break;
-	case CMD_SETTING:
-		if ( DUTY_COORDINATES_ABS == duty_cmd.coordinate_type) {
-			// strcpy( (char *)detail, "ABSOLUTE.");
-			// detail_length += 9;
-			detail[(*detail_length)++] = ABSOLUTE;
-		} else if ( DUTY_COORDINATES_REL == duty_cmd.coordinate_type) {
-			detail[(*detail_length)++] = RELATIVE;
-		} else {
-			detail[(*detail_length)++] = WRONG_COORDINATE;
-			return RPD_ERROR;
-		}
-
-		if ( DUTY_TRAJECTORY_LSPB == duty_cmd.trajec_type) {
-			detail[(*detail_length)++] = LSPB;
-		} else if ( DUTY_TRAJECTORY_SCURVE == duty_cmd.trajec_type) {
-			detail[(*detail_length)++] = S_CURVE;
-		} else {
-			detail[(*detail_length)++] = WRONG_TRAJECTORY_TYPE;
-			return RPD_ERROR;
-		}		
+	case CMD_TEST_METHOD_SETTING:
+		detail[(*detail_length)++] = TEST_VALUE_SETTING;
 		ret = RPD_OK;
 		break;
 	case CMD_SETUP_CONVEYOR_SPEED:

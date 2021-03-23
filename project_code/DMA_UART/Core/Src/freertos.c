@@ -72,7 +72,6 @@ extern SCARA_PositionTypeDef		positionNext;
 extern SCARA_PositionTypeDef		positionTrue;
 extern SCARA_Gcode_Cor_TypeDef		Gcode_Cor[1000];
 extern int32_t						current_key_speed1 = 1;
-extern double						conveyor_speed = 0;
 extern double						up_z_height;
 extern double 						down_z_height;
 extern int32_t						total_num_of_point;
@@ -457,28 +456,28 @@ void StartDefaultTask(void const * argument)
 						  switch (duty_cmd.test_key)
 						  {
 						  case SCARA_TEST_MOTOR1_POS:
-							 test_value[duty_cmd.test_key/2] = 5;
+							 test_value[duty_cmd.test_key/2] = test_value_array[0];
 						  break;
 						  case SCARA_TEST_MOTOR1_NEG:
-							 test_value[duty_cmd.test_key/2] = -5;
+							 test_value[duty_cmd.test_key/2] = -test_value_array[0];
 						  break;
 						  case SCARA_TEST_MOTOR2_POS:
-							 test_value[duty_cmd.test_key/2] = 5;
+							 test_value[duty_cmd.test_key/2] = test_value_array[1];
 						  break;
 						  case SCARA_TEST_MOTOR2_NEG:
-							 test_value[duty_cmd.test_key/2] = -5;
+							 test_value[duty_cmd.test_key/2] = -test_value_array[1];
 						  break;
 						  case SCARA_TEST_MOTOR3_POS:
-							 test_value[duty_cmd.test_key/2] = 5;
+							 test_value[duty_cmd.test_key/2] = test_value_array[2];
 						  break;
 						  case SCARA_TEST_MOTOR3_NEG:
-							 test_value[duty_cmd.test_key/2] = -5;
+							 test_value[duty_cmd.test_key/2] = -test_value_array[2];
 						  break;
 						  case SCARA_TEST_MOTOR4_POS:
-							 test_value[duty_cmd.test_key/2] = 10;
+							 test_value[duty_cmd.test_key/2] = test_value_array[3];
 						  break;
 						  case SCARA_TEST_MOTOR4_NEG:
-							 test_value[duty_cmd.test_key/2] = -10;
+							 test_value[duty_cmd.test_key/2] = -test_value_array[3];
 						  break;						  
 						  default:
 							  break;

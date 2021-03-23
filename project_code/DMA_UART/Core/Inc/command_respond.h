@@ -18,9 +18,22 @@
 #define LINEAR_PACKET_LENGTH	13 // 12 byte for x y feedrate, 1 byte define
 #define CIRCLE_PACKET_LENGTH	21 // 20 byte for x y feedrate i j, 1 byte define
 #define FIRST_PACKET_LENGTH		13 // 12 byte for MinZ MaxZ Total_num_of_point, 1 byte define
-double conveyor_speed, up_z_height, down_z_height;
+double up_z_height, down_z_height;
 int32_t current_key_speed1;
 int32_t total_num_of_point;
+int8_t  test_value_array[4];
+
+double PUT_DOWN_TIME_ON_SLOT;
+double PUT_DOWN_TIME_ON_OBJECT;
+double PICK_UP_TIME_ON_OBJECT;
+double PICK_UP_TIME_ON_SLOT;
+double MOVE_TIME;
+double ATTACH_TIME;
+double	DETACH_TIME;
+double UP_HEIGHT;
+double DOWN_HEIGHT_ON_OBJECT;
+double DOWN_HEIGHT_ON_SLOT;
+double conveyor_speed;
 
 typedef enum
 {
@@ -34,7 +47,7 @@ typedef enum
 	CMD_OUTPUT,
 	CMD_READ_STATUS,
 	CMD_READ_POSITION,
-	CMD_SETTING,
+	CMD_TEST_METHOD_SETTING,
 	CMD_METHOD_CHANGE,
     CMD_MOTOR_TEST,
 
@@ -101,7 +114,7 @@ typedef enum
     OUTPUT_OFF,
     WRONG_OUTPUT_VALUE,
 	WRONG_READ_POSITION_TYPE,
-    ABSOLUTE,
+    TEST_VALUE_SETTING,
     RELATIVE,
     LSPB,
     S_CURVE,

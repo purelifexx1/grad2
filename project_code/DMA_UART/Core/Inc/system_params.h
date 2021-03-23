@@ -142,18 +142,17 @@
 #define COR_INVERSE_SCALE 0.000001f
 
 /* Auto pick and place operation parameter definition */
-#define PUT_DOWN_TIME_ON_SLOT 	0.3f
-#define PUT_DOWN_TIME_ON_OBJECT	0.3f
-#define PICK_UP_TIME_ON_OBJECT 	0.3f
-#define PICK_UP_TIME_ON_SLOT	0.3f
-#define MOVE_TIME 				1.2f
-#define ATTACH_TIME 			0.01f
-#define	DETACH_TIME 			0.01f
-#define	TOTAL_TIME 				(PUT_DOWN_TIME + PICK_UP_TIME + MOVE_TIME + ATTACH_TIME + DETACH_TIME)
+//#define PUT_DOWN_TIME_ON_SLOT 	0.3f
+//#define PUT_DOWN_TIME_ON_OBJECT	0.3f
+//#define PICK_UP_TIME_ON_OBJECT 	0.3f
+//#define PICK_UP_TIME_ON_SLOT	0.3f
+//#define MOVE_TIME 				1.2f
+//#define ATTACH_TIME 			0.01f
+//#define	DETACH_TIME 			0.01f
 #define	TIMER_SCALE 			0.000297619f // 25e3/84e6
-#define UP_HEIGHT 				131.0f
-#define DOWN_HEIGHT_ON_OBJECT 	126.5f
-#define DOWN_HEIGHT_ON_SLOT 	126.5f
+//#define UP_HEIGHT 				131.0f
+//#define DOWN_HEIGHT_ON_OBJECT 	126.5f
+//#define DOWN_HEIGHT_ON_SLOT 	126.5f
 //#define CONVEYOR_SPEED 30.0f //mm/s
 
 typedef enum{

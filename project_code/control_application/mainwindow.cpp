@@ -24,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->bt_start_test, SIGNAL(clicked()), this, SLOT(on_bt_testmt()));
     connect(ui->bt_stop_test, SIGNAL(clicked()), this, SLOT(on_bt_testmt()));
     SET_CONTROL_UI_STATE(false);
+
 }
 
 MainWindow::~MainWindow()
@@ -258,18 +259,11 @@ void MainWindow::on_bt_model_setting_clicked()
     command.append(START_CHAR);
     command.append('\0');
     command.append(COMMAND_TRANSMISION);
-    command.append(CMD_SETTING);
-    if(ui->rb_abs->isChecked() == true){
-        command.append(DUTY_COORDINATES_ABS);
-    }else if(ui->rb_inc->isChecked() == false){
-        command.append(DUTY_COORDINATES_REL);
-    }
-
-    if(ui->rb_lspb->isChecked() == true){
-        command.append(DUTY_TRAJECTORY_LSPB);
-    }else if(ui->rb_scur->isChecked() == false){
-        command.append(DUTY_TRAJECTORY_SCURVE);
-    }
+    command.append(CMD_TEST_METHOD_SETTING);
+    command.append(ui->tb_m1_pulse->text().toUInt());
+    command.append(ui->tb_m2_pulse->text().toUInt());
+    command.append(ui->tb_m3_pulse->text().toUInt());
+    command.append(ui->tb_m4_pulse->text().toUInt());
     command.append(RECEIVE_END);
     command[1] = command.length() - 2;
     mSerial->write(command, command.length());
@@ -583,10 +577,10 @@ void  MainWindow::MovC_Hanlder(Coordinate_Receive_Handler_TypeDef type, Display_
     double input_radius, gradiant, alpha;
     double center_x1, center_y1, center_x2, center_y2;
     double angle_current1, angle_target1, angle_current2, angle_target2;
-    double midx, midy;    
+    double midx, midy;
     double subX, subY;
     current_x = data.RealData.x;
-    current_y = data.RealData.y; 
+    current_y = data.RealData.y;
     if(type == MOVC_TYPE1){
         target_x = ui->tb_x_cor_c1->text().toDouble();
         target_y = ui->tb_y_cor_c1->text().toDouble();
@@ -617,19 +611,23 @@ void  MainWindow::MovC_Hanlder(Coordinate_Receive_Handler_TypeDef type, Display_
             double denta2 = angle_target2 - angle_current2;
             if(ui->rb_aw_c1->isChecked() == true){
                 if((denta1 > 0 && abs(denta1) > M_PI) || (denta2 > 0 && abs(denta2) <= M_PI)){
-                    centerX = center_x1;
-                    centerY = center_y1;
+                    CHOOSE_CENTER1;
                 }else if((denta1 > 0 && abs(denta1) <= M_PI) || (denta2 > 0 && abs(denta2) > M_PI)){
-                    centerX = center_x2;
-                    centerY = center_y2;
+                    CHOOSE_CENTER2;
+                }else if(denta1 < 0 && abs(denta1) <= M_PI){
+                    CHOOSE_CENTER1;
+                }else if(denta2 < 0 && abs(denta2) <= M_PI){
+                    CHOOSE_CENTER2;
                 }
             }else if(ui->rb_cw_c1->isChecked() == true){
                 if((denta1 < 0 && abs(denta1) > M_PI) || (denta2 < 0 && abs(denta2) <= M_PI)){
-                    centerX = center_x1;
-                    centerY = center_y1;
+                    CHOOSE_CENTER1
                 }else if((denta1 < 0 && abs(denta1) <= M_PI) || (denta2 < 0 && abs(denta2) > M_PI)){
-                    centerX = center_x2;
-                    centerY = center_y2;
+                    CHOOSE_CENTER2;
+                }else if(denta1 > 0 && abs(denta1) <= M_PI){
+                    CHOOSE_CENTER1;
+                }else if(denta2 > 0 && abs(denta2) <= M_PI){
+                    CHOOSE_CENTER2;
                 }
             }
         }else if(input_radius > 0){
@@ -637,19 +635,23 @@ void  MainWindow::MovC_Hanlder(Coordinate_Receive_Handler_TypeDef type, Display_
             double denta2 = angle_target2 - angle_current2;
             if(ui->rb_aw_c1->isChecked() == true){
                 if((denta1 > 0 && abs(denta1) < M_PI) || (denta2 > 0 && abs(denta2) >= M_PI)){
-                    centerX = center_x1;
-                    centerY = center_y1;
+                    CHOOSE_CENTER1;
                 }else if((denta1 > 0 && abs(denta1) >= M_PI) || (denta2 > 0 && abs(denta2) < M_PI)){
-                    centerX = center_x2;
-                    centerY = center_y2;
+                    CHOOSE_CENTER2;
+                }else if(denta1 < 0 && abs(denta1) >= M_PI){
+                    CHOOSE_CENTER1;
+                }else if(denta2 < 0 && abs(denta2) >= M_PI){
+                    CHOOSE_CENTER2;
                 }
             }else if(ui->rb_cw_c1->isChecked() == true){
                 if((denta1 < 0 && abs(denta1) < M_PI) || (denta2 < 0 && abs(denta2) >= M_PI)){
-                    centerX = center_x1;
-                    centerY = center_y1;
+                    CHOOSE_CENTER1;
                 }else if((denta1 < 0 && abs(denta1) >= M_PI) || (denta2 < 0 && abs(denta2) < M_PI)){
-                    centerX = center_x2;
-                    centerY = center_y2;
+                    CHOOSE_CENTER2;
+                }else if(denta1 > 0 && abs(denta1) >= M_PI){
+                    CHOOSE_CENTER1;
+                }else if(denta2 > 0 && abs(denta2) >= M_PI){
+                    CHOOSE_CENTER2;
                 }
             }
         }else{
