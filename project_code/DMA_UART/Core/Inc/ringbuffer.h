@@ -11,7 +11,7 @@
 #include "common_def.h"
 #include "string.h"
 
-#define RINGBUFFER_SIZE		(1024)
+#define RINGBUFFER_SIZE		(4096)
 
 
 

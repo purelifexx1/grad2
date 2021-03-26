@@ -437,6 +437,10 @@ void MainWindow::on_bt_conveyor_sp_clicked()
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_SETUP_CONVEYOR_SPEED);
     ADD_VALUE(&command, ui->tb_conveyor_sp->text(), SCARA_COR_VALUE_TEXT);
+    for(int i = 1; i <= 10; i++){
+        QLineEdit *tb = this->findChild<QLineEdit*>("tb_p2p_" + QString::number(i));
+        ADD_VALUE(&command, tb->text(), SCARA_COR_VALUE_TEXT);
+    }
     command.append(RECEIVE_END);
     command[1] = command.length() - 2;
     mSerial->write(command, command.length());
@@ -489,7 +493,7 @@ void MainWindow::on_bt_process_clicked()
         send_packet.append(gcode->data_packet.at(c));
     }
     mSerial->write(send_packet, send_packet.length());
-    log_console("Data has been sent successfully");
+    log_console("Data has been sent successfully, " + QString::number(send_packet.length()) + " bytes in total");
 }
 
 void MainWindow::on_bt_gcode_start_clicked()
@@ -592,7 +596,7 @@ void  MainWindow::MovC_Hanlder(Coordinate_Receive_Handler_TypeDef type, Display_
         input_radius = ui->tb_radius_cor->text().toDouble();
         point_distance = sqrt(pow(target_x - current_x, 2) + pow(target_y - current_y, 2));
         //check if input radius is valid or not
-        if(2*input_radius < point_distance -0.001){ //0.001 is safe distance to get the correct condition
+        if(2*abs(input_radius) < point_distance -0.001){ //0.001 is safe distance to get the correct condition
             log_console("The input radius is invalid");
             return;
         }
@@ -739,4 +743,13 @@ void MainWindow::on_bt_movC2_clicked()
     mSerial->write(command, command.length());
     MovC_ACK = MOVC_TYPE2;
     //process data when current coordinate is received
+}
+
+void MainWindow::on_bt_sw_test_clicked()
+{
+    if(ui->gb_position_read->isEnabled() == true){
+        SET_CONTROL_UI_STATE(false);
+    }else{
+        SET_CONTROL_UI_STATE(true);
+    }
 }

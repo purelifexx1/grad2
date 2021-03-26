@@ -237,19 +237,19 @@ typedef struct
 	double			 v_lim;
 	uint8_t			 num_of_phase;
 	double			 j_max;
-	double			 Tm;
-	double			 Tc;
+	double			 Td;
+	double			 Ta;
 	double			 Tf;
 	uint32_t		 num_of_sampling;
 	double			 total_s;
-	double			 v_1;
-	double			 s_1;
-	double			 v_2;
-	double			 s_2;
-	double			 v_3;
-	double			 s_3;
-	double			 v_4;
-	double			 s_4;
+	double			 k_1;
+	double			 k_2;
+	double			 k_3;
+	double			 k_4;
+	double			 k_5;
+	double			 k_6;
+	double			 k_7;
+	double			 k_8;
 	double			 a_current;
 	double			 v_current;
 	double			 s_current;
@@ -448,7 +448,13 @@ SCARA_StatusTypeDef	scaraInitLSPB1		(Trajectory_LSPB_TypeDef *lspb,
 										double total_s,
 										ModeInitTypeDef modeinit,
 										double v_factor,
-										double a_factor);
+										double additional_factor);
+SCARA_StatusTypeDef			scaraInitScurve1	(Trajectory_Scurve_TypeDef *scurve,
+												Trajectory_TargetTypeDef target,
+												double total_s,
+												ModeInitTypeDef modeinit,
+												double v_factor,
+												double additional_factor);
 
 SCARA_StatusTypeDef			scaraInitScurve		(Trajectory_Scurve_TypeDef *scurve,
 												Trajectory_TargetTypeDef target,
@@ -465,8 +471,9 @@ SCARA_StatusTypeDef			scaraFlowDuty		(double time,
 SCARA_StatusTypeDef			scaraFlowLine		(Path_Line_TypeDef *line, double s);
 SCARA_StatusTypeDef			scaraFlowCircle		(Path_Circle_TypeDef *circle, double s);
 SCARA_StatusTypeDef			scaraFlowLSPB		(Trajectory_LSPB_TypeDef *lspb, double time);
-SCARA_StatusTypeDef	scaraFlowLSPB1		(Trajectory_LSPB_TypeDef *lspb, double time);
+SCARA_StatusTypeDef			scaraFlowLSPB1		(Trajectory_LSPB_TypeDef *lspb, double time);
 SCARA_StatusTypeDef			scaraFLowScurve		(Trajectory_Scurve_TypeDef *scurve, double time);
+SCARA_StatusTypeDef			scaraFLowScurve1		(Trajectory_Scurve_TypeDef *scurve, double t);
 
 SCARA_StatusTypeDef 		scara_test_InitDuty(DUTY_Command_TypeDef command);
 
@@ -489,11 +496,9 @@ SCARA_MethodTypeDef			scaraGetMethod		(void);
 SCARA_DutyStateTypeDef		scaraGetDutyState	(void);
 uint8_t						scaraIsScanLimit	(void);
 uint8_t						scaraIsFinish		(double run_time);
-int32_t						scaraPosition2String(char *result, SCARA_PositionTypeDef position);
 
 
-SCARA_StatusTypeDef			scaraKeyInit(SCARA_KeyTypeDef key, int32_t speed, double *runtime);
-SCARA_StatusTypeDef  scaraKeyInit1(SCARA_KeyTypeDef key, int32_t speed);
+SCARA_StatusTypeDef  		scaraKeyInit1(SCARA_KeyTypeDef key, int32_t speed);
 SCARA_StatusTypeDef			scaraKeyFlow(double time,
 										SCARA_PositionTypeDef *pos_Next,
 										SCARA_PositionTypeDef pos_Current);

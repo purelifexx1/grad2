@@ -24,10 +24,15 @@ void update_gcode_point(DUTY_Command_TypeDef *duty_cmd, SCARA_Gcode_Cor_TypeDef 
     if(gcode_point.type_define[0] == LINEAR_TYPE){
   	  duty_cmd->path_type = DUTY_PATH_LINE;
     }else if(gcode_point.type_define[0] == ARC_AW_TYPE){
-
+      duty_cmd->sub_point.x = (double)gcode_point.I * COR_INVERSE_SCALE;
+      duty_cmd->sub_point.y = (double)gcode_point.J * COR_INVERSE_SCALE;
+      duty_cmd->path_type = DUTY_PATH_CIRCLE;
+      duty_cmd->arc_dir = 1;
     }else if(gcode_point.type_define[0] == ARC_CW_TYPE){
-
+      duty_cmd->sub_point.x = (double)gcode_point.I * COR_INVERSE_SCALE;
+      duty_cmd->sub_point.y = (double)gcode_point.J * COR_INVERSE_SCALE;
+      duty_cmd->path_type = DUTY_PATH_CIRCLE;
+      duty_cmd->arc_dir = -1;
     }
-    duty_cmd->path_type = DUTY_PATH_LINE;
     duty_cmd->space_type = DUTY_SPACE_TASK;
 }

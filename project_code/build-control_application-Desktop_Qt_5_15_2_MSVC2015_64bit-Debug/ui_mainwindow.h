@@ -218,6 +218,7 @@ public:
     QGroupBox *gb_output_shaft;
     QPushButton *bt_off_magnet;
     QPushButton *bt_on_magnet;
+    QPushButton *bt_sw_test;
     QMenuBar *menubar;
     QStatusBar *statusbar;
 
@@ -797,6 +798,9 @@ public:
         bt_on_magnet = new QPushButton(gb_output_shaft);
         bt_on_magnet->setObjectName(QString::fromUtf8("bt_on_magnet"));
         bt_on_magnet->setGeometry(QRect(0, 20, 80, 21));
+        bt_sw_test = new QPushButton(centralwidget);
+        bt_sw_test->setObjectName(QString::fromUtf8("bt_sw_test"));
+        bt_sw_test->setGeometry(QRect(50, 320, 80, 21));
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
@@ -937,16 +941,16 @@ public:
         tb_conveyor_sp->setText(QCoreApplication::translate("MainWindow", "37.5", nullptr));
         bt_conveyor_sp->setText(QCoreApplication::translate("MainWindow", "Set", nullptr));
         label_42->setText(QCoreApplication::translate("MainWindow", "Conveyor speed(mm/s", nullptr));
-        tb_p2p_1->setText(QCoreApplication::translate("MainWindow", "0.3", nullptr));
-        tb_p2p_2->setText(QCoreApplication::translate("MainWindow", "0.3", nullptr));
-        tb_p2p_3->setText(QCoreApplication::translate("MainWindow", "0.3", nullptr));
-        tb_p2p_4->setText(QCoreApplication::translate("MainWindow", "0.3", nullptr));
-        tb_p2p_5->setText(QCoreApplication::translate("MainWindow", "1.2", nullptr));
+        tb_p2p_1->setText(QCoreApplication::translate("MainWindow", "0.301", nullptr));
+        tb_p2p_2->setText(QCoreApplication::translate("MainWindow", "0.301", nullptr));
+        tb_p2p_3->setText(QCoreApplication::translate("MainWindow", "0.301", nullptr));
+        tb_p2p_4->setText(QCoreApplication::translate("MainWindow", "0.301", nullptr));
+        tb_p2p_5->setText(QCoreApplication::translate("MainWindow", "1.201", nullptr));
         tb_p2p_10->setText(QCoreApplication::translate("MainWindow", "126.5", nullptr));
-        tb_p2p_7->setText(QCoreApplication::translate("MainWindow", "0.01", nullptr));
+        tb_p2p_7->setText(QCoreApplication::translate("MainWindow", "0.0101", nullptr));
         tb_p2p_8->setText(QCoreApplication::translate("MainWindow", "131", nullptr));
         tb_p2p_9->setText(QCoreApplication::translate("MainWindow", "126.5", nullptr));
-        tb_p2p_6->setText(QCoreApplication::translate("MainWindow", "0.01", nullptr));
+        tb_p2p_6->setText(QCoreApplication::translate("MainWindow", "0.0101", nullptr));
         label_43->setText(QCoreApplication::translate("MainWindow", "Put down time on slot", nullptr));
         label_44->setText(QCoreApplication::translate("MainWindow", "Put down time on object", nullptr));
         label_45->setText(QCoreApplication::translate("MainWindow", "Pick up time on object", nullptr));
@@ -961,6 +965,7 @@ public:
         gb_output_shaft->setTitle(QCoreApplication::translate("MainWindow", "Output shaft", nullptr));
         bt_off_magnet->setText(QCoreApplication::translate("MainWindow", "Magnet off", nullptr));
         bt_on_magnet->setText(QCoreApplication::translate("MainWindow", "Magnet on", nullptr));
+        bt_sw_test->setText(QCoreApplication::translate("MainWindow", "Software test", nullptr));
     } // retranslateUi
 
 };

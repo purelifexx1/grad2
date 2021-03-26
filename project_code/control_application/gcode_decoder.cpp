@@ -124,6 +124,7 @@ Gcode_Decoder_DTC_TypeDef Gcode_Decoder::Process_Compress_Gcode_Data()
     int check_count = -2;
     Gcode_Compress_State_TypeDef current_state = ROUTE_COMMAND;
     //GCode_Coordinate_TypeDef  last_data = current_data;
+    bool switch_flag = false;
     double current_s = 0;
     while(count < raw_data.count()){
         switch (current_state) {
@@ -142,6 +143,7 @@ Gcode_Decoder_DTC_TypeDef Gcode_Decoder::Process_Compress_Gcode_Data()
                 compact_data.append(raw_data.at(count));
                 current_data = raw_data.at(count);
                 current_state = ROUTE_COMMAND;
+                switch_flag = false;
             }else{
                 current_state = ROUTE_COMMAND;
             }
@@ -154,17 +156,22 @@ Gcode_Decoder_DTC_TypeDef Gcode_Decoder::Process_Compress_Gcode_Data()
                 compact_data.removeLast();
                 compact_data.append(raw_data.at(count-1));
                 compact_data.append(raw_data.at(count));
+                if(switch_flag == true){
+                    switch_flag = false;
+                    compact_data[compact_data.count()-2].Command = G01; //convert the the last previous command into G01 in case it G02 or G03
+                }
                 current_data = raw_data.at(count);
                 count++;
                 current_state = ROUTE_COMMAND;
             }else{
+                switch_flag = true;
                 current_state = STATE_LINEAR;
             }
         }
         break;
         }
         check_count++; //count value must end before check_count to ensure successful compression
-        if(check_count > raw_data.count()*10) return GCODE_PROCESS_ERROR; //make sure the algorithm wont stuck in the loop
+        if(check_count > raw_data.count()*100) return GCODE_PROCESS_ERROR; //make sure the algorithm wont stuck in the loop
     }
     return GCODE_OK;
 }

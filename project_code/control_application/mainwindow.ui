@@ -1985,7 +1985,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>0.3</string>
+        <string>0.301</string>
        </property>
       </widget>
       <widget class="QLineEdit" name="tb_p2p_2">
@@ -1998,7 +1998,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>0.3</string>
+        <string>0.301</string>
        </property>
       </widget>
       <widget class="QLineEdit" name="tb_p2p_3">
@@ -2011,7 +2011,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>0.3</string>
+        <string>0.301</string>
        </property>
       </widget>
       <widget class="QLineEdit" name="tb_p2p_4">
@@ -2024,7 +2024,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>0.3</string>
+        <string>0.301</string>
        </property>
       </widget>
       <widget class="QLineEdit" name="tb_p2p_5">
@@ -2037,7 +2037,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>1.2</string>
+        <string>1.201</string>
        </property>
       </widget>
       <widget class="QLineEdit" name="tb_p2p_10">
@@ -2063,7 +2063,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>0.01</string>
+        <string>0.0101</string>
        </property>
       </widget>
       <widget class="QLineEdit" name="tb_p2p_8">
@@ -2102,7 +2102,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>0.01</string>
+        <string>0.0101</string>
        </property>
       </widget>
       <widget class="QLabel" name="label_43">
@@ -2276,6 +2276,19 @@
       <string>Magnet on</string>
      </property>
     </widget>
+   </widget>
+   <widget class="QPushButton" name="bt_sw_test">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>320</y>
+      <width>80</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Software test</string>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

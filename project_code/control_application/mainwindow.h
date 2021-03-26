@@ -104,6 +104,8 @@ private slots:
 
     void on_bt_movC2_clicked();
 
+    void on_bt_sw_test_clicked();
+
 public slots:
     void received_callback(QByteArray log_data);
     void display_event(Display_packet data);

@@ -147,7 +147,7 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityHigh, 0, 2048);
+  osThreadDef(defaultTask, StartDefaultTask, osPriorityHigh, 0, 2060);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* definition and creation of USB_RX_Check_ */
@@ -187,13 +187,13 @@ void StartDefaultTask(void const * argument)
   //uint8_t				position[135];
   //uint8_t				infor[145];
   int32_t				infor_lenght;
-  //uint8_t				task_usb[150];
+  uint8_t				task_usb[150];
   int32_t				task_usb_lenght;
   int32_t 				total_respond_length;
   int32_t 				detail_ptr;
   uint8_t				detail_array[10];
 
-  //uint8_t				respond_packed[50];
+  uint8_t				respond_packed[50];
   int32_t				respond_packed_lenght;
   //uint8_t				infor_packed[150];
   int32_t				infor_packed_lenght;
@@ -271,15 +271,7 @@ void StartDefaultTask(void const * argument)
 	  // Update new position
 	  memcpy(&positionPrevios, &positionCurrent, sizeof(SCARA_PositionTypeDef));
 	  memcpy(&positionCurrent, &positionNext, sizeof(SCARA_PositionTypeDef));
-//#ifndef SIMULATION
-//	  if(scaraIsScanLimit()) {
-//		  lowlayer_readTruePosition(&positionTrue);
-//		  kinematicForward(&positionTrue);
-//		  positionTrue.t = positionCurrent.t;
-//		  positionTrue.total_time = positionCurrent.total_time;
-//		  positionTrue.q = positionCurrent.q;
-//	  }
-//#endif
+
 	  /* 2--- Check New Duty Phase ---*/
 	  // Check mail
 	  ret_mail = osMailGet(commandMailHandle, 0);
@@ -290,46 +282,28 @@ void StartDefaultTask(void const * argument)
 		   osMailFree(commandMailHandle, dataMail);/* free memory allocated for mail */
 	  }
 	  if(isNewDuty) {
-		  //memset(respond, 0, 40);
-		  // Check change method
 		  if (duty_cmd.change_method == TRUE) {
-			  //free(Object);
+			  //vPortFree(Gcode_Cor);
 			  if (SCARA_METHOD_MANUAL == duty_cmd.robot_method) {
 				  // Need add check condition idle in each method
 				  current_method = SCARA_METHOD_MANUAL;
 				  current_duty_state = SCARA_DUTY_STATE_READY;
-				//   respond_lenght = commandRespond(RPD_OK,
-				// 								duty_cmd.id_command,
-				// 								"Changed MANUAL Method",
-				// 								(char *)respond);
 				detail_array[0] = MANUAL_METHOD;
 				respond_lenght = commandRespond1(RPD_OK, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
 				total_respond_length += respond_lenght;
 			  } else if (SCARA_METHOD_SEMI_AUTO == duty_cmd.robot_method) {
 				  current_method = SCARA_METHOD_SEMI_AUTO;
 				  current_duty_state = SCARA_DUTY_STATE_READY;
-				//   respond_lenght = commandRespond(RPD_OK,
-				// 								duty_cmd.id_command,
-				// 								"Changed SEMI AUTO Method",
-				// 								(char *)respond);
 				detail_array[0] = SEMI_AUTO_METHOD;
 				respond_lenght = commandRespond1(RPD_OK, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
 				total_respond_length += respond_lenght;
 			  } else if (SCARA_METHOD_GCODE == duty_cmd.robot_method) {
-//				  Gcode_Cor = (SCARA_Gcode_Cor_TypeDef*)malloc(1*sizeof(SCARA_Gcode_Cor_TypeDef));
-//				  if(Gcode_Cor == NULL){
-//					  int t = 2;
-//				  }
-//				  testing_array = (double*)malloc(2*sizeof(double));
-//				  if(testing_array == NULL){
-//					  int t = 2;
-//				  }
+//				  Gcode_Cor = pvPortMalloc(total_num_of_point*sizeof(SCARA_Gcode_Cor_TypeDef));
+//					if(Gcode_Cor == NULL){
+//					  int t =2;
+//					}
 				  current_duty_state = SCARA_DUTY_STATE_READY;
 				  current_method = SCARA_METHOD_GCODE;
-				//   respond_lenght = commandRespond(RPD_OK,
-				// 								duty_cmd.id_command,
-				// 								"Changed AUTO Method",
-				// 								(char *)respond);
 				detail_array[0] = AUTO_METHOD;
 				respond_lenght = commandRespond1(RPD_OK, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
 				total_respond_length += respond_lenght;
@@ -372,10 +346,6 @@ void StartDefaultTask(void const * argument)
 						  case SCARA_MODE_STOP:
 							  {
 								  current_mode	 = SCARA_MODE_STOP;
-								//   respond_lenght = commandRespond(RPD_OK,
-								// 								  duty_cmd.id_command,
-								// 								  "Stop Now",
-								// 								  (char *)respond);
 								detail_array[0] = STOP_NOW;
 								respond_lenght = commandRespond1(RPD_OK, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
 								total_respond_length += respond_lenght;
@@ -388,10 +358,6 @@ void StartDefaultTask(void const * argument)
 								  if (SCARA_MODE_DUTY == current_mode && SCARA_DUTY_STATE_READY == current_duty_state) {
 									  current_mode = SCARA_MODE_SCAN;
 									  current_scan_state = SCARA_SCAN_STATE_INIT;
-									//   respond_lenght = commandRespond(RPD_OK,
-									// 								  duty_cmd.id_command,
-									// 								  "Start Scan",
-									// 								  (char *)respond);
 									detail_array[0] = START_SCAN;
 									respond_lenght = commandRespond1(RPD_OK, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
 									total_respond_length += respond_lenght;
@@ -419,20 +385,12 @@ void StartDefaultTask(void const * argument)
 										  current_mode	 = SCARA_MODE_DUTY;
 										  current_duty_state	 = SCARA_DUTY_STATE_INIT;
 									  } else {
-										//   respond_lenght = commandRespond(RPD_ERROR,
-										// 								  duty_cmd.id_command,
-										// 								  "Has Not Scan Yet.",
-										// 								  (char *)respond);
 										detail_array[0] = NOT_SCAN;
 										respond_lenght = commandRespond1(RPD_ERROR, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
 										total_respond_length += respond_lenght;
 										  LOG_REPORT("MOVE FAIL:NOT SCAN", __LINE__);
 									  }
 								  } else {
-									//   respond_lenght	= commandRespond(RPD_ERROR,
-									// 									  duty_cmd.id_command,
-									// 									  "Busy.",
-									// 									  (char *)respond);
 									detail_array[0] = BUSY;
 									respond_lenght = commandRespond1(RPD_ERROR, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
 									total_respond_length += respond_lenght;
@@ -515,10 +473,6 @@ void StartDefaultTask(void const * argument)
 				  	  }
 				  	  }
 			  	  } else {
-					//   respond_lenght = commandRespond(RPD_ERROR,
-					// 								duty_cmd.id_command,
-					// 								"METHOD isn't correct",
-					// 								(char *)respond);
 					detail_array[0] = INCORRECT_METHOD;
 					respond_lenght = commandRespond1(RPD_ERROR, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
 					total_respond_length += respond_lenght;
@@ -541,15 +495,6 @@ void StartDefaultTask(void const * argument)
 			  if (scaraKeyInit1(current_key, current_key_speed1) == SCARA_STATUS_OK) {
 				  run_time = 0;
 				  current_key_state = SCARA_KEY_STATE_FLOW;
-// #ifdef SIMULATION
-// 				  scaraPosition2String((char *)position, positionCurrent);
-// #else
-// 				  scaraPosition2String((char *)position, positionTrue);
-// #endif
-// 				  infor_lenght 		= commandRespond(RPD_START,
-// 													  0,
-// 													  (char *)position,
-// 													  (char *)infor);
 					detail_array[0] = NONE;
 					respond_lenght = commandRespond1(RPD_START, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
 					total_respond_length += respond_lenght;
@@ -571,28 +516,8 @@ void StartDefaultTask(void const * argument)
 				  status = scaraFlowDuty(run_time, &positionNext, positionCurrent);
 				  if ( SCARA_STATUS_OK == status) {
 					  lowlayer_computeAndWritePulse(positionCurrent, positionNext);
-					  // Running Inform
-// #ifdef SIMULATION
-// 					  scaraPosition2String((char *)position, positionCurrent);
-// #else
-// 					  scaraPosition2String((char *)position, positionTrue);
-// #endif
-// 					  infor_lenght = commandRespond(RPD_RUNNING,
-// 													0,
-// 													(char *)position,
-// 													(char *)infor);
-
-					// detail_array[0] = NONE;
-					// respond_lenght = commandRespond1(RPD_RUNNING, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
-					// total_respond_length += respond_lenght;
 				  } else {
 					  current_key_state = SCARA_KEY_STATE_FINISH;
-					  // Critical
-					  // If a error appear while Flowing, This is very important
-					//   infor_lenght = commandRespond(RPD_STOP,
-					// 								0,
-					// 								(char *)DETAIL_STATUS[status],
-					// 								(char *)infor);
 					detail_array[0] = status;
 					respond_lenght = commandRespond1(RPD_STOP, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
 					total_respond_length += respond_lenght;
@@ -797,7 +722,8 @@ void StartDefaultTask(void const * argument)
 		  }
 		  break;
 		  case SCARA_DUTY_STATE_INIT:{
-
+//			  pvPortMalloc(xWantedSize)
+//			  vPortFree(pv)
 		  }
 		  break;
 		  case SCARA_DUTY_STATE_OPERATION:{
