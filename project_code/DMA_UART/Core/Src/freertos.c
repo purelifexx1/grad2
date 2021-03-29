@@ -304,7 +304,7 @@ void StartDefaultTask(void const * argument)
 //					}
 				  current_duty_state = SCARA_DUTY_STATE_READY;
 				  current_method = SCARA_METHOD_GCODE;
-				detail_array[0] = AUTO_METHOD;
+				detail_array[0] = GCODE_METHOD;
 				respond_lenght = commandRespond1(RPD_OK, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
 				total_respond_length += respond_lenght;
 			  }else if(SCARA_METHOD_TEST == duty_cmd.robot_method){
@@ -722,12 +722,11 @@ void StartDefaultTask(void const * argument)
 		  }
 		  break;
 		  case SCARA_DUTY_STATE_INIT:{
-//			  pvPortMalloc(xWantedSize)
-//			  vPortFree(pv)
+
 		  }
 		  break;
 		  case SCARA_DUTY_STATE_OPERATION:{
-			  update_gcode_point(&duty_cmd, Gcode_Cor[run_point]);
+			  update_gcode_point(&duty_cmd, Gcode_Cor[run_point], run_point);
 			  SCARA_StatusTypeDef status;
 			  status = scaraInitDuty(duty_cmd);
 			  if(status == SCARA_STATUS_OK){
@@ -872,7 +871,7 @@ void StartDefaultTask(void const * argument)
 						  duty_cmd.trajec_type = DUTY_TRAJECTORY_LINEAR;
 						  duty_cmd.modeInit_type = DUTY_MODE_INIT_QT;
 					  }else{
-						  duty_cmd.trajec_type = DUTY_TRAJECTORY_LSPB;
+						  duty_cmd.trajec_type = DUTY_TRAJECTORY_SCURVE;
 						  duty_cmd.modeInit_type = DUTY_MODE_INIT_QVT;
 					  }
 					  status1 = scaraInitDuty(duty_cmd);
@@ -940,28 +939,6 @@ void StartDefaultTask(void const * argument)
 	  }
 
 	  /* 4--- Send to PC Phase ---*/
-	  // Check buffer from USB task
-	//   osMutexWait(usbTxMutexHandle, osWaitForever);
-	//   task_usb_lenght = ringBuff_PopArray(&cmd_tx_ringbuff, task_usb, RINGBUFFER_SIZE);
-	//   osMutexRelease(usbTxMutexHandle);
-	//   // Intergrate to 1 buffer
-	//   if (respond_lenght > 0) {
-	// 	  respond_packed_lenght = packPayload(respond, respond_packed, respond_lenght);
-	// 	  memcpy(usb_buff, respond_packed, respond_packed_lenght);
-	//   }
-	//   if (task_usb_lenght > 0) {
-	// 	  memcpy(usb_buff + respond_packed_lenght, task_usb, task_usb_lenght);
-	//   }
-	//   if (infor_lenght > 0) {
-	// 	  infor_packed_lenght 	= packPayload(infor, infor_packed, infor_lenght);
-	// 	  memcpy(usb_buff + respond_packed_lenght + task_usb_lenght, infor_packed, infor_packed_lenght);
-	//   }
-	//   usb_lenght = respond_packed_lenght + task_usb_lenght + infor_packed_lenght;
-	//   // Send through USB
-	//   if (usb_lenght > 0) {
-	// 	  CDC_Transmit_FS(usb_buff, (uint16_t)usb_lenght);
-	//   }
-
 	if(total_respond_length > 0){
 		CDC_Transmit_FS(respond, total_respond_length);
 	}

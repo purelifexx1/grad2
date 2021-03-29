@@ -70,7 +70,7 @@ void MainWindow::display_event(Display_packet data)
                     detail_string += system_parameter->DETAIL_STATUS[data.Reference_String.at(t)] + "; ";
                 }
                 break;
-                case AUTO_METHOD           :{
+                case GCODE_METHOD           :{
                     METHOD_TAB_ENABLE(3, true);
                     detail_string += system_parameter->DETAIL_STATUS[data.Reference_String.at(t)] + "; ";
                 }
@@ -448,7 +448,7 @@ void MainWindow::on_bt_conveyor_sp_clicked()
 
 void MainWindow::on_bt_browse_clicked()
 {
-    QString file_directory = QFileDialog::getOpenFileName(this, "Open A File", "D:\\");
+    QString file_directory = QFileDialog::getOpenFileName(this, "Open A File", "D:\gcode\\");
     ui->tb_file_dir->setText(file_directory);
 }
 
@@ -457,7 +457,12 @@ void MainWindow::on_bt_process_clicked()
     gcode->Clear_Data();
     ui->pb_gcode_process->setValue(0);
     Gcode_Decoder_DTC_TypeDef Gcode_DTC;
-    gcode->Init_Current_Data(0, 0, 0, 5);
+    try {
+       gcode->Init_Current_Data(0, 0, 0, ui->tb_gcode_initial->text().toDouble());
+    }  catch (QString exp) {
+        log_console("Gcode Initial Speed invalid value");
+        return;
+    }
     QFile file(ui->tb_file_dir->text());
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
         log_console("Cannot open a file");

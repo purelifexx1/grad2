@@ -444,7 +444,7 @@
       </rect>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -1726,7 +1726,7 @@
        <property name="geometry">
         <rect>
          <x>170</x>
-         <y>130</y>
+         <y>140</y>
          <width>101</width>
          <height>21</height>
         </rect>
@@ -1736,6 +1736,9 @@
        </property>
       </widget>
       <widget class="QPushButton" name="bt_gcode_pause">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="geometry">
         <rect>
          <x>150</x>
@@ -1749,6 +1752,9 @@
        </property>
       </widget>
       <widget class="QPushButton" name="bt_gcode_resume">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="geometry">
         <rect>
          <x>210</x>
@@ -1931,6 +1937,32 @@
         <string>Gcode file directory</string>
        </property>
       </widget>
+      <widget class="QLineEdit" name="tb_gcode_initial">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>140</y>
+         <width>51</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>10</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_53">
+       <property name="geometry">
+        <rect>
+         <x>70</x>
+         <y>140</y>
+         <width>101</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Initial speed (mm/s)</string>
+       </property>
+      </widget>
      </widget>
      <widget class="QWidget" name="tab_8">
       <attribute name="title">
@@ -2063,7 +2095,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>0.0101</string>
+        <string>0.0111</string>
        </property>
       </widget>
       <widget class="QLineEdit" name="tb_p2p_8">
@@ -2102,7 +2134,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>0.0101</string>
+        <string>0.0111</string>
        </property>
       </widget>
       <widget class="QLabel" name="label_43">

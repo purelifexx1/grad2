@@ -28,7 +28,8 @@ double roll_angle;
 //Y: 250 maximum
 
 
-void update_gcode_point(DUTY_Command_TypeDef *duty_cmd, SCARA_Gcode_Cor_TypeDef gcode_point);
+void update_gcode_point(DUTY_Command_TypeDef *duty_cmd, SCARA_Gcode_Cor_TypeDef gcode_point, int32_t run_point);
+//SCARA_StatusTypeDef	Gcode_Testing();
 
 
 #endif /* INC_GCODE_HANDLER_H_ */

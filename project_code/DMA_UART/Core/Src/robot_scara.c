@@ -185,16 +185,16 @@ SCARA_StatusTypeDef	scaraInitDuty		(DUTY_Command_TypeDef command) {
 		if ( DUTY_TRAJECTORY_LSPB == command.trajec_type ) {
 
 			if ( DUTY_MODE_INIT_QVT == command.modeInit_type) {
-				myDUTY.task.trajectory_3d.lspb.Tf = command.time_total;
+				//myDUTY.task.trajectory_3d.lspb.Tf = command.time_total;
 				myDUTY.task.trajectory_3d.trajectory_type = DUTY_TRAJECTORY_LSPB;
 				status1 = scaraInitLSPB1(&(myDUTY.task.trajectory_3d.lspb), TRAJECTORY_3D,
 										 total_s, DUTY_MODE_INIT_QVT, command.v_factor, command.time_total);
-
+				//myDUTY.task.trajectory_3d.lspb.Tf might change at this point,
 				myDUTY.task.trajectory_roll.linear.dir = dir_angle;
-				myDUTY.task.trajectory_roll.linear.Tf = command.time_total;
+				//myDUTY.task.trajectory_roll.linear.Tf = myDUTY.task.trajectory_3d.lspb.Tf;
+				myDUTY.time_total = myDUTY.task.trajectory_3d.lspb.Tf;
 				myDUTY.task.trajectory_roll.trajectory_type = DUTY_TRAJECTORY_LINEAR;
-				status2 = scaraInitLinear(&(myDUTY.task.trajectory_roll.linear), TRAJECTORY_ROLL, angle_s*dir_angle, DUTY_MODE_INIT_QT, command.time_total);
-				myDUTY.time_total = command.time_total;
+				status2 = scaraInitLinear(&(myDUTY.task.trajectory_roll.linear), TRAJECTORY_ROLL, angle_s*dir_angle, DUTY_MODE_INIT_QT, myDUTY.time_total);
 			} else if (DUTY_MODE_INIT_QVA == command.modeInit_type) {
 				myDUTY.task.trajectory_3d.trajectory_type = DUTY_TRAJECTORY_LSPB;
 				status1 = scaraInitLSPB(&(myDUTY.task.trajectory_3d.lspb), TRAJECTORY_3D,
@@ -255,7 +255,7 @@ SCARA_StatusTypeDef	scaraInitDuty		(DUTY_Command_TypeDef command) {
 				return SCARA_STATUS_ERROR_MODE_INIT;
 			}
 		}else if(DUTY_TRAJECTORY_LINEAR == command.trajec_type){
-			myDUTY.time_total = command.time_total;
+			//myDUTY.time_total = command.time_total;
 			myDUTY.task.trajectory_roll.linear.dir = dir_angle;
 			myDUTY.task.trajectory_3d.trajectory_type = DUTY_TRAJECTORY_LINEAR;
 			myDUTY.task.trajectory_roll.trajectory_type = DUTY_TRAJECTORY_LINEAR;
@@ -266,7 +266,8 @@ SCARA_StatusTypeDef	scaraInitDuty		(DUTY_Command_TypeDef command) {
 			}else {
 				return SCARA_STATUS_ERROR_MODE_INIT;
 			}
-			status2 = scaraInitLinear(&(myDUTY.task.trajectory_roll.linear), TRAJECTORY_ROLL, angle_s*dir_angle, DUTY_MODE_INIT_QT, command.time_total);
+			myDUTY.time_total = myDUTY.task.trajectory_3d.linear.Tf;
+			status2 = scaraInitLinear(&(myDUTY.task.trajectory_roll.linear), TRAJECTORY_ROLL, angle_s*dir_angle, DUTY_MODE_INIT_QT, myDUTY.time_total);
 		}else {
 			return SCARA_STATUS_ERROR_TRAJECTORY;
 		}
@@ -524,10 +525,11 @@ SCARA_StatusTypeDef scaraInitLinear(Trajectory_Linear_TypeDef *linear, Trajector
 
 	if(modeinit == DUTY_MODE_INIT_QT){
 		linear->constant_v = total_s / additional_factor;
-		linear->number_of_sample = ceilf(additional_factor / T_SAMPLING); // ceiling
+		linear->Tf = additional_factor;
+		//linear->number_of_sample = ceilf(additional_factor / T_SAMPLING); // ceiling
 	}else if(modeinit == DUTY_MODE_INIT_QV){
 		linear->constant_v = additional_factor * V_MOVE_MAX;
-		myDUTY.time_total = total_s / linear->constant_v;
+		linear->Tf = total_s / linear->constant_v;
 	}else{
 		return SCARA_STATUS_ERROR_PARA;
 	}
@@ -588,16 +590,20 @@ SCARA_StatusTypeDef	scaraInitLSPB1		(Trajectory_LSPB_TypeDef *lspb,
 		return SCARA_STATUS_ERROR_PARA;
 	}
 	if(modeinit == DUTY_MODE_INIT_QVT){
-		if(tf < 0.1 && v_design > 7.5){ //check if time valid or not
-			//tf = 1.5*total_s/v_design;
-			return SCARA_STATUS_ERROR_OVER_VELOC;
+		if(tf < 0.1 && v_design > 3){ //check if time valid or not
+			tf = 1.5*total_s/v_design;
+			//return SCARA_STATUS_ERROR_OVER_VELOC;
 		}else if(v_design < 0.1 && tf > 0.15){ //check if velocity valid or not
 			v_design = 1.5*total_s/tf;
 		}else if(v_design < 0.1 && tf < 0.1){
 			return SCARA_STATUS_ERROR_OVER_VELOC;
 		}
 		else{
-			v_lim = total_s/tf;
+			if(tf < 0.001){
+				return SCARA_STATUS_ERROR_OVER_VELOC;
+			}else{
+				v_lim = total_s/tf;
+			}
 			if(v_design < 1.1*v_lim){ //the accelaration part is too large
 				return SCARA_STATUS_ERROR_OVER_ACCEL;
 			}else if(v_design > 2*v_lim){

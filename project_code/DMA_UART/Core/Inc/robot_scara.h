@@ -391,6 +391,7 @@ typedef struct
 typedef struct
 {
 	SCARA_PositionTypeDef 		object_position;
+	SCARA_PositionTypeDef		slot_position;
 	uint16_t					timer_value;
 }SCARA_Pick_And_Place_Package;
 
