@@ -191,6 +191,8 @@ public:
     QLabel *label_21;
     QLabel *label_36;
     QLabel *label_37;
+    QLineEdit *tb_gcode_initial;
+    QLabel *label_53;
     QWidget *tab_8;
     QLineEdit *tb_conveyor_sp;
     QPushButton *bt_conveyor_sp;
@@ -666,12 +668,14 @@ public:
         bt_browse->setGeometry(QRect(200, 100, 61, 21));
         bt_process = new QPushButton(tab_3);
         bt_process->setObjectName(QString::fromUtf8("bt_process"));
-        bt_process->setGeometry(QRect(170, 130, 101, 21));
+        bt_process->setGeometry(QRect(170, 140, 101, 21));
         bt_gcode_pause = new QPushButton(tab_3);
         bt_gcode_pause->setObjectName(QString::fromUtf8("bt_gcode_pause"));
+        bt_gcode_pause->setEnabled(false);
         bt_gcode_pause->setGeometry(QRect(150, 10, 51, 21));
         bt_gcode_resume = new QPushButton(tab_3);
         bt_gcode_resume->setObjectName(QString::fromUtf8("bt_gcode_resume"));
+        bt_gcode_resume->setEnabled(false);
         bt_gcode_resume->setGeometry(QRect(210, 10, 61, 21));
         bt_gcode_stop = new QPushButton(tab_3);
         bt_gcode_stop->setObjectName(QString::fromUtf8("bt_gcode_stop"));
@@ -716,6 +720,12 @@ public:
         label_37 = new QLabel(tab_3);
         label_37->setObjectName(QString::fromUtf8("label_37"));
         label_37->setGeometry(QRect(10, 120, 101, 21));
+        tb_gcode_initial = new QLineEdit(tab_3);
+        tb_gcode_initial->setObjectName(QString::fromUtf8("tb_gcode_initial"));
+        tb_gcode_initial->setGeometry(QRect(10, 140, 51, 21));
+        label_53 = new QLabel(tab_3);
+        label_53->setObjectName(QString::fromUtf8("label_53"));
+        label_53->setGeometry(QRect(70, 140, 101, 16));
         tw_method_content->addTab(tab_3, QString());
         tab_8 = new QWidget();
         tab_8->setObjectName(QString::fromUtf8("tab_8"));
@@ -812,7 +822,7 @@ public:
 
         retranslateUi(MainWindow);
 
-        tw_method_content->setCurrentIndex(0);
+        tw_method_content->setCurrentIndex(3);
         tabWidget_2->setCurrentIndex(0);
 
 
@@ -937,6 +947,8 @@ public:
         label_21->setText(QCoreApplication::translate("MainWindow", "roll angle", nullptr));
         label_36->setText(QCoreApplication::translate("MainWindow", "Execute percentage", nullptr));
         label_37->setText(QCoreApplication::translate("MainWindow", "Gcode file directory", nullptr));
+        tb_gcode_initial->setText(QCoreApplication::translate("MainWindow", "10", nullptr));
+        label_53->setText(QCoreApplication::translate("MainWindow", "Initial speed (mm/s)", nullptr));
         tw_method_content->setTabText(tw_method_content->indexOf(tab_3), QCoreApplication::translate("MainWindow", "GCODE", nullptr));
         tb_conveyor_sp->setText(QCoreApplication::translate("MainWindow", "37.5", nullptr));
         bt_conveyor_sp->setText(QCoreApplication::translate("MainWindow", "Set", nullptr));
@@ -947,10 +959,10 @@ public:
         tb_p2p_4->setText(QCoreApplication::translate("MainWindow", "0.301", nullptr));
         tb_p2p_5->setText(QCoreApplication::translate("MainWindow", "1.201", nullptr));
         tb_p2p_10->setText(QCoreApplication::translate("MainWindow", "126.5", nullptr));
-        tb_p2p_7->setText(QCoreApplication::translate("MainWindow", "0.0101", nullptr));
+        tb_p2p_7->setText(QCoreApplication::translate("MainWindow", "0.0111", nullptr));
         tb_p2p_8->setText(QCoreApplication::translate("MainWindow", "131", nullptr));
         tb_p2p_9->setText(QCoreApplication::translate("MainWindow", "126.5", nullptr));
-        tb_p2p_6->setText(QCoreApplication::translate("MainWindow", "0.0101", nullptr));
+        tb_p2p_6->setText(QCoreApplication::translate("MainWindow", "0.0111", nullptr));
         label_43->setText(QCoreApplication::translate("MainWindow", "Put down time on slot", nullptr));
         label_44->setText(QCoreApplication::translate("MainWindow", "Put down time on object", nullptr));
         label_45->setText(QCoreApplication::translate("MainWindow", "Pick up time on object", nullptr));

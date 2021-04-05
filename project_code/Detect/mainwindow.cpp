@@ -4,7 +4,7 @@
 #include "detect.h"
 #include "calib.h"
 
-#define Y_LEVEL 100 //90.7
+#define Y_LEVEL 80 //90.7
 #define LOOP_SPACING 1
 
 int loop_count = 0;
@@ -24,44 +24,45 @@ MainWindow::MainWindow(QWidget *parent)
         CalibFrame -> buffer.clear();
         CalibFrame -> buffer = VideoCapture ->buffer ;
         CalibFrame -> Set = true;
-        CalibFrame -> dT = VideoCapture -> dT;
     });
     connect(CalibFrame, &Calib::newPixmapCaptured, this, [&]()
     {
         //CalibFrame->Trans_buffer
+//        for (size_t i = 0; i < CalibFrame -> Trans_buffer.size(); ++i)
+//        {
+//            qDebug()<<"Toa do da gui cua vat"  << ": X = "<< CalibFrame-> Trans_buffer[i][1]<< " Y = "<< CalibFrame-> Trans_buffer[i][2] <<endl;
+//        }
+        if( enable == true)
+        {
+            for (size_t i = 0; i < CalibFrame -> Send_buffer.size(); ++i)
+            {
 
-        if(loop_count++ > LOOP_SPACING && enable == true){
-            numof_detected_point = CalibFrame->Trans_buffer.size();
-            loop_count = 0;
-            //for(size_t i = 0; i < CalibFrame->Trans_buffer.size(); i++)
-                //qDebug()<<" X = "<< CalibFrame->Trans_buffer[i][1]<< " Y = "<< CalibFrame->Trans_buffer[i][2] <<endl;
-            if(numof_detected_point > numof_current_point){
-                numof_current_point++;
-                //for(int i = 0; i < CalibFrame->Trans_buffer.size(); i++)
-                has_sent.push_back(false);
-            }else if(numof_detected_point == numof_current_point && numof_current_point != 0 && numof_detected_point != 0){
-                std::vector<double> temper_vector;
-                for(size_t i = 0; i < CalibFrame->Trans_buffer.size(); i++)
-                    temper_vector.push_back(CalibFrame->Trans_buffer[i][2]);
-                std::sort(temper_vector.begin(), temper_vector.end(), [](double x, double y){return x < y;});
-                for(size_t i = 0; i < temper_vector.size(); i++){
-                    if(temper_vector[i] < Y_LEVEL && has_sent[i] == false) {
-                        qDebug()<<" X = "<< CalibFrame->Trans_buffer[i][1]<< " Y = "<< CalibFrame->Trans_buffer[i][2] <<endl;
-                        //qDebug()<<" X1 = "<< VideoCapture ->buffer[i][1]<< " Y1 = "<< VideoCapture ->buffer[i][2] <<endl;
-                        //qDebug()<<" X2 = "<< CalibFrame ->buffer[i][1]<< " Y2 = "<< CalibFrame ->buffer[i][2] <<endl;
-                        if (ui->checkBox_2->isChecked()== true)
-                        {
-                            send_packet(CalibFrame->Trans_buffer[i][1], CalibFrame->Trans_buffer[i][2], 0, mSerial);
-                        }
-                        has_sent[i] = true;
-                    }
+                count_object ++;
+                qDebug()<<"Toa do da gui cua vat" << count_object << ": X = "<< CalibFrame-> Send_buffer[i][1]<< " Y = "<< CalibFrame-> Send_buffer[i][2] <<endl;
+                if (ui->checkBox_2->isChecked()== true)
+                {
+                    send_packet(CalibFrame->Send_buffer[i][1], CalibFrame->Send_buffer[i][2], 0, mSerial);
                 }
-            }else if(numof_detected_point < numof_current_point && has_sent[0] == true){
 
-                numof_current_point--;
-                has_sent.erase(has_sent.begin());
+//                if(CalibFrame-> Send_buffer[i][2] < Y_LEVEL && CalibFrame-> Send_buffer[i][5]==0)
+//                {
+//                    count_object ++;
+//                    qDebug()<<"Toa do da gui cua vat" << count_object << ": X = "<< CalibFrame-> Send_buffer[i][1]<< " Y = "<< CalibFrame-> Send_buffer[i][2] <<endl;
+//                    //qDebug()<<" X1 = "<< VideoCapture ->buffer[i][1]<< " Y1 = "<< VideoCapture ->buffer[i][2] <<endl;
+//                    //qDebug()<<" X2 = "<< CalibFrame ->buffer[i][1]<< " Y2 = "<< CalibFrame ->buffer[i][2] <<endl;
+//                    CalibFrame->Send_buffer[i][5] = 2; // had sent = true
+//                    if (ui->checkBox_2->isChecked()== true)
+//                    {
+//                        send_packet(CalibFrame->Send_buffer[i][1], CalibFrame->Send_buffer[i][2], 0, mSerial);
+//                    }
+
+//                }
+
             }
         }
+        CalibFrame-> Send_buffer.clear();
+
+
 
     });
 }

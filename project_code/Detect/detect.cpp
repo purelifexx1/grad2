@@ -14,8 +14,17 @@ using namespace std;
 // Initialize the parameters
 float confThreshold = 0.6; // Confidence threshold
 float nmsThreshold = 0.4;  // Non-maximum suppression threshold
-int inpWidth = 384;  // Width of network's input image
-int inpHeight = 384; // Height of network's input image
+int inpWidth = 416;  // Width of network's input image
+int inpHeight = 416; // Height of network's input image
+//Calib camera
+//Mat cameraMatrix = (Mat_<double>(3,3) <<   709.610699,        0, 309.137357,
+//                                                  0,  945.254236,  209.405394,
+//                                                  0,        0,        1);
+//
+//Mat distCoeffs = (Mat_<double>(1,5) <<   -1.061549e-01, 2.486004e+00, -1.159369e-02, 7.784208e-03, -8.79829e+00);
+//UMat U_cameraMatrix = cameraMatrix.getUMat(ACCESS_READ);
+//UMat U_distCoeffs = distCoeffs.getUMat(ACCESS_READ);
+
 vector<string> classes;
 
 // Remove the bounding boxes with low confidence using non-maxima suppression
@@ -23,10 +32,10 @@ void postprocess(Mat& frame, const vector<Mat>& out, vector<vector<double>>& buf
 
 // Draw the predicted bounding box
 void drawPred(int classId, float conf, int left, int top, int right, int bottom, Mat& frame,
-              Point& center, double& theta);
+              Point& center, double& theta, bool& check);
 
 //Image Processing in Croped Image and Calculate Theta
-void imageProcess(Mat input, Mat& output, int x_crop, int y_crop, Point& center_final, double& theta_final);
+void imageProcess(Mat input, Mat& output, int x_crop, int y_crop, Point& center_final, double& theta_final, bool& check);
 
 // Get the names of the output layers
 vector<String> getOutputsNames(const Net& net);
@@ -54,20 +63,21 @@ void detect::run()
         Net net = readNetFromDarknet(modelConfiguration, modelWeights);
         net.setPreferableBackend(DNN_BACKEND_DEFAULT);
         net.setPreferableTarget(DNN_TARGET_OPENCL);
+
+        //UMat map1, map2, U_Calib;
+        //Rect Roi;
+        //Mat newCameraMtx = getOptimalNewCameraMatrix(U_cameraMatrix, U_distCoeffs, Size(640,480), 0, Size(640,480), &Roi);
+        //initUndistortRectifyMap(U_cameraMatrix, U_distCoeffs, UMat(),newCameraMtx, Size(640,480), CV_16SC2, map1, map2);
         while (true)
-        {
-            //Time per frame
-            precTick = ticks;
-            ticks = (double) cv::getTickCount();
-
-            dT = (ticks - precTick) / cv::getTickFrequency(); //seconds
-
+        {            
             //Get frame
             mVideoCap >> mFrame;
             m_time.start();
             U_mFrame = mFrame.getUMat(ACCESS_READ) ;
             resize(U_mFrame,U_mFrame_resize,Size(inpWidth,inpHeight));
-
+            //Calib camera
+            //remap(U_mFrame,U_Calib,map1,map2,INTER_LINEAR);
+            //mFrame = U_Calib.getMat(ACCESS_RW);
             //mFrame = imread("D:/Downloads/YASKAWA/LV/Code/50.jpg");
             // Create a 4D blob from a frame.
 
@@ -93,6 +103,10 @@ void detect::run()
             //double freq = getTickFrequency() ;
             //double t = freq/net.getPerfProfile(layersTimes)  ;
             //string label = format("FPS : %.2f ", t);
+
+            //Ptr<Tracker> tracker;
+            //tracker = Tracker::create("KCF");
+
 
 
             putText(mFrame, label, Point(0, 15), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 0, 255));
@@ -152,22 +166,36 @@ void postprocess(Mat& frame, const vector<Mat>& outs, vector<vector<double>>& bu
 
         int idx = indices[i];
         Rect box = boxes[idx];
+        bool check =false;
         drawPred(classIds[idx], confidences[idx], box.x, box.y,
-                 box.x + box.width, box.y + box.height, frame, center, theta);
-        //Add data
-        buffer_tmp.push_back(classIds[idx]);
-        buffer_tmp.push_back(center.x - frame.cols/2);
-        buffer_tmp.push_back(center.y - frame.rows/2);
-        buffer_tmp.push_back(theta);
-        //cout<< "X = "<<(center.x - frame.cols/2)<<"Y = "<<(center.y - frame.rows/2)<<endl;
-        buffer.push_back(buffer_tmp);
+                 box.x + box.width, box.y + box.height, frame, center, theta, check);
+        if(check)
+        {
+            //Add data
+            buffer_tmp.push_back(classIds[idx]);
+            buffer_tmp.push_back(center.x - frame.cols/2);
+            buffer_tmp.push_back(center.y - frame.rows/2);
+            buffer_tmp.push_back(theta);
+            //cout<< "X = "<<(center.x - frame.cols/2)<<"Y = "<<(center.y - frame.rows/2)<<theta<<endl;
+            buffer.push_back(buffer_tmp);
+        }
+        else
+        {
+            //Add data
+            buffer_tmp.push_back(classIds[idx]);
+            buffer_tmp.push_back(2222);
+            buffer_tmp.push_back(2222);
+            buffer_tmp.push_back(2222);
+            //cout<< "X = "<<(center.x - frame.cols/2)<<"Y = "<<(center.y - frame.rows/2)<<theta<<endl;
+            buffer.push_back(buffer_tmp);
+        }
 
     }
 }
 
 // Draw the predicted bounding box
 void drawPred(int classId, float conf, int left, int top, int right, int bottom, Mat& frame,
-              Point& center, double& theta)
+              Point& center, double& theta, bool& check)
 {
     //Cut Image
     Mat imageCrop;
@@ -186,7 +214,7 @@ void drawPred(int classId, float conf, int left, int top, int right, int bottom,
 
     //Image Processing in Croped Image and Calculate Theta
     if (!imageCrop.empty()){
-    imageProcess(imageCrop,frame,r.x,r.y, center, theta);
+    imageProcess(imageCrop,frame,r.x,r.y, center, theta, check);
     }
     //Draw a rectangle displaying the bounding box
     rectangle(frame, Point(left, top), Point(right, bottom), Scalar(255, 178, 50), 3);
@@ -207,7 +235,7 @@ void drawPred(int classId, float conf, int left, int top, int right, int bottom,
     putText(frame, label, Point(left, top), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(0,0,0),1);
 }
 //Image Processing in Croped Image and Calculate Theta
-void imageProcess(Mat input, Mat& output, int x_crop, int y_crop, Point& center_final, double& theta_final)
+void imageProcess(Mat input, Mat& output, int x_crop, int y_crop, Point& center_final, double& theta_final, bool& check)
 {
     Mat hsv, hsv_changed[3],s_image; UMat blur, th, edges;
     //Split S channel in HSV image
@@ -218,10 +246,11 @@ void imageProcess(Mat input, Mat& output, int x_crop, int y_crop, Point& center_
     UMat u_s_image = s_image.getUMat(ACCESS_RW);
     //Blur and Threshold
     GaussianBlur(u_s_image, blur, Size(3, 3), 0);
-    threshold(blur, th, 0, 255, THRESH_BINARY + THRESH_OTSU);
+    adaptiveThreshold(blur, th, 255, ADAPTIVE_THRESH_GAUSSIAN_C,THRESH_BINARY, 29, 7);
+    //threshold(blur, th, 0, 255, THRESH_BINARY + THRESH_OTSU);
     //Find edges
     Canny(th, edges, 66, 133, 3);
-    circle(edges,Point(input.cols/2,input.rows/2),3,Scalar(255, 255, 255),-1);
+    circle(edges,Point(input.cols/2,input.rows/2),10,Scalar(0, 0, 0),-1);
     //Find Contour
     vector<vector<Point> > contours;
     findContours(edges, contours, RETR_LIST, CHAIN_APPROX_SIMPLE );
@@ -241,6 +270,7 @@ void imageProcess(Mat input, Mat& output, int x_crop, int y_crop, Point& center_
             approxPolyDP(hull[i], hull[i],  0.1*(arcLength(hull[i], true)), true);
             if (hull[i].size() == 4)
             {
+                check = true ;
                 //Convert coordinates in crop image to original image
                 for (size_t j = 0 ; j< hull[i].size(); j++)
                 {
@@ -259,8 +289,7 @@ void imageProcess(Mat input, Mat& output, int x_crop, int y_crop, Point& center_
                 theta_edges[0] = (-atan2((hull[i][1].y - hull[i][0].y),(hull[i][1].x-hull[i][0].x))/pi * 180);
                 theta_edges[1] = (-atan2((hull[i][1].y - hull[i][2].y), (hull[i][1].x - hull[i][2].x)) / pi * 180);
                 theta_edges[2] = (-atan2((hull[i][3].y - hull[i][2].y), (hull[i][3].x - hull[i][2].x)) / pi * 180);
-                theta_edges[3] = (-atan2((hull[i][3].y - hull[i][0].y), (hull[i][3].x - hull[i][0].x)) / pi * 180);
-
+                theta_edges[3] = (-atan2((hull[i][3].y - hull[i][0].y), (hull[i][3].x - hull[i][0].x)) / pi * 180);       
                 double sum = 0;
                 for( size_t i = 0; i< theta_edges.size(); i++ )
                 {
@@ -293,7 +322,7 @@ void imageProcess(Mat input, Mat& output, int x_crop, int y_crop, Point& center_
         center_final.x = int(center_final_temp.x/center.size());
         center_final.y = int(center_final_temp.y/center.size());
         circle(output,center_final,1,Scalar(0, 255, 0),2);
-        theta_final = theta_final/theta_total.size();
+        theta_final = theta_final_temp/theta_total.size();
     }
 
 
