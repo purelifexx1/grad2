@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "robot_lowlayer.h"
-
+#include "gcode_handler.h"
 
 SCARA_TypeDef 				mySCARA = { SCARA_METHOD_SEMI_AUTO,
 										SCARA_MODE_DUTY,
@@ -221,16 +221,16 @@ SCARA_StatusTypeDef	scaraInitDuty		(DUTY_Command_TypeDef command) {
 		} else if 	( DUTY_TRAJECTORY_SCURVE == command.trajec_type ){
 
 			if ( DUTY_MODE_INIT_QVT == command.modeInit_type) {
-				myDUTY.task.trajectory_3d.scurve.Tf = command.time_total;
+				//myDUTY.task.trajectory_3d.scurve.Tf = command.time_total;
 				myDUTY.task.trajectory_3d.trajectory_type = DUTY_TRAJECTORY_SCURVE;
 				status1 = scaraInitScurve1(&(myDUTY.task.trajectory_3d.scurve), TRAJECTORY_3D,
 										 total_s, DUTY_MODE_INIT_QVT, command.v_factor, command.time_total);
-
+				//myDUTY.task.trajectory_3d.lspb.Tf might change at this point,
 				myDUTY.task.trajectory_roll.linear.dir = dir_angle;
-				myDUTY.task.trajectory_roll.linear.Tf = command.time_total;
+				//myDUTY.task.trajectory_roll.linear.Tf = command.time_total;
+				myDUTY.time_total = myDUTY.task.trajectory_3d.scurve.Tf;
 				myDUTY.task.trajectory_roll.trajectory_type = DUTY_TRAJECTORY_LINEAR;
-				status2 = scaraInitLinear(&(myDUTY.task.trajectory_roll.linear), TRAJECTORY_ROLL, angle_s*dir_angle, DUTY_MODE_INIT_QT, command.time_total);
-				myDUTY.time_total = command.time_total;
+				status2 = scaraInitLinear(&(myDUTY.task.trajectory_roll.linear), TRAJECTORY_ROLL, angle_s*dir_angle, DUTY_MODE_INIT_QT, myDUTY.time_total);
 
 			} else if (DUTY_MODE_INIT_QVA == command.modeInit_type) {
 				myDUTY.task.trajectory_3d.trajectory_type = DUTY_TRAJECTORY_SCURVE;
@@ -268,6 +268,13 @@ SCARA_StatusTypeDef	scaraInitDuty		(DUTY_Command_TypeDef command) {
 			}
 			myDUTY.time_total = myDUTY.task.trajectory_3d.linear.Tf;
 			status2 = scaraInitLinear(&(myDUTY.task.trajectory_roll.linear), TRAJECTORY_ROLL, angle_s*dir_angle, DUTY_MODE_INIT_QT, myDUTY.time_total);
+		}else if(DUTY_TRAJECTORY_GCODE_LSPB == command.trajec_type){
+			status1 = SCARA_STATUS_OK;
+			myDUTY.task.trajectory_roll.linear.dir = dir_angle;
+			myDUTY.task.trajectory_3d.trajectory_type = DUTY_TRAJECTORY_GCODE_LSPB;
+			myDUTY.task.trajectory_roll.trajectory_type = DUTY_TRAJECTORY_LINEAR;
+			myDUTY.time_total = command.time_total;
+			status2 = scaraInitLinear(&(myDUTY.task.trajectory_roll.linear), TRAJECTORY_ROLL, angle_s*dir_angle, DUTY_MODE_INIT_QT, command.time_total - last_T);
 		}else {
 			return SCARA_STATUS_ERROR_TRAJECTORY;
 		}
@@ -817,6 +824,21 @@ SCARA_StatusTypeDef	scaraFlowLSPB1	(Trajectory_LSPB_TypeDef *lspb, double time){
 
 	return SCARA_STATUS_OK;
 }
+SCARA_StatusTypeDef	scaraFlowGCODE(double *s, double time)
+{
+	if ( 0.0f <= time && time <= time_acc) {
+		*s = acc0*time*time;
+	// Constant velocity
+	} else if (time_acc < time && time <= time_dec) {
+		*s = constant[0]*time + constant[1];
+	// Decelerate
+	} else if (time_dec < time && time <= time_move) {
+		*s = deacc[0]*time*time + deacc[1]*time + deacc[2];
+	} else {
+		*s = deacc[0]*time*time + deacc[1]*time + deacc[2];
+	}
+	return SCARA_STATUS_OK;
+}
 SCARA_StatusTypeDef	scaraFLowScurve1(Trajectory_Scurve_TypeDef *scurve, double t)
 {
 	double tf, td, ta, vc;
@@ -1177,7 +1199,16 @@ SCARA_StatusTypeDef	scaraFlowDuty		(double time,
 			dir_roll = myDUTY.task.trajectory_roll.linear.dir;
 			status1 = SCARA_STATUS_OK;
 			status2 = SCARA_STATUS_OK;
-		}else {
+		}else if(DUTY_TRAJECTORY_GCODE_LSPB == myDUTY.task.trajectory_3d.trajectory_type){
+			scaraFlowGCODE(&s, time);
+			s -= accumulate_s;
+			//LOG_REPORT1("s watcher:", s, time);
+			angle = myDUTY.task.trajectory_roll.linear.constant_v*(time - last_T);
+			dir_roll = myDUTY.task.trajectory_roll.linear.dir;
+			status1 = SCARA_STATUS_OK;
+			status2 = SCARA_STATUS_OK;
+
+		}else{
 			return SCARA_STATUS_ERROR_TRAJECTORY;
 		}
 

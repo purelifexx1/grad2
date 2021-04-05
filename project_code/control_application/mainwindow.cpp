@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->bt_start_test, SIGNAL(clicked()), this, SLOT(on_bt_testmt()));
     connect(ui->bt_stop_test, SIGNAL(clicked()), this, SLOT(on_bt_testmt()));
     SET_CONTROL_UI_STATE(false);
-
+     SET_GCODE_SMOOTH_UI(false);
 }
 
 MainWindow::~MainWindow()
@@ -491,8 +491,13 @@ void MainWindow::on_bt_process_clicked()
         log_console("Gcode file writes successfully");
     }else{
         log_console("Failed to write Gcode file. DTC code: " + QString::number(Gcode_DTC));
+    }    
+    if(ui->cb_enable_smooth->isChecked() == true){
+        Gcode_DTC = gcode->Gradiant_Process(ui->tb_limit_angle->text().toDouble());
+        gcode->package_data(GCODE_SMOOTH_LSPB);
+    }else{
+        gcode->package_data(GCODE_LINEAR);
     }
-    gcode->package_data();
     QByteArray send_packet;
     for(int c = 0; c < gcode->data_packet.count(); c++){
         send_packet.append(gcode->data_packet.at(c));
@@ -756,5 +761,14 @@ void MainWindow::on_bt_sw_test_clicked()
         SET_CONTROL_UI_STATE(false);
     }else{
         SET_CONTROL_UI_STATE(true);
+    }
+}
+
+void MainWindow::on_cb_enable_smooth_stateChanged(int arg1)
+{
+    if(ui->cb_enable_smooth->isChecked() == true){
+        SET_GCODE_SMOOTH_UI(true);
+    }else{
+        SET_GCODE_SMOOTH_UI(false);
     }
 }

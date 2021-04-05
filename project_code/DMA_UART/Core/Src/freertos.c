@@ -304,7 +304,7 @@ void StartDefaultTask(void const * argument)
 //					}
 				  current_duty_state = SCARA_DUTY_STATE_READY;
 				  current_method = SCARA_METHOD_GCODE;
-				detail_array[0] = GCODE_METHOD;
+				  detail_array[0] = GCODE_METHOD;
 				respond_lenght = commandRespond1(RPD_OK, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
 				total_respond_length += respond_lenght;
 			  }else if(SCARA_METHOD_TEST == duty_cmd.robot_method){
@@ -445,7 +445,12 @@ void StartDefaultTask(void const * argument)
 				  	  case SCARA_METHOD_GCODE:
 				  	  {
 				  		  if(current_duty_state == SCARA_DUTY_STATE_READY && duty_cmd.id_command == CMD_GCODE_RUN){
-				  			  run_point = 1;
+				  			  if(Gcode_Mode == GCODE_LINEAR){
+				  				run_point = 1;
+				  			  }else if(Gcode_Mode == GCODE_SMOOTH_LSPB){
+				  				run_point = 0;
+				  			  }
+
 				  			  current_duty_state = SCARA_DUTY_STATE_OPERATION;
 				  		  }else if(current_duty_state == SCARA_DUTY_STATE_INIT && duty_cmd.id_command == CMD_GCODE_RESUME){
 				  			  lowlayer_readTruePosition(&positionCurrent);
@@ -730,7 +735,11 @@ void StartDefaultTask(void const * argument)
 			  SCARA_StatusTypeDef status;
 			  status = scaraInitDuty(duty_cmd);
 			  if(status == SCARA_STATUS_OK){
-				  run_time = 0;
+				  if(Gcode_Mode == GCODE_LINEAR){
+					  run_time = 0;
+				  }else if(Gcode_Mode == GCODE_SMOOTH_LSPB){
+					  run_time = last_T;
+				  }
 				  current_duty_state = SCARA_DUTY_STATE_FLOW;
 				  detail_array[0] = (uint8_t)(run_point * 100.0f / total_num_of_point );
 				  respond_lenght = commandRespond1(RDP_GCODE_PROCESS, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
@@ -754,6 +763,7 @@ void StartDefaultTask(void const * argument)
 					lowlayer_readTruePosition(&positionNext);
 				    kinematicForward(&positionNext);
 				}else{
+					accumulate_update(Gcode_Cor[run_point]);
 					current_duty_state = SCARA_DUTY_STATE_OPERATION;
 					run_point++;
 					memcpy(&positionNext, &duty_cmd.target_point, sizeof(SCARA_PositionTypeDef));

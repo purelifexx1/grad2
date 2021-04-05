@@ -22,7 +22,7 @@ double up_z_height, down_z_height;
 int32_t current_key_speed1;
 int32_t total_num_of_point;
 int8_t  test_value_array[4];
-
+SCARA_LSPB_Clutch_TypeDef  gcode_clutch_configure[200];
 double PUT_DOWN_TIME_ON_SLOT;
 double PUT_DOWN_TIME_ON_OBJECT;
 double PICK_UP_TIME_ON_OBJECT;

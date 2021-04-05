@@ -6,41 +6,108 @@
  */
 
 #include "gcode_handler.h"
+extern int16_t 							pre_clutch_index;
+extern Gcode_Packet_Command_TypeDef 	pre_height;
+extern Gcode_Packet_Command_TypeDef 	Gcode_Mode;
 
 void update_gcode_point(DUTY_Command_TypeDef *duty_cmd, SCARA_Gcode_Cor_TypeDef gcode_point, int32_t run_point)
 {
-	duty_cmd->target_point.x = (double)gcode_point.X * COR_INVERSE_SCALE + offset_x;
-    duty_cmd->target_point.y = (double)gcode_point.Y * COR_INVERSE_SCALE + offset_y;
-    if(gcode_point.type_define[1] == UP_Z){
-  	  duty_cmd->target_point.z = up_z_height + offset_z;
-    }else{
-  	  duty_cmd->target_point.z = down_z_height + offset_z;
-    }
-    duty_cmd->target_point.roll = roll_angle;
-    duty_cmd->v_factor = (double)gcode_point.F * COR_INVERSE_SCALE / V_MOVE_MAX;
-    if(run_point == 1 || run_point == total_num_of_point){
-    	duty_cmd->trajec_type = DUTY_TRAJECTORY_LSPB;
-    	duty_cmd->modeInit_type = DUTY_MODE_INIT_QVT;
-    	duty_cmd->time_total = 0;
-    }else{
-    	duty_cmd->trajec_type = DUTY_TRAJECTORY_LINEAR;
-    	duty_cmd->modeInit_type = DUTY_MODE_INIT_QV;
-    }
-    duty_cmd->coordinate_type = DUTY_COORDINATES_ABS;
-    if(gcode_point.type_define[0] == LINEAR_TYPE){
-  	  duty_cmd->path_type = DUTY_PATH_LINE;
-    }else if(gcode_point.type_define[0] == ARC_AW_TYPE){
-      duty_cmd->sub_point.x = (double)gcode_point.I * COR_INVERSE_SCALE;
-      duty_cmd->sub_point.y = (double)gcode_point.J * COR_INVERSE_SCALE;
-      duty_cmd->path_type = DUTY_PATH_CIRCLE;
-      duty_cmd->arc_dir = 1;
-    }else if(gcode_point.type_define[0] == ARC_CW_TYPE){
-      duty_cmd->sub_point.x = (double)gcode_point.I * COR_INVERSE_SCALE;
-      duty_cmd->sub_point.y = (double)gcode_point.J * COR_INVERSE_SCALE;
-      duty_cmd->path_type = DUTY_PATH_CIRCLE;
-      duty_cmd->arc_dir = -1;
-    }
-    duty_cmd->space_type = DUTY_SPACE_TASK;
+	if(Gcode_Mode == GCODE_LINEAR){
+		duty_cmd->target_point.x = (double)gcode_point.X * COR_INVERSE_SCALE + offset_x;
+		duty_cmd->target_point.y = (double)gcode_point.Y * COR_INVERSE_SCALE + offset_y;
+		if(gcode_point.configure.type_define[1] == UP_Z){
+		  duty_cmd->target_point.z = up_z_height + offset_z;
+		}else{
+		  duty_cmd->target_point.z = down_z_height + offset_z;
+		}
+		duty_cmd->target_point.roll = roll_angle;
+		duty_cmd->v_factor = (double)gcode_point.F * COR_INVERSE_SCALE / V_MOVE_MAX;
+		if(run_point == 1){
+			duty_cmd->trajec_type = DUTY_TRAJECTORY_LSPB;
+			duty_cmd->modeInit_type = DUTY_MODE_INIT_QVT;
+			duty_cmd->time_total = 0;
+		}else{
+			duty_cmd->trajec_type = DUTY_TRAJECTORY_LINEAR;
+			duty_cmd->modeInit_type = DUTY_MODE_INIT_QV;
+		}
+		duty_cmd->coordinate_type = DUTY_COORDINATES_ABS;
+		if(gcode_point.configure.type_define[0] == LINEAR_TYPE){
+		  duty_cmd->path_type = DUTY_PATH_LINE;
+		}else if(gcode_point.configure.type_define[0] == ARC_AW_TYPE){
+		  duty_cmd->sub_point.x = (double)gcode_point.I * COR_INVERSE_SCALE;
+		  duty_cmd->sub_point.y = (double)gcode_point.J * COR_INVERSE_SCALE;
+		  duty_cmd->path_type = DUTY_PATH_CIRCLE;
+		  duty_cmd->arc_dir = 1;
+		}else if(gcode_point.configure.type_define[0] == ARC_CW_TYPE){
+		  duty_cmd->sub_point.x = (double)gcode_point.I * COR_INVERSE_SCALE;
+		  duty_cmd->sub_point.y = (double)gcode_point.J * COR_INVERSE_SCALE;
+		  duty_cmd->path_type = DUTY_PATH_CIRCLE;
+		  duty_cmd->arc_dir = -1;
+		}
+		duty_cmd->space_type = DUTY_SPACE_TASK;
+	}else if(Gcode_Mode == GCODE_SMOOTH_LSPB){
+		duty_cmd->target_point.x = (double)gcode_point.X * COR_INVERSE_SCALE + offset_x;
+		duty_cmd->target_point.y = (double)gcode_point.Y * COR_INVERSE_SCALE + offset_y;
+		duty_cmd->target_point.roll = roll_angle;
+		duty_cmd->coordinate_type = DUTY_COORDINATES_ABS;
+		duty_cmd->space_type = DUTY_SPACE_TASK;
+		if(gcode_point.configure.type_define[1] == UP_Z){
+		  duty_cmd->target_point.z = up_z_height + offset_z;
+		}else{
+		  duty_cmd->target_point.z = down_z_height + offset_z;
+		}
+		if(gcode_point.configure.type_define[0] == LINEAR_TYPE){
+		  duty_cmd->path_type = DUTY_PATH_LINE;
+		}else if(gcode_point.configure.type_define[0] == ARC_AW_TYPE){
+		  duty_cmd->sub_point.x = (double)gcode_point.I * COR_INVERSE_SCALE;
+		  duty_cmd->sub_point.y = (double)gcode_point.J * COR_INVERSE_SCALE;
+		  duty_cmd->path_type = DUTY_PATH_CIRCLE;
+		  duty_cmd->arc_dir = 1;
+		}else if(gcode_point.configure.type_define[0] == ARC_CW_TYPE){
+		  duty_cmd->sub_point.x = (double)gcode_point.I * COR_INVERSE_SCALE;
+		  duty_cmd->sub_point.y = (double)gcode_point.J * COR_INVERSE_SCALE;
+		  duty_cmd->path_type = DUTY_PATH_CIRCLE;
+		  duty_cmd->arc_dir = -1;
+		}
+		if(gcode_point.configure.type_define[1] == pre_height){
+			if(gcode_point.configure.clutch_index != pre_clutch_index){
+				LSPB_calculation(gcode_clutch_configure[gcode_point.configure.clutch_index]);
+				pre_clutch_index = gcode_point.configure.clutch_index;
+			}
+			duty_cmd->trajec_type = DUTY_TRAJECTORY_GCODE_LSPB;
+			duty_cmd->time_total = (double)(gcode_point.T*COR_INVERSE_SCALE);
+		}else{
+			duty_cmd->trajec_type = DUTY_TRAJECTORY_LINEAR;
+			duty_cmd->modeInit_type = DUTY_MODE_INIT_QV;
+			duty_cmd->v_factor = (double)gcode_clutch_configure[gcode_point.configure.clutch_index].Depth_Feed*COR_INVERSE_SCALE;
+			pre_height = gcode_point.configure.type_define[1];
+		}
+	}
+
+}
+void LSPB_calculation(SCARA_LSPB_Clutch_TypeDef configure)
+{
+	double accel = 0;
+	double total_s = (double)configure.total_s*COR_INVERSE_SCALE;
+	double veloc   = (double)configure.veloc*COR_INVERSE_SCALE;
+	time_move = 1.2*total_s/veloc;
+	time_acc = time_move - total_s/veloc;
+	time_dec = time_move - time_acc;
+	accel = veloc / time_acc;
+	acc0 = 0.5*accel;
+	constant[0] = veloc;
+	constant[1] = -0.5*time_acc*veloc;
+    deacc[0] 	= -0.5*accel;
+    deacc[1]	= veloc + accel*time_dec;
+    deacc[2]    = total_s - time_move*(2*veloc + 2*accel*time_dec - accel*time_move)/2;
+    accumulate_s = 0;
+    last_T = 0;
+}
+void accumulate_update(SCARA_Gcode_Cor_TypeDef gcode_point){
+	//double temper_s;
+	scaraFlowGCODE(&accumulate_s, (double)gcode_point.T*COR_INVERSE_SCALE);
+	//accumulate_s += temper_s;
+	last_T = (double)gcode_point.T*COR_INVERSE_SCALE;
 }
 //SCARA_StatusTypeDef	Gcode_Testing() {
 //	int32_t sample_count;

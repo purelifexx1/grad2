@@ -171,8 +171,12 @@ typedef enum
     LINEAR_TYPE,   //G00, G01     //these contains in 4 bit low
     ARC_CW_TYPE,   //G02          //these contains in 4 bit low
     ARC_AW_TYPE,   //G03          //these contains in 4 bit low
+	CLUTCH_HEADER_TYPE,           //these contains in 4 bit low
+
     UP_Z,                         //these contains in 4 bit high
-    DOWN_Z                        //these contains in 4 bit high
+    DOWN_Z,                        //these contains in 4 bit high
+	GCODE_LINEAR,                 //these contains in 4 bit high
+	GCODE_SMOOTH_LSPB             //these contains in 4 bit high
 }Gcode_Packet_Command_TypeDef;
 
 #endif /* INC_SYSTEM_PARAMS_H_ */

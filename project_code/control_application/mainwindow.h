@@ -7,6 +7,11 @@
 #include "packet_handler.h"
 #include "gcode_decoder.h"
 #define log_console(content) ui->tb_console->append(content)
+#define SET_GCODE_SMOOTH_UI(value){         \
+    ui->label_54->setEnabled(value);         \
+    ui->label_55->setEnabled(value);         \
+    ui->tb_limit_angle->setEnabled(value);   \
+}
 #define METHOD_TAB_ENABLE(index, state) {                    \
     if(state == true){                                       \
         ui->tw_method_content->setEnabled(true);             \
@@ -36,6 +41,7 @@
     centerX = center_x2; \
     centerY = center_y2; \
 }
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -105,6 +111,8 @@ private slots:
     void on_bt_movC2_clicked();
 
     void on_bt_sw_test_clicked();
+
+    void on_cb_enable_smooth_stateChanged(int arg1);
 
 public slots:
     void received_callback(QByteArray log_data);

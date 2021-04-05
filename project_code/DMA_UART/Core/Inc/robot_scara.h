@@ -132,7 +132,8 @@ typedef enum
 {
 	  DUTY_TRAJECTORY_LSPB				= 0x00U,  /*!< Trajectory planning LSBP */
 	  DUTY_TRAJECTORY_SCURVE			= 0x01U,  /*!< Trajectory planning S-curve */
-	  DUTY_TRAJECTORY_LINEAR			= 0x02U
+	  DUTY_TRAJECTORY_LINEAR			= 0x02U,
+	  DUTY_TRAJECTORY_GCODE_LSPB		= 0x03U
 }TrajectoryTypeDef;
 
 typedef enum
@@ -413,7 +414,11 @@ typedef struct
 	double posy;
 	double roll;
 }SCARA_Slot_TypeDef;
-
+typedef struct
+{
+	uint16_t 						clutch_index;
+	Gcode_Packet_Command_TypeDef    type_define[2]; //0 for move type, 1 for height
+}Gcode_Cor_Properties_TypeDef;
 typedef struct
 {
 	int32_t                         X;
@@ -421,8 +426,15 @@ typedef struct
 	int32_t                         F;
 	int32_t                         I;
 	int32_t                         J;
-	Gcode_Packet_Command_TypeDef    type_define[2];
+	int32_t							T;
+	Gcode_Cor_Properties_TypeDef    configure;
 }SCARA_Gcode_Cor_TypeDef;
+typedef struct
+{
+	int32_t 						total_s;
+	int32_t							veloc;
+	int32_t 						Depth_Feed; //if needed
+}SCARA_LSPB_Clutch_TypeDef;
 
 /* Function prototype */
 void						scaraStartup		(void);
@@ -475,6 +487,7 @@ SCARA_StatusTypeDef			scaraFlowLSPB		(Trajectory_LSPB_TypeDef *lspb, double time
 SCARA_StatusTypeDef			scaraFlowLSPB1		(Trajectory_LSPB_TypeDef *lspb, double time);
 SCARA_StatusTypeDef			scaraFLowScurve		(Trajectory_Scurve_TypeDef *scurve, double time);
 SCARA_StatusTypeDef			scaraFLowScurve1		(Trajectory_Scurve_TypeDef *scurve, double t);
+SCARA_StatusTypeDef			scaraFlowGCODE		(double *s, double time);
 
 SCARA_StatusTypeDef 		scara_test_InitDuty(DUTY_Command_TypeDef command);
 

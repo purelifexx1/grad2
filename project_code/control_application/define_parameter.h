@@ -125,7 +125,8 @@ typedef enum
 {
       DUTY_TRAJECTORY_LSPB				= 0x00U,  /*!< Trajectory planning LSBP */
       DUTY_TRAJECTORY_SCURVE			= 0x01U,  /*!< Trajectory planning S-curve */
-      DUTY_TRAJECTORY_LINEAR            = 0x02U
+      DUTY_TRAJECTORY_LINEAR            = 0x02U,
+      DUTY_TRAJECTORY_GCODE_LSPB        = 0x03U
 }TrajectoryTypeDef;
 
 typedef enum

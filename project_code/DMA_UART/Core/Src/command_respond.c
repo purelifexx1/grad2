@@ -22,10 +22,11 @@ extern double DETACH_TIME 			    = 0.01f;
 extern double UP_HEIGHT 				= 131.0f;
 extern double DOWN_HEIGHT_ON_OBJECT 	= 126.5f;
 extern double DOWN_HEIGHT_ON_SLOT 	    = 126.5f;
-
+extern SCARA_LSPB_Clutch_TypeDef  gcode_clutch_configure[200];
 Position_DataType position_type;
 SCARA_Gcode_Cor_TypeDef	Gcode_Cor[1000];
-uint16_t point_counter = 0;
+uint16_t point_counter = 0, current_clutch_index = 0;
+
 Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_command, DUTY_Command_TypeDef *duty_cmd) {
 	Transfer_Protocol protocol_id = message[0];
     duty_cmd->id_command = message[1];
@@ -38,33 +39,53 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
         	temp_pointer = 1;
 
         	do {
-        		Gcode_Packet_Command_TypeDef move_type 	 = message[temp_pointer] & 0x0f;
+        		Gcode_Packet_Command_TypeDef move_type 	= message[temp_pointer] & 0x0f;
 				switch (move_type){
 				case FIRST_PACKET:{
-					temp_pointer++;
+					Gcode_Mode = message[temp_pointer++] >> 4 & 0x0f;
 					down_z_height = (double)B2I(temp_pointer)*COR_INVERSE_SCALE; temp_pointer+=4;
 					up_z_height   = (double)B2I(temp_pointer)*COR_INVERSE_SCALE; temp_pointer+=4;
 					total_num_of_point = B2I(temp_pointer);						 temp_pointer+=4;
 					point_counter = 0;
-
+					current_clutch_index = 0;
+					pre_clutch_index = -1;
+					pre_height = UP_Z;
+				}
+				break;
+				case CLUTCH_HEADER_TYPE:{
+					temp_pointer++;
+					gcode_clutch_configure[current_clutch_index].total_s     = B2I(temp_pointer); temp_pointer+=4;
+					gcode_clutch_configure[current_clutch_index].veloc 	     = B2I(temp_pointer); temp_pointer+=4;
+					gcode_clutch_configure[current_clutch_index].Depth_Feed  = B2I(temp_pointer); temp_pointer+=4;
+					current_clutch_index++;
 				}
 				break;
 				case LINEAR_TYPE:{
-					Gcode_Cor[point_counter].type_define[0] = move_type;
-					Gcode_Cor[point_counter].type_define[1]	= message[temp_pointer++] >> 4 & 0x0f;
+					Gcode_Cor[point_counter].configure.type_define[0] = move_type;
+					Gcode_Cor[point_counter].configure.type_define[1] = message[temp_pointer++] >> 4 & 0x0f;
 					Gcode_Cor[point_counter].X = B2I(temp_pointer);	temp_pointer+=4;
 					Gcode_Cor[point_counter].Y = B2I(temp_pointer);	temp_pointer+=4;
-					Gcode_Cor[point_counter].F = B2I(temp_pointer);	temp_pointer+=4;
+					if(Gcode_Mode == GCODE_LINEAR){
+						Gcode_Cor[point_counter].F = B2I(temp_pointer);	temp_pointer+=4;
+					}else if(Gcode_Mode == GCODE_SMOOTH_LSPB){
+						Gcode_Cor[point_counter].configure.clutch_index = current_clutch_index - 1;
+						Gcode_Cor[point_counter].T = B2I(temp_pointer);	temp_pointer+=4;
+					}
 					point_counter++;
 				}
 				break;
 				case ARC_CW_TYPE:
 				case ARC_AW_TYPE:{
-					Gcode_Cor[point_counter].type_define[0] = move_type;
-					Gcode_Cor[point_counter].type_define[1]	= message[temp_pointer++] >> 4 & 0x0f;
+					Gcode_Cor[point_counter].configure.type_define[0] = move_type;
+					Gcode_Cor[point_counter].configure.type_define[1] = message[temp_pointer++] >> 4 & 0x0f;
 					Gcode_Cor[point_counter].X = B2I(temp_pointer);	temp_pointer+=4;
 					Gcode_Cor[point_counter].Y = B2I(temp_pointer);	temp_pointer+=4;
-					Gcode_Cor[point_counter].F = B2I(temp_pointer);	temp_pointer+=4;
+					if(Gcode_Mode == GCODE_LINEAR){
+						Gcode_Cor[point_counter].F = B2I(temp_pointer);	temp_pointer+=4;
+					}else if(Gcode_Mode == GCODE_SMOOTH_LSPB){
+						Gcode_Cor[point_counter].configure.clutch_index = current_clutch_index - 1;
+						Gcode_Cor[point_counter].T = B2I(temp_pointer);	temp_pointer+=4;
+					}
 					Gcode_Cor[point_counter].I = B2I(temp_pointer);	temp_pointer+=4;
 					Gcode_Cor[point_counter].J = B2I(temp_pointer);	temp_pointer+=4;
 					point_counter++;

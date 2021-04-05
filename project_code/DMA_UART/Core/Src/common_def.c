@@ -47,6 +47,24 @@ uint8_t LOG_REPORT(char *message, uint16_t line) {
 	return TRUE;
 }
 
+uint8_t LOG_REPORT1(char *message, double info, double info1) {
+	uint8_t temp_buff[64];
+	int32_t len;
+
+	len = snprintf((char*)temp_buff, 63, "%d,%d, %s \r\n", (uint32_t)(info*1000), (uint32_t)(info1*1000), message);
+	if (-1 == len) {
+		return FALSE;
+	}
+	ringBuff_PushArray(&uart_tx_ringbuff, temp_buff, len);
+	if (HAL_DMA_GetState(&hdma_uart4_tx) == HAL_DMA_STATE_BUSY) {
+		return TRUE;
+	}// dma busy
+	uint16_t size_dma;
+	size_dma = ringBuff_PopArray(&uart_tx_ringbuff, log_uart_dma_buff, LOG_BUFFER_SIZE);
+	HAL_UART_Transmit_DMA(&huart4, log_uart_dma_buff, size_dma);
+	return TRUE;
+}
+
 int32_t	double2string( uint8_t *result, double value, uint8_t precision) {
 	uint8_t nguyen[4];
 	uint8_t le[6];

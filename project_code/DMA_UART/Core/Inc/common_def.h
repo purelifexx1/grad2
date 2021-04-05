@@ -23,6 +23,7 @@
 #define LOG_BUFFER_SIZE		(256)
 
 
+uint8_t LOG_REPORT1(char *message, double info, double info1);
 uint8_t LOG_REPORT(char *message, uint16_t line);
 int32_t	double2string( uint8_t *result, double value, uint8_t precision);
 

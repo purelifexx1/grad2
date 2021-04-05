@@ -10,6 +10,8 @@ void Gcode_Decoder::Clear_Data()
     raw_data.clear();
     compact_data.clear();
     data_packet.clear();
+    execute_data.clear();
+    clutch_configure_data.clear();
 }
 Gcode_Decoder_DTC_TypeDef Gcode_Decoder::Process_Line(QString Line)
 {
@@ -176,7 +178,7 @@ Gcode_Decoder_DTC_TypeDef Gcode_Decoder::Process_Compress_Gcode_Data()
     return GCODE_OK;
 }
 
-Gcode_Decoder_DTC_TypeDef Gcode_Decoder::package_data()
+Gcode_Decoder_DTC_TypeDef Gcode_Decoder::package_data(Gcode_Packet_Command_TypeDef execute_mode)
 {
 
     QByteArray temper_array;
@@ -193,75 +195,152 @@ Gcode_Decoder_DTC_TypeDef Gcode_Decoder::package_data()
     temper_array.append(START_CHAR);
     temper_array.append('\0');
     temper_array.append(FILE_TRANSMISION);
-    temper_array.append(FIRST_PACKET);
+    temper_array.append(execute_mode << 4 | FIRST_PACKET);
     ADD_VALUE(&temper_array, Min_Z, SCARA_COR_VALUE_DOUBLE);
     ADD_VALUE(&temper_array, Max_Z, SCARA_COR_VALUE_DOUBLE);
-    ADD_VALUE(&temper_array, compact_data.count(), INT32_VALUE);
+    if(execute_mode == GCODE_LINEAR){
+        ADD_VALUE(&temper_array, compact_data.count(), INT32_VALUE);
+    }else if(execute_mode == GCODE_SMOOTH_LSPB){
+        ADD_VALUE(&temper_array, compact_data.count() - sub_point_gcode_smooth, INT32_VALUE);
+    }
     temper_array.append(RECEIVE_END);
     temper_array[1] = temper_array.length() - 2;
     data_packet.append(temper_array);
     temper_array.clear();
+    if(execute_mode == GCODE_LINEAR){
+        //init 10 point in a row into 1 sending packet
+        int count = 0;
+        Gcode_Packet_Command_TypeDef tool_height;
+        for(int i = 0; i < compact_data.count(); i++){
+            if(count == 0){
+                temper_array.append(START_CHAR);
+                temper_array.append('\0');
+                temper_array.append(FILE_TRANSMISION);
+            }
 
-    //init 10 point in a row to 1 packet
-    int count = 0;
-    Packet_Command_TypeDef tool_height;
-    for(int i = 0; i < compact_data.count(); i++){
-        if(count == 0){
-            temper_array.append(START_CHAR);
-            temper_array.append('\0');
-            temper_array.append(FILE_TRANSMISION);
+            if(abs(compact_data.at(i).Z - Max_Z) < 0.001){
+                tool_height = UP_Z;
+            }else if(abs(compact_data.at(i).Z - Min_Z) < 0.001){
+                tool_height = DOWN_Z;
+            }else{
+                return UNMATCH_Z_HEIGHT;
+            }
+
+            switch(compact_data.at(i).Command){
+                case G00:
+                case G01:{
+                    temper_array.append(tool_height << 4 | LINEAR_TYPE);
+                    ADD_VALUE(&temper_array, compact_data.at(i).X, SCARA_COR_VALUE_DOUBLE);
+                    ADD_VALUE(&temper_array, compact_data.at(i).Y, SCARA_COR_VALUE_DOUBLE);
+                    ADD_VALUE(&temper_array, compact_data.at(i).Feed, SCARA_COR_VALUE_DOUBLE);
+                }
+                break;
+                case G02:{
+                    temper_array.append(tool_height << 4 | ARC_CW_TYPE);
+                    ADD_VALUE(&temper_array, compact_data.at(i).X, SCARA_COR_VALUE_DOUBLE);
+                    ADD_VALUE(&temper_array, compact_data.at(i).Y, SCARA_COR_VALUE_DOUBLE);
+                    ADD_VALUE(&temper_array, compact_data.at(i).Feed, SCARA_COR_VALUE_DOUBLE);
+                    ADD_VALUE(&temper_array, compact_data.at(i).I, SCARA_COR_VALUE_DOUBLE);
+                    ADD_VALUE(&temper_array, compact_data.at(i).J, SCARA_COR_VALUE_DOUBLE);
+                }
+                break;
+                case G03:{
+                    temper_array.append(tool_height << 4 | ARC_AW_TYPE);
+                    ADD_VALUE(&temper_array, compact_data.at(i).X, SCARA_COR_VALUE_DOUBLE);
+                    ADD_VALUE(&temper_array, compact_data.at(i).Y, SCARA_COR_VALUE_DOUBLE);
+                    ADD_VALUE(&temper_array, compact_data.at(i).Feed, SCARA_COR_VALUE_DOUBLE);
+                    ADD_VALUE(&temper_array, compact_data.at(i).I, SCARA_COR_VALUE_DOUBLE);
+                    ADD_VALUE(&temper_array, compact_data.at(i).J, SCARA_COR_VALUE_DOUBLE);
+                }
+                break;
+            }
+
+            if(count == 9){
+                temper_array.append(RECEIVE_END);
+                temper_array[1] = temper_array.length() - 2;
+                data_packet.append(temper_array);
+                temper_array.clear();
+            }
+            count = (count+1)%10;
         }
-
-        if(abs(compact_data.at(i).Z - Max_Z) < 0.001){
-            tool_height = UP_Z;
-        }else if(abs(compact_data.at(i).Z - Min_Z) < 0.001){
-            tool_height = DOWN_Z;
-        }else{
-            return UNMATCH_Z_HEIGHT;
-        }
-
-        switch(compact_data.at(i).Command){
-            case G00:
-            case G01:{
-                temper_array.append(tool_height << 4 | LINEAR_TYPE);
-                ADD_VALUE(&temper_array, compact_data.at(i).X, SCARA_COR_VALUE_DOUBLE);
-                ADD_VALUE(&temper_array, compact_data.at(i).Y, SCARA_COR_VALUE_DOUBLE);
-                ADD_VALUE(&temper_array, compact_data.at(i).Feed, SCARA_COR_VALUE_DOUBLE);
-            }
-            break;
-            case G02:{
-                temper_array.append(tool_height << 4 | ARC_CW_TYPE);
-                ADD_VALUE(&temper_array, compact_data.at(i).X, SCARA_COR_VALUE_DOUBLE);
-                ADD_VALUE(&temper_array, compact_data.at(i).Y, SCARA_COR_VALUE_DOUBLE);
-                ADD_VALUE(&temper_array, compact_data.at(i).Feed, SCARA_COR_VALUE_DOUBLE);
-                ADD_VALUE(&temper_array, compact_data.at(i).I, SCARA_COR_VALUE_DOUBLE);
-                ADD_VALUE(&temper_array, compact_data.at(i).J, SCARA_COR_VALUE_DOUBLE);
-            }
-            break;
-            case G03:{
-                temper_array.append(tool_height << 4 | ARC_AW_TYPE);
-                ADD_VALUE(&temper_array, compact_data.at(i).X, SCARA_COR_VALUE_DOUBLE);
-                ADD_VALUE(&temper_array, compact_data.at(i).Y, SCARA_COR_VALUE_DOUBLE);
-                ADD_VALUE(&temper_array, compact_data.at(i).Feed, SCARA_COR_VALUE_DOUBLE);
-                ADD_VALUE(&temper_array, compact_data.at(i).I, SCARA_COR_VALUE_DOUBLE);
-                ADD_VALUE(&temper_array, compact_data.at(i).J, SCARA_COR_VALUE_DOUBLE);
-            }
-            break;
-        }             
-
-        if(count == 9){
+        if(count != 0){ //uneven element in 1 packet
             temper_array.append(RECEIVE_END);
             temper_array[1] = temper_array.length() - 2;
             data_packet.append(temper_array);
             temper_array.clear();
         }
-        count = (count+1)%10;
-    }
-    if(count != 0){ //uneven element in 1 packet
-        temper_array.append(RECEIVE_END);
-        temper_array[1] = temper_array.length() - 2;
-        data_packet.append(temper_array);
-        temper_array.clear();
+    }else if(execute_mode == GCODE_SMOOTH_LSPB){
+        //init 10 point in a row into 1 sending packet
+        int count = 0;
+        Gcode_Packet_Command_TypeDef tool_height;
+        for(int i = 0; i < execute_data.size(); i++){
+            if(count == 0){
+                temper_array.append(START_CHAR);
+                temper_array.append('\0');
+                temper_array.append(FILE_TRANSMISION);
+            }
+            temper_array.append(CLUTCH_HEADER_TYPE);
+            ADD_VALUE(&temper_array, clutch_configure_data.at(i).total_s, SCARA_COR_VALUE_DOUBLE);
+            ADD_VALUE(&temper_array, clutch_configure_data.at(i).veloc, SCARA_COR_VALUE_DOUBLE);
+            ADD_VALUE(&temper_array, execute_data.at(i).at(0).Feed, SCARA_COR_VALUE_DOUBLE);
+
+            for(int j = 1; j < execute_data.at(i).size(); j++){
+                if(count == 0 && j != 1){
+                    temper_array.append(START_CHAR);
+                    temper_array.append('\0');
+                    temper_array.append(FILE_TRANSMISION);
+                }
+                if(abs(execute_data.at(i).at(j).Z - Max_Z) < 0.001){
+                    tool_height = UP_Z;
+                }else if(abs(execute_data.at(i).at(j).Z - Min_Z) < 0.001){
+                    tool_height = DOWN_Z;
+                }else{
+                    return UNMATCH_Z_HEIGHT;
+                }
+                switch(execute_data.at(i).at(j).Command){
+                    case G00:
+                    case G01:{
+                        temper_array.append(tool_height << 4 | LINEAR_TYPE);
+                        ADD_VALUE(&temper_array, execute_data.at(i).at(j).X, SCARA_COR_VALUE_DOUBLE);
+                        ADD_VALUE(&temper_array, execute_data.at(i).at(j).Y, SCARA_COR_VALUE_DOUBLE);
+                        ADD_VALUE(&temper_array, execute_data.at(i).at(j).T, SCARA_COR_VALUE_DOUBLE);
+                    }
+                    break;
+                    case G02:{
+                        temper_array.append(tool_height << 4 | ARC_CW_TYPE);
+                        ADD_VALUE(&temper_array, execute_data.at(i).at(j).X, SCARA_COR_VALUE_DOUBLE);
+                        ADD_VALUE(&temper_array, execute_data.at(i).at(j).Y, SCARA_COR_VALUE_DOUBLE);
+                        ADD_VALUE(&temper_array, execute_data.at(i).at(j).T, SCARA_COR_VALUE_DOUBLE);
+                        ADD_VALUE(&temper_array, execute_data.at(i).at(j).I, SCARA_COR_VALUE_DOUBLE);
+                        ADD_VALUE(&temper_array, execute_data.at(i).at(j).J, SCARA_COR_VALUE_DOUBLE);
+                    }
+                    break;
+                    case G03:{
+                        temper_array.append(tool_height << 4 | ARC_AW_TYPE);
+                        ADD_VALUE(&temper_array, execute_data.at(i).at(j).X, SCARA_COR_VALUE_DOUBLE);
+                        ADD_VALUE(&temper_array, execute_data.at(i).at(j).Y, SCARA_COR_VALUE_DOUBLE);
+                        ADD_VALUE(&temper_array, execute_data.at(i).at(j).T, SCARA_COR_VALUE_DOUBLE);
+                        ADD_VALUE(&temper_array, execute_data.at(i).at(j).I, SCARA_COR_VALUE_DOUBLE);
+                        ADD_VALUE(&temper_array, execute_data.at(i).at(j).J, SCARA_COR_VALUE_DOUBLE);
+                    }
+                    break;
+                }
+
+                if(count == 9){
+                    temper_array.append(RECEIVE_END);
+                    temper_array[1] = temper_array.length() - 2;
+                    data_packet.append(temper_array);
+                    temper_array.clear();
+                }
+                count = (count+1)%10;
+            }
+        }
+        if(count != 0){ //uneven element in 1 packet
+            temper_array.append(RECEIVE_END);
+            temper_array[1] = temper_array.length() - 2;
+            data_packet.append(temper_array);
+            temper_array.clear();
+        }
     }
     return GCODE_OK;
 
@@ -306,6 +385,130 @@ double Gcode_Decoder::calculate_linear_distance(GCode_Coordinate_TypeDef start, 
     denta_y = end.Y - start.Y;
     denta_z = end.Z - start.Z;
     return sqrt(denta_x*denta_x + denta_y*denta_y + denta_z*denta_z);
+}
+
+Gcode_Decoder_DTC_TypeDef Gcode_Decoder::Gradiant_Process(double limit_angle)
+{
+    limit_angle = fabs(limit_angle*M_PI/180);
+    //seperate packet with different Z height
+    std::vector<QList<GCode_Coordinate_TypeDef>> process_data;
+    QList<GCode_Coordinate_TypeDef> current_clutch;
+    double last_z;
+    bool start = true;
+    for(int t = 0; t < compact_data.size(); t++){
+        if(start == true){
+            start = false;
+            process_data.push_back(current_clutch);
+            process_data[process_data.size() - 1].push_back(compact_data.at(t));
+            last_z = compact_data.at(t).Z;
+        }else{
+            if(compact_data.at(t).Z != last_z){
+                process_data.push_back(current_clutch);
+                process_data[process_data.size() - 1].push_back(compact_data.at(t));
+            }else{
+                process_data[process_data.size() - 1].push_back(compact_data.at(t));
+            }
+            last_z = compact_data.at(t).Z;
+        }
+    }
+    sub_point_gcode_smooth = process_data.size(); //this will be used after to get the correct total number of point in Gcode smooth mode
+
+    int count = -1;
+    //calculate each clutch gradiant and its delta, seperate into each clutch with insignificant delta_graditant
+    for(int c1 = 0; c1 < process_data.size(); c1++){ //interrate each clutch
+        execute_data.push_back(current_clutch);
+        count++;
+        int change_height_index = execute_data.size() - 1;
+        for(int c2 = 0; c2 < process_data.at(c1).size(); c2++){
+            if(c2 == 0){
+                process_data[c1][c2].gradiant = 0;
+                process_data[c1][c2].delta_gradiant = 0;
+                execute_data[count].push_back(process_data.at(c1).at(c2));
+            }else if(c2 == 1){
+                process_data[c1][1].gradiant = atan2(process_data[c1][1].Y - process_data[c1][0].Y,process_data[c1][1].X - process_data[c1][0].X);
+                process_data[c1][1].delta_gradiant = fabs(process_data[c1][1].gradiant);
+                execute_data[count].push_back(process_data[c1][1]);
+            }else{
+                process_data[c1][c2].gradiant = atan2(process_data[c1][c2].Y - process_data[c1][c2-1].Y,process_data[c1][c2].X - process_data[c1][c2-1].X);
+                process_data[c1][c2].delta_gradiant = adjust_gradiant(process_data[c1][c2].gradiant - process_data[c1][c2-1].gradiant);
+                if(process_data[c1][c2].delta_gradiant > limit_angle){
+                    execute_data.push_back(current_clutch);
+                    count++;
+                    execute_data[count].push_back(process_data.at(c1).at(c2-1));
+                    execute_data[count].push_back(process_data.at(c1).at(c2));
+                }else{
+                    execute_data[count].push_back(process_data.at(c1).at(c2));
+                }
+            }
+        }
+        execute_data[change_height_index].first().change_height_border = true;
+    }
+
+    //calculate LSPB for each clutch in execute_data
+    LSPB_Parameter_TypeDef current_lspb;
+    for(int i = 0; i < execute_data.size(); i++){
+        //calculate the total_s in 1 clutch
+        double total_s = 0;
+        for(int j = 1; j < execute_data.at(i).size(); j++){
+            if(execute_data.at(i).at(j).Command == G02 || execute_data.at(i).at(j).Command == G03){
+                total_s += calculate_circle_distance(execute_data.at(i).at(j-1), execute_data.at(i).at(j));
+            }else if(execute_data.at(i).at(j).Command == G01 || execute_data.at(i).at(j).Command == G00){
+                total_s += calculate_linear_distance(execute_data.at(i).at(j-1), execute_data.at(i).at(j));
+            }
+        }
+        LSPB_calculation(total_s, execute_data.at(i).at(1).Feed, current_lspb);
+        clutch_configure_data.push_back(current_lspb);
+    }
+
+    //calculate move time between point in each clutchs
+    for(int i = 0; i < execute_data.size(); i++){
+        double count_s = 0;
+        for(int j = 1; j < execute_data.at(i).size(); j++){
+            if(execute_data.at(i).at(j).Command == G02 || execute_data.at(i).at(j).Command == G03){
+                count_s += calculate_circle_distance(execute_data.at(i).at(j-1), execute_data.at(i).at(j));
+            }else if(execute_data.at(i).at(j).Command == G01 || execute_data.at(i).at(j).Command == G00){
+                count_s += calculate_linear_distance(execute_data.at(i).at(j-1), execute_data.at(i).at(j));
+            }
+            if(count_s >= 0 && count_s < clutch_configure_data.at(i).Sa){
+                execute_data[i][j].T = sqrt(count_s/clutch_configure_data.at(i).acc[0]);
+            }else if(count_s >= clutch_configure_data.at(i).Sa && count_s < clutch_configure_data.at(i).Sd){
+                execute_data[i][j].T = (count_s - clutch_configure_data.at(i).constant[1])/clutch_configure_data.at(i).constant[0];
+            }else if(count_s >= clutch_configure_data.at(i).Sd && count_s <= clutch_configure_data.at(i).total_s){
+                execute_data[i][j].T = solve_quad(clutch_configure_data.at(i).deacc[0],
+                                                  clutch_configure_data.at(i).deacc[1],
+                                                  clutch_configure_data.at(i).deacc[2] - count_s);
+            }
+        }
+    }
+
+    return GCODE_OK;
+}
+
+void Gcode_Decoder::LSPB_calculation(double total_s, double veloc, LSPB_Parameter_TypeDef &output)
+{
+    double acc;
+    output.total_s = total_s;
+    output.Tf = 1.2*total_s/veloc;
+    output.Ta = output.Tf - total_s/veloc;
+    output.Td = output.Tf - output.Ta;
+    acc = veloc/output.Ta;
+    output.veloc = veloc;
+    //coefficents of accelaration part
+    output.acc[0] = 0.5*acc;
+    output.acc[1] = 0;
+    output.acc[2] = 0;
+
+    //coefficents of constant part
+    output.constant[0] = veloc;
+    output.constant[1] = -0.5*output.Ta*veloc;
+
+    //coefficents of deaccelaration part
+    output.deacc[0] = -0.5*acc;
+    output.deacc[1] = veloc + acc*output.Td;
+    output.deacc[2] = total_s - output.Tf*(2*veloc + 2*acc*output.Td - acc*output.Tf)/2;
+
+    output.Sa = output.acc[0]*pow(output.Ta, 2);
+    output.Sd = output.constant[0]*output.Td + output.constant[1];
 }
 
 void Gcode_Decoder::Init_Current_Data(double x, double y, double z, double feed)
@@ -357,5 +560,26 @@ Gcode_Decoder_DTC_TypeDef Gcode_Decoder::Write_Data_To_File(QString path)
         return ERROR_WRITE_FILE;
     }
     return GCODE_OK;
+}
+double Gcode_Decoder::adjust_gradiant(double raw_value)
+{
+    double p_raw_value = fabs(raw_value);
+    if(p_raw_value > M_PI){
+        return 2*M_PI - p_raw_value;
+    }else{
+        return p_raw_value;
+    }
+}
+double Gcode_Decoder::solve_quad(double a, double b, double c)
+{
+    double denta = fabs(b*b - 4*a*c);
+    double x1, x2;
+    x1 = (-b+sqrt(denta))/(2*a);
+    x2 = (-b-sqrt(denta))/(2*a);
+    if(x1 < x2){
+       return x1;
+    }else{
+       return x2;
+    }
 }
 Gcode_Decoder *gcode = new Gcode_Decoder();
