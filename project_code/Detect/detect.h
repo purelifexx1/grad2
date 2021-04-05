@@ -5,6 +5,7 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/core.hpp>
+#include <opencv2/opencv.hpp>
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -14,7 +15,7 @@
 #include <QDebug>
 
 
-#define ID_CAMERA 1
+#define ID_CAMERA 0
 
 class detect: public QThread
 {
@@ -26,7 +27,6 @@ public:
         return mPixmap;
     }
     std::vector<std::vector<double>> buffer;
-    double ticks, precTick, dT = 0;
     bool found = false;
     int notFoundCount = 0;
 signals:

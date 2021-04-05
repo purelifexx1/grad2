@@ -35,7 +35,9 @@ private:
     detect *VideoCapture;
     Calib  *CalibFrame;
     bool enable=false;
+    int notFoundCount = 0;
     QByteArray command;
+    int count_object;
     void send_packet(double x, double y, double roll, QSerialPort* mSerial);
 
 };

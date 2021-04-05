@@ -21,16 +21,16 @@ class Calib: public QThread
     Q_OBJECT
 public:
     Calib(QObject *parent = nullptr);
-    QPixmap frame() const
-    {
-        return calibFrame;
-    }
+
     std::vector<std::vector<double>> buffer;
     std::vector<std::vector<double>> Trans_buffer;
-    std::vector<std::vector<int>> org_point; // 0: notFoundCount, 1: Found, 2: x pixel, 3: y pixel
+    std::vector<std::vector<double>> Send_buffer;
     bool Set;
-    double precTick, ticks, dT_1 = 0 ;
-    double dT;
+    double precTick, ticks, dT = 0 ;
+    size_t current_point = 0;
+    int count_delay = 0, count_erase = 0;
+    bool Ready;
+    double pre_X, pre_id;
 
 
 signals:
@@ -39,8 +39,6 @@ protected:
     void run() override;
 private:
     QTime m_time;
-    QPixmap calibFrame;
-    cv::Mat mFrame;
 
 
 };
