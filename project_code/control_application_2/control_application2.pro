@@ -38,9 +38,11 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../opencv4.5.1/build/x64/vc15/lib/ -lopencv_world451
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../opencv4.5.1/build/x64/vc15/lib/ -lopencv_world451d
-else:unix: LIBS += -L$$PWD/../../opencv4.5.1/build/x64/vc15/lib/ -lopencv_world451
 
-INCLUDEPATH += $$PWD/../../opencv4.5.1/build/include
-DEPENDPATH += $$PWD/../../opencv4.5.1/build/include
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../../Downloads/long/opencv4.5.1/build/x64/vc15/lib/ -lopencv_world451
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../../Downloads/long/opencv4.5.1/build/x64/vc15/lib/ -lopencv_world451d
+else:unix: LIBS += -L$$PWD/../../../../../Downloads/long/opencv4.5.1/build/x64/vc15/lib/ -lopencv_world451
+
+INCLUDEPATH += $$PWD/../../../../../Downloads/long/opencv4.5.1/build/include
+DEPENDPATH += $$PWD/../../../../../Downloads/long/opencv4.5.1/build/include

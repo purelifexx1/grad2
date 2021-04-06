@@ -59,6 +59,7 @@ public:
     packet_handler *_packet_handler = new packet_handler();
     std::vector<uint8_t> FIFO_Buffer;
 
+
 private slots:
     void on_bt_refresh_clicked();
 
@@ -120,12 +121,14 @@ private slots:
 public slots:
     void received_callback(QByteArray log_data);
     void display_event(Display_packet data);
+
 private:
     Ui::MainWindow *ui;
     void object_detected(double x, double y, double roll);
     Coordinate_Receive_Handler_TypeDef MovC_ACK = DISPLAY_ONLY;
     void MovC_Hanlder(Coordinate_Receive_Handler_TypeDef type, Display_packet data);
     Vision *vision;
+
 };
-extern QSerialPort *mSerial;
+
 #endif // MAINWINDOW_H

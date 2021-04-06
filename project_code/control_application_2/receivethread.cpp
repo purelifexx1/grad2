@@ -49,3 +49,4 @@ void ReceiveThread::run()
     //mutex.unlock();
 
 }
+QSerialPort *mSerial;

@@ -23,5 +23,6 @@ signals:
 private:
     QSerialPort *mSerial;
 };
+extern QSerialPort *mSerial;
 
 #endif // RECEIVETHREAD_H

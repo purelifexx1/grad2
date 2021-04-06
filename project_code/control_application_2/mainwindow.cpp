@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "vision.h"
 #include <qstring.h>
 #include <QDebug>
 #include <QtSerialPort/QtSerialPort>
@@ -8,7 +7,7 @@
 #include <QFileDialog>
 #include <QFile>
 
-QSerialPort *mSerial;
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)

@@ -4,7 +4,7 @@
 #include <QtSerialPort/QSerialPort>
 #include <QtSerialPort/QSerialPortInfo>
 #include <QMainWindow>
-#include "mainwindow.h"
+#include <receivethread.h>
 #include "define_parameter.h"
 
 QT_BEGIN_NAMESPACE
