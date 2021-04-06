@@ -114,6 +114,7 @@ private slots:
 
     void on_cb_enable_smooth_stateChanged(int arg1);
 
+
 public slots:
     void received_callback(QByteArray log_data);
     void display_event(Display_packet data);
