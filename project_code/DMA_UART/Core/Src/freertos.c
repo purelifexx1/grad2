@@ -735,9 +735,9 @@ void StartDefaultTask(void const * argument)
 			  SCARA_StatusTypeDef status;
 			  status = scaraInitDuty(duty_cmd);
 			  if(status == SCARA_STATUS_OK){
-				  if(Gcode_Mode == GCODE_LINEAR){
+				  if(duty_cmd.trajec_type == DUTY_TRAJECTORY_LINEAR){
 					  run_time = 0;
-				  }else if(Gcode_Mode == GCODE_SMOOTH_LSPB){
+				  }else if(duty_cmd.trajec_type == DUTY_TRAJECTORY_GCODE_LSPB){
 					  run_time = last_T;
 				  }
 				  current_duty_state = SCARA_DUTY_STATE_FLOW;

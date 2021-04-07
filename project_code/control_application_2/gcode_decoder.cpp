@@ -201,7 +201,7 @@ Gcode_Decoder_DTC_TypeDef Gcode_Decoder::package_data(Gcode_Packet_Command_TypeD
     if(execute_mode == GCODE_LINEAR){
         ADD_VALUE(&temper_array, compact_data.count(), INT32_VALUE);
     }else if(execute_mode == GCODE_SMOOTH_LSPB){
-        ADD_VALUE(&temper_array, compact_data.count() - sub_point_gcode_smooth, INT32_VALUE);
+        ADD_VALUE(&temper_array, compact_data.count() - 1, INT32_VALUE);
     }
     temper_array.append(RECEIVE_END);
     temper_array[1] = temper_array.length() - 2;
@@ -283,9 +283,12 @@ Gcode_Decoder_DTC_TypeDef Gcode_Decoder::package_data(Gcode_Packet_Command_TypeD
             ADD_VALUE(&temper_array, clutch_configure_data.at(i).total_s, SCARA_COR_VALUE_DOUBLE);
             ADD_VALUE(&temper_array, clutch_configure_data.at(i).veloc, SCARA_COR_VALUE_DOUBLE);
             ADD_VALUE(&temper_array, execute_data.at(i).at(0).Feed, SCARA_COR_VALUE_DOUBLE);
-
-            for(int j = 1; j < execute_data.at(i).size(); j++){
-                if(count == 0 && j != 1){
+            int start_index = 1;
+            if(execute_data.at(i).at(0).change_height_border == true && i != 0){
+                start_index = 0;
+            }
+            for(int j = start_index; j < execute_data.at(i).size(); j++){
+                if(count == 0 && j != start_index){
                     temper_array.append(START_CHAR);
                     temper_array.append('\0');
                     temper_array.append(FILE_TRANSMISION);
@@ -415,7 +418,7 @@ Gcode_Decoder_DTC_TypeDef Gcode_Decoder::Gradiant_Process(double limit_angle)
 
     int count = -1;
     //calculate each clutch gradiant and its delta, seperate into each clutch with insignificant delta_graditant
-    for(int c1 = 0; c1 < process_data.size(); c1++){ //interrate each clutch
+    for(int c1 = 0; c1 < process_data.size(); c1++){ //interrate each height clutch
         execute_data.push_back(current_clutch);
         count++;
         int change_height_index = execute_data.size() - 1;

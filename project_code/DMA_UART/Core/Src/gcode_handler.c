@@ -79,7 +79,7 @@ void update_gcode_point(DUTY_Command_TypeDef *duty_cmd, SCARA_Gcode_Cor_TypeDef 
 		}else{
 			duty_cmd->trajec_type = DUTY_TRAJECTORY_LINEAR;
 			duty_cmd->modeInit_type = DUTY_MODE_INIT_QV;
-			duty_cmd->v_factor = (double)gcode_clutch_configure[gcode_point.configure.clutch_index].Depth_Feed*COR_INVERSE_SCALE;
+			duty_cmd->v_factor = (double)gcode_clutch_configure[gcode_point.configure.clutch_index].Depth_Feed*COR_INVERSE_SCALE/V_MOVE_MAX;
 			pre_height = gcode_point.configure.type_define[1];
 		}
 	}
