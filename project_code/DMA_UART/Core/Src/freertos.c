@@ -219,12 +219,12 @@ void StartDefaultTask(void const * argument)
   double state_time = 0;
   int run_point = 0;
   const SCARA_Slot_TypeDef SLot_Cordinate[NUM_OF_OBJECT] = {
-  		{203.859f, -101.616f, 0.0f} ,
-  		{203.859f, -101.616f, 0.0f} ,
-  		{203.859f, -101.616f, 0.0f} ,
-  		{203.859f, -101.616f, 0.0f} ,
-		{203.859f, -101.616f, 0.0f} ,
-		{203.859f, -101.616f, 0.0f}
+  		{254.445f, -136.263f, 0.0f} ,
+  		{259.705f, -106.984f, 0.0f} ,
+  		{260.121f, -75.136f, 0.0f} ,
+  		{259.568f, -45.056f, 0.0f} ,
+		{262.279f, -14.61f, 0.0f} ,
+		{264.560f, 15.48f, 0.0f}
   };
 
   LOG_REPORT("free_rtos.c: PROGRAM START...", __LINE__);
@@ -586,12 +586,7 @@ void StartDefaultTask(void const * argument)
 						  current_mode 	= SCARA_MODE_DUTY;
 						  current_duty_state = SCARA_DUTY_STATE_READY;
 						  scaraSetScanFlag();
-						  //Done Inform
-						//   scaraPosition2String((char *)position, positionNext);
-						//   infor_lenght 		= commandRespond(RPD_DONE,
-						// 									 0,
-						// 									(char *)position,
-						// 									(char *)infor);
+
 						detail_array[0] = NONE;
 						respond_lenght = commandRespond1(RPD_DONE, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
 						total_respond_length += respond_lenght;
@@ -638,10 +633,7 @@ void StartDefaultTask(void const * argument)
 
 							  } else {
 								  current_duty_state 	= SCARA_DUTY_STATE_READY;
-								//   respond_lenght	= commandRespond(RPD_ERROR,
-								// 									  duty_cmd.id_command,
-								// 									  (char *)DETAIL_STATUS[status2],
-								// 									  (char *)respond);
+
 								  LOG_REPORT("TEST FAIL", __LINE__);
 								detail_array[0] = status2;
 								respond_lenght = commandRespond1(RPD_ERROR, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
@@ -807,7 +799,6 @@ void StartDefaultTask(void const * argument)
 	  {
 		  switch(current_duty_state) {
 		  case SCARA_DUTY_STATE_INIT:{
-			  //Object = calloc(8, sizeof(SCARA_Pick_And_Place_Package));
 			  HAL_TIM_Base_Start(&htim2);
 			  object_tail_pointer = 0;
 			  object_head_pointer = 0;
@@ -1028,17 +1019,11 @@ void Start_USB_RX_Task(void const * argument)
 				  }else if(rpd_type == RPD_TRANSFER){
 
 				  }else {
-					//   memset(respond, 0, sizeof(respond));
-					//   memset(message, 0, sizeof(message));
 					  respond_lenght	= commandRespond1(rpd_type, cmd_type,
 							  	  	  	  (char *)detail, detail_length,
 										  (char *)respond);
-					  //message_lenght	= packPayload(respond, message, respond_lenght);
 					  CDC_Transmit_FS(respond, respond_lenght);
-					  // Mutex
-//					   osMutexWait(usbTxMutexHandle, osWaitForever);
-					//   ringBuff_PushArray(&cmd_tx_ringbuff, message, message_lenght);
-					//   osMutexRelease(usbTxMutexHandle);
+
 				  }
 			  }
 		  }

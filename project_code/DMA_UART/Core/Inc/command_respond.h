@@ -156,12 +156,6 @@ Robot_RespondTypedef	commandReply	(Robot_CommandTypedef cmd_type,
 										DUTY_Command_TypeDef duty_cmd,
 										uint8_t *detail, int32_t *detail_length);
 
-
-
-int32_t					commandRespond	(Robot_RespondTypedef rpd,
-										int32_t id_command,
-										char *detail,
-										char *respond);
 int32_t 				commandRespond1 (Robot_RespondTypedef rpd,
 										int32_t id_command,
 										char *detail,

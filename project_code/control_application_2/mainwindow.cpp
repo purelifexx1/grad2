@@ -25,6 +25,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->bt_stop_test, SIGNAL(clicked()), this, SLOT(on_bt_testmt()));
     SET_CONTROL_UI_STATE(false);
      SET_GCODE_SMOOTH_UI(false);
+     global_ui = ui;
+     system_parameter->Load_Configuration();
+
 }
 
 MainWindow::~MainWindow()
@@ -778,3 +781,8 @@ void MainWindow::on_VisionButton_clicked()
     vision ->setAttribute( Qt::WA_DeleteOnClose );
     vision->show();
 }
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    system_parameter->Save_Configuration();
+}
+

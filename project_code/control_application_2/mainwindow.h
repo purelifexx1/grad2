@@ -7,7 +7,7 @@
 #include "packet_handler.h"
 #include "gcode_decoder.h"
 #include "vision.h"
-#define log_console(content) ui->tb_console->append(content)
+
 #define SET_GCODE_SMOOTH_UI(value){         \
     ui->label_54->setEnabled(value);         \
     ui->label_55->setEnabled(value);         \
@@ -128,7 +128,8 @@ private:
     Coordinate_Receive_Handler_TypeDef MovC_ACK = DISPLAY_ONLY;
     void MovC_Hanlder(Coordinate_Receive_Handler_TypeDef type, Display_packet data);
     Vision *vision;
-
+protected:
+    void closeEvent(QCloseEvent *event);
 };
 
 #endif // MAINWINDOW_H
