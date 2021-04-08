@@ -35,7 +35,8 @@ void drawPred(int classId, float conf, int left, int top, int right, int bottom,
               Point& center, double& theta, bool& check);
 
 //Image Processing in Croped Image and Calculate Theta
-void imageProcess(Mat input, Mat& output, int x_crop, int y_crop, Point& center_final, double& theta_final, bool& check);
+void imageProcess(Mat input, Mat& output, int x_crop, int y_crop, Point& center_final, double& theta_final
+                                , bool& check, int ID);
 
 // Get the names of the output layers
 vector<String> getOutputsNames(const Net& net);
@@ -214,7 +215,7 @@ void drawPred(int classId, float conf, int left, int top, int right, int bottom,
 
     //Image Processing in Croped Image and Calculate Theta
     if (!imageCrop.empty()){
-    imageProcess(imageCrop,frame,r.x,r.y, center, theta, check);
+    imageProcess(imageCrop,frame,r.x,r.y, center, theta, check, classId);
     }
     //Draw a rectangle displaying the bounding box
     rectangle(frame, Point(left, top), Point(right, bottom), Scalar(255, 178, 50), 3);
@@ -235,9 +236,14 @@ void drawPred(int classId, float conf, int left, int top, int right, int bottom,
     putText(frame, label, Point(left, top), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(0,0,0),1);
 }
 //Image Processing in Croped Image and Calculate Theta
-void imageProcess(Mat input, Mat& output, int x_crop, int y_crop, Point& center_final, double& theta_final, bool& check)
+void imageProcess(Mat input, Mat& output, int x_crop, int y_crop, Point& center_final, double& theta_final
+                                    , bool& check, int ID)
 {
     Mat hsv, hsv_changed[3],s_image; UMat blur, th, edges;
+    int blockSize, minusC;
+    if (ID == 0 || ID == 1)     {    blockSize = 33; minusC = 12;    }  // Set Threshold for VN and Switzerland
+    else if (ID == 3 || ID == 5){    blockSize = 55; minusC = 9;     }  // _________________ Japan and England
+    else                        {    blockSize = 45; minusC = 15;    }  // _________________ Sweden and Germany
     //Split S channel in HSV image
     cvtColor(input,hsv, COLOR_BGR2HSV);
     split(hsv,hsv_changed);
@@ -246,7 +252,7 @@ void imageProcess(Mat input, Mat& output, int x_crop, int y_crop, Point& center_
     UMat u_s_image = s_image.getUMat(ACCESS_RW);
     //Blur and Threshold
     GaussianBlur(u_s_image, blur, Size(3, 3), 0);
-    adaptiveThreshold(blur, th, 255, ADAPTIVE_THRESH_GAUSSIAN_C,THRESH_BINARY, 29, 7);
+    adaptiveThreshold(blur, th, 255, ADAPTIVE_THRESH_GAUSSIAN_C,THRESH_BINARY, blockSize, minusC);
     //threshold(blur, th, 0, 255, THRESH_BINARY + THRESH_OTSU);
     //Find edges
     Canny(th, edges, 66, 133, 3);
