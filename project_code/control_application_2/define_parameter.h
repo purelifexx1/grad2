@@ -2,6 +2,8 @@
 #define DEFINE_PARAMETER_H
 
 #include <QtCore>
+#include <QMainWindow>
+#include "ui_mainwindow.h"
 #define START_CHAR         0x28
 #define RECEIVE_END        "})"
 #define SCARA_FOWARD_SCALE 1000000
@@ -10,7 +12,15 @@
 #define SHIFT_KEY_MIN       1
 #define MINIMUM_LINEAR_TIME_FRAME  0.03
 #define MINIMUM_CIRCLE_TIME_FRAME  0.05
+#define log_console(content) global_ui->tb_console->append(content)
 #define ADD_VALUE(array, value, type) system_parameter->Convert_And_Append(array, value, type)
+#define PROGRAM_CONFGIURE_CODE "#4e1ab5"
+#define SAVE_CONFIGURE(key, value)  {         \
+    file_content.append(QString::number(key));\
+    file_content.append(":");                 \
+    file_content.append(value);               \
+    file_content.append("\n");              \
+}
 typedef enum
 {
     DISPLAY_POSITION,
@@ -272,11 +282,11 @@ typedef enum
 
 typedef enum{
     VIETNAM_FLAG,
-    JAPAN_FLAG,
-    ENGLAND_FLAG,
     SWITZERLAND_FLAG,
     SWEDEN_FLAG,
+    ENGLAND_FLAG,
     GERMANY_FLAG,
+    JAPAN_FLAG,
     NUM_OF_OBJECT
 }ObjectType;
 
@@ -295,6 +305,31 @@ typedef enum{
     STATE_LINEAR,
     STATE_CIRCLE
 }Gcode_Compress_State_TypeDef;
+typedef enum{
+    KEY_SPEED             ,  //key speed in manual tab
+    MOTOR1_TEST_VALUE     ,  //motor 1 test value in test tab
+    MOTOR2_TEST_VALUE     ,  //motor 2 test value in test tab
+    MOTOR3_TEST_VALUE     ,  //motor 3 test value in test tab
+    MOTOR4_TEST_VALUE     ,  //motor 4 test value in test tab
+    OFF_X_VALUE           ,  //offset x value in gcode tab
+    OFF_Y_VALUE           ,  //offset y value in gcode tab
+    OFF_Z_VALUE           ,  //offset z value in gcode tab
+    OFF_ROLL_ANGLE        ,  //offset roll value in gcode tab
+    GCODE_INITIAL_SP      ,  //initial speed value in gcode tab
+    GCODE_SMOOTH_OPTION   ,  //smooth option in gcode tab
+    GCODE_SMOOTH_VALUE    ,  //smooth value angle in gcode tab
+    CONVEYOR_SP           ,  //converyor speed
+    DOWN_TIME_ON_SLOT     ,  //down time when put object down on slot
+    DOWN_TIME_ON_OBJECT   ,  //down time when pick up object
+    UP_TIME_ON_OBJECT     ,  //up time when pick up object
+    UP_TIME_ON_SLOT       ,  //up time after release object on slot
+    MOVE_TIME             ,  //time to move to the estimate object location
+    ATTACH_TIME           ,  //magnet on time
+    DETACH_TIME           ,  //magnet off time
+    UP_HEIGHT             ,  //up height when moving object after pick up
+    DOWN_HEIGHT_ON_OBJECT ,  //down height when pick up object
+    DOWN_HEIGHT_ON_SLOT      //down height when release object on slot
+}Save_Configuration_TypeDef;
 
 class define_parameter
 {
@@ -389,6 +424,9 @@ public:
 
     define_parameter();
     void Convert_And_Append(QByteArray *object_array, QVariant convert_object, TypeDef_Conversion input_type);
+    void Save_Configuration();
+    void Load_Configuration();
 };
+extern Ui::MainWindow *global_ui;
 extern define_parameter *system_parameter;
 #endif // DEFINE_PARAMETER_H
