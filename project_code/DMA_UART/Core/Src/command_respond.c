@@ -128,8 +128,6 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
                 case CMD_MOVE_HOME:
                 {
                     if (length == 10){ // 2 int32_t number + 2 define byte
-                        // memcpy(&duty_cmd->v_factor, &message[temp_pointer+=8], 8);
-						// memcpy(&duty_cmd->a_factor, &message[temp_pointer], 8); 
 						temp_pointer = -2;
 						duty_cmd->v_factor = B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
 						duty_cmd->a_factor = B2I(temp_pointer)*COR_INVERSE_SCALE;
@@ -593,68 +591,24 @@ Robot_RespondTypedef	commandReply	(Robot_CommandTypedef cmd_type,
 	case CMD_KEYBOARD:
 		ret = RPD_DUTY;
 		break;
-	case CMD_KEY_SPEED:
-		// sprintf((char*) detail, "MANUAL SPEED = %d", duty_cmd.key_speed);
+	case CMD_KEY_SPEED:{
 		detail[(*detail_length)++] = MANUAL_SPEED;
 		detail[(*detail_length)++] = (uint8_t)(duty_cmd.key_speed);
 		ret = RPD_OK;
+	}
 		break;
-	case CMD_ERROR:
-		// strcpy( (char *)detail, "Check parameters");
+	case CMD_ERROR:{
 		detail[(*detail_length)++] = CHECK_PARAMETER;
 		ret = RPD_ERROR;
+	}
 		break;
 	default:
-		// strcpy( (char *)detail, "Unknown command");
 		detail[(*detail_length)++] = UNKNOW_COMMAND;
 		ret = RPD_ERROR;
 	}
 	return ret;
 }
 
-
-int32_t				commandRespond	(Robot_RespondTypedef rpd,
-										int32_t id_command,
-										char *detail,
-										char *respond) {
-	int out_lenght;
-	switch(rpd) {
-	case RPD_IDLE:
-	case RPD_BUSY:
-		{
-//			uint8_t		isScanLitmit;
-//			isScanLitmit = scaraIsScanLimit();
-//			out_lenght = snprintf( (char *)respond,
-//									20,
-//									"%d %s %d",
-//									(int)id_command,
-//									ROBOTRESPOND[rpd],
-//									(int)isScanLitmit);
-		}
-		break;
-	case RPD_POSITION:
-	case RPD_START:
-	case RPD_RUNNING:
-	case RPD_DONE:
-	case RPD_STOP:
-	case RPD_ERROR:
-	case RPD_OK:
-
-		{
-//			out_lenght = snprintf( (char *)respond,
-//									145,
-//									"%d %s %s",
-//									(int)id_command,
-//									ROBOTRESPOND[rpd],
-//									(char *)detail);
-		}
-		break;
-	default:
-		out_lenght = 0;
-	}
-
-	return (int32_t)out_lenght;
-}
 
 int32_t				commandRespond1	(Robot_RespondTypedef rpd,
 										int32_t id_command,
