@@ -814,7 +814,7 @@ void StartDefaultTask(void const * argument)
 			  if(object_tail_pointer != object_head_pointer){
 				  switch(operation_state){
 					  case SCARA_MOVE_TO_TARGET:{
-						  double wait_time = TIMER_SCALE*((uint16_t)(TIM2->CNT - Object[object_tail_pointer].timer_value)) + MOVE_TIME + PUT_DOWN_TIME_ON_OBJECT;
+						  double wait_time = TIMER_SCALE*((uint16_t)(TIM2->CNT - Object[object_tail_pointer].timer_value)) + MOVE_TIME + PUT_DOWN_TIME_ON_OBJECT + ATTACH_TIME;
 						  Object[object_tail_pointer].object_position.y -= wait_time*conveyor_speed;
 						  Object[object_tail_pointer].object_position.z = UP_HEIGHT;
 						  state_time = MOVE_TIME;

@@ -2039,7 +2039,7 @@
       <widget class="QPushButton" name="bt_conveyor_sp">
        <property name="geometry">
         <rect>
-         <x>260</x>
+         <x>230</x>
          <y>10</y>
          <width>41</width>
          <height>21</height>
@@ -2325,7 +2325,7 @@
       <widget class="QPushButton" name="VisionButton">
        <property name="geometry">
         <rect>
-         <x>320</x>
+         <x>280</x>
          <y>10</y>
          <width>75</width>
          <height>21</height>
@@ -2333,6 +2333,32 @@
        </property>
        <property name="text">
         <string>Open Vision</string>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="rb_pnp_movL">
+       <property name="geometry">
+        <rect>
+         <x>360</x>
+         <y>0</y>
+         <width>84</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>movL</string>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="rb_pnp_movJ">
+       <property name="geometry">
+        <rect>
+         <x>360</x>
+         <y>20</y>
+         <width>84</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>movJ</string>
        </property>
       </widget>
      </widget>

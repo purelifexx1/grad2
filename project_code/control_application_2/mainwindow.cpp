@@ -444,6 +444,11 @@ void MainWindow::on_bt_conveyor_sp_clicked()
         QLineEdit *tb = this->findChild<QLineEdit*>("tb_p2p_" + QString::number(i));
         ADD_VALUE(&command, tb->text(), SCARA_COR_VALUE_TEXT);
     }
+    if(ui->rb_pnp_movJ->isChecked() == true){
+        command.append(CMD_MOVE_JOINT);
+    }else if(ui->rb_pnp_movL->isChecked() == true){
+        command.append(CMD_MOVE_LINE);
+    }
     command.append(RECEIVE_END);
     command[1] = command.length() - 2;
     mSerial->write(command, command.length());

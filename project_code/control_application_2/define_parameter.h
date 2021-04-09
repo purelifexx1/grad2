@@ -328,7 +328,8 @@ typedef enum{
     DETACH_TIME           ,  //magnet off time
     UP_HEIGHT             ,  //up height when moving object after pick up
     DOWN_HEIGHT_ON_OBJECT ,  //down height when pick up object
-    DOWN_HEIGHT_ON_SLOT      //down height when release object on slot
+    DOWN_HEIGHT_ON_SLOT   ,  //down height when release object on slot
+    PNP_MOVE_OPTION          //move type in pnp mode
 }Save_Configuration_TypeDef;
 
 class define_parameter

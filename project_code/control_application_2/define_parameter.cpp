@@ -100,6 +100,11 @@ void define_parameter::Save_Configuration()
     SAVE_CONFIGURE(UP_HEIGHT             , global_ui->tb_p2p_8->text());
     SAVE_CONFIGURE(DOWN_HEIGHT_ON_OBJECT , global_ui->tb_p2p_9->text());
     SAVE_CONFIGURE(DOWN_HEIGHT_ON_SLOT   , global_ui->tb_p2p_10->text());
+    if(global_ui->rb_pnp_movJ->isChecked() == true){
+        SAVE_CONFIGURE(PNP_MOVE_OPTION   , "1");
+    }else if(global_ui->rb_pnp_movL->isChecked() == false){
+        SAVE_CONFIGURE(PNP_MOVE_OPTION   , "0");
+    }
     QString path = QCoreApplication::applicationDirPath();
     QFile file("configuration.txt");
     if(file.open(QIODevice::WriteOnly | QIODevice::Text)){
@@ -202,6 +207,13 @@ void define_parameter::Load_Configuration()
             break;
             case DOWN_HEIGHT_ON_SLOT   :
                 global_ui->tb_p2p_10->setText(value);
+            break;
+            case PNP_MOVE_OPTION       :
+                if(value == "1"){
+                    global_ui->rb_pnp_movJ->setChecked(true);
+                }else if(value == "0"){
+                    global_ui->rb_pnp_movL->setChecked(true);
+                }
             break;
             default:
             break;
