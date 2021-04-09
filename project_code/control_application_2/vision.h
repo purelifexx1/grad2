@@ -42,7 +42,7 @@ private:
     bool enable=false;
     int notFoundCount = 0;
     QByteArray command;
-    int count_object;
+    int count_object = 0;
     void send_packet(double x, double y, double roll, ObjectType flag_type, QSerialPort* mSerial);
 };
 

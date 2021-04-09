@@ -60,7 +60,7 @@ void Calib::run()
                if(Trans_buffer[i][5] != 0)   // if Flag Already Set the Initialization == true
                {
                    // >>>> Matrix A
-                   KF[i].transitionMatrix.at<float>(2) = dT;
+                   //KF[i].transitionMatrix.at<float>(2) = dT;
                    KF[i].transitionMatrix.at<float>(8) = dT;
                    state[i] = KF[i].predict();
                    //cout << "X_predict = " << state[i].at<float>(0) << "Y_predict = " << state[i].at<float>(1)<< endl;
@@ -68,7 +68,7 @@ void Calib::run()
                    Trans_buffer[i][1] = state[i].at<float>(0);
                    Trans_buffer[i][2] = state[i].at<float>(1);
                    Trans_buffer[i][4] = state[i].at<float>(2);
-                   //cout<<"X_pre"<<i<<"= "<<Trans_buffer[i][1]<<"Y_pre = "<<Trans_buffer[i][2]<<y_limit<<endl;
+                   //qDebug()<<"X_pre"<<i<<"= "<<Trans_buffer[i][1]<<"Y_pre = "<<Trans_buffer[i][2]<<y_limit<<endl;
                }
            }
 
@@ -79,7 +79,7 @@ void Calib::run()
                   //qDebug()<<pre_X << endl;
                   //qDebug()<<Trans_buffer[i][2] << endl;
 //                  if(!((pre_X - 0.5) < Trans_buffer[i][1] && Trans_buffer[i][1] < (pre_X + 0.5)&& (pre_id==Trans_buffer[i][0])))
-                  if (Trans_buffer[i][7] == 0 && Trans_buffer[i][1] < 360)
+                  if (Trans_buffer[i][7] == 0 && Trans_buffer[i][1] < 355)
                   {
                        //Add data
                       Ready = true;
@@ -254,8 +254,8 @@ void Transfer_CorRobot(float x_cam, float y_cam, float z_cam,
 //Tranfer Matrix
 float A[4][4] =
   {
-    {     -1,     0,    0,      327.3 },
-    {     0,     1,     0,      152.7 },
+    {     -1,     0,    0,      333.3 },
+    {     0,     1,     0,      162.7 },
     {     0,     0,     -1,     416.5 },
     {     0,     0,     0,          1 },
   };
@@ -307,7 +307,7 @@ void Set_KalmanFilter(vector<KalmanFilter>& KF, vector<Mat>& state, vector<Mat>&
     // Process Noise Covariance Matrix Q
     setIdentity(KF[index].processNoiseCov, cv::Scalar::all(1e-0));
     // Measures Noise Covariance Matrix R
-    KF[index].measurementNoiseCov.at<float>(0) = 500*1e-0;
+    KF[index].measurementNoiseCov.at<float>(0) = 50*1e-0;
     KF[index].measurementNoiseCov.at<float>(4) = 5*1e-0;// The smaller scale value, the faster it change
     KF[index].measurementNoiseCov.at<float>(8) = 50*1e-0;
 }

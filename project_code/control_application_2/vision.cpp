@@ -32,10 +32,11 @@ Vision::Vision(QWidget *parent) :
             {
 
                 count_object ++;
-                qDebug()<<"Toa do da gui cua vat" << count_object << ": X = "<< CalibFrame-> Send_buffer[i][1]<< " Y = "<< CalibFrame-> Send_buffer[i][2] <<endl;
+                qDebug()<<"Toa do da gui cua vat" << count_object << ": X = "<< CalibFrame-> Send_buffer[i][1]<< " Y = "<< CalibFrame-> Send_buffer[i][2]<<
+                            "ID ="<< (ObjectType)CalibFrame->Send_buffer[i][0] << "Theta = " << CalibFrame->Send_buffer[i][4] <<endl;
                 if (ui->checkBox_2->isChecked()== true)
                 {
-                    send_packet(CalibFrame->Send_buffer[i][1], CalibFrame->Send_buffer[i][2], 0,
+                    send_packet(CalibFrame->Send_buffer[i][1], CalibFrame->Send_buffer[i][2], CalibFrame->Send_buffer[i][4],
                                                 (ObjectType)CalibFrame->Send_buffer[i][0] ,mSerial);
 
                 }
@@ -79,7 +80,6 @@ void Vision::send_packet(double x, double y, double roll, ObjectType flag_type, 
     ADD_VALUE(&command, y, SCARA_COR_VALUE_DOUBLE);
     ADD_VALUE(&command, roll, SCARA_COR_VALUE_DOUBLE);
     command.append(flag_type);
-    command.append('\0');
     command.append("})");
     command[1] = command.length() - 2;
     mSerial->write(command, command.length());
