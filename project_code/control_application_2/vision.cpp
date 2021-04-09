@@ -35,7 +35,8 @@ Vision::Vision(QWidget *parent) :
                 qDebug()<<"Toa do da gui cua vat" << count_object << ": X = "<< CalibFrame-> Send_buffer[i][1]<< " Y = "<< CalibFrame-> Send_buffer[i][2] <<endl;
                 if (ui->checkBox_2->isChecked()== true)
                 {
-                    send_packet(CalibFrame->Send_buffer[i][1], CalibFrame->Send_buffer[i][2], 0, mSerial);
+                    send_packet(CalibFrame->Send_buffer[i][1], CalibFrame->Send_buffer[i][2], 0,
+                                                (ObjectType)CalibFrame->Send_buffer[i][0] ,mSerial);
 
                 }
 
@@ -67,24 +68,23 @@ Vision::~Vision()
     delete ui;
 }
 
-void Vision::send_packet(double x, double y, double roll, QSerialPort* mSerial)
+void Vision::send_packet(double x, double y, double roll, ObjectType flag_type, QSerialPort* mSerial)
 {
     QByteArray command;
     command.append(0x28);
     command.append('\0');
     command.append(0x01);
     command.append(24);
-    int32_t number = (int32_t)(x * 1000000);
-    command.append(reinterpret_cast<const char*>(&number), sizeof(number));
-    number = (int32_t)(y * 1000000);
-    command.append(reinterpret_cast<const char*>(&number), sizeof(number));
-    number = (int32_t)(roll* 1000000);
-    command.append(reinterpret_cast<const char*>(&number), sizeof(number));
+    ADD_VALUE(&command, x, SCARA_COR_VALUE_DOUBLE);
+    ADD_VALUE(&command, y, SCARA_COR_VALUE_DOUBLE);
+    ADD_VALUE(&command, roll, SCARA_COR_VALUE_DOUBLE);
+    command.append(flag_type);
     command.append('\0');
     command.append("})");
     command[1] = command.length() - 2;
     mSerial->write(command, command.length());
 }
+
 void Vision::on_CameraOn_Button_clicked()
 {
     CalibFrame->start(QThread::HighPriority);

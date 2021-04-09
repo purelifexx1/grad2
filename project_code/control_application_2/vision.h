@@ -43,7 +43,7 @@ private:
     int notFoundCount = 0;
     QByteArray command;
     int count_object;
-    void send_packet(double x, double y, double roll, QSerialPort* mSerial);
+    void send_packet(double x, double y, double roll, ObjectType flag_type, QSerialPort* mSerial);
 };
 
 #endif // VISION_H
