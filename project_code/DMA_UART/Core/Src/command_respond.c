@@ -26,7 +26,7 @@ extern SCARA_LSPB_Clutch_TypeDef  gcode_clutch_configure[200];
 Position_DataType position_type;
 SCARA_Gcode_Cor_TypeDef	Gcode_Cor[1000];
 uint16_t point_counter = 0, current_clutch_index = 0;
-Robot_CommandTypedef pnp_move_option = CMD_MOVE_LINE;
+Robot_CommandTypedef pnp_move_option;
 Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_command, DUTY_Command_TypeDef *duty_cmd) {
 	Transfer_Protocol protocol_id = message[0];
     duty_cmd->id_command = message[1];
@@ -393,18 +393,7 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
 						duty_cmd->target_point.roll = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
 						duty_cmd->target_point.object_type = message[temp_pointer+=4];
 						duty_cmd->target_point.t = (double)(TIM2->CNT);
-						duty_cmd->modeInit_type = DUTY_MODE_INIT_QVT;
-						duty_cmd->coordinate_type = DUTY_COORDINATES_ABS;
-						duty_cmd->trajec_type = DUTY_TRAJECTORY_SCURVE;
-						if(pnp_move_option == CMD_MOVE_LINE){
-							duty_cmd->path_type = DUTY_PATH_LINE;
-							duty_cmd->space_type = DUTY_SPACE_TASK;
-						}else if(pnp_move_option == CMD_MOVE_JOINT){
-							duty_cmd->joint_type = DUTY_JOINT_4DOF;
-							duty_cmd->space_type = DUTY_SPACE_JOINT;
-						}else{
-							return CMD_ERROR;
-						}
+
 					}else{
 						return CMD_ERROR;
 					}

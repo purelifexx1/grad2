@@ -118,6 +118,21 @@ private slots:
 
     void on_VisionButton_clicked();
 
+
+    void on_bt_conveyor_refresh_clicked();
+
+    void on_bt_conveyor_start_clicked();
+
+    void on_bt_conveyor_stop_clicked();
+
+    void on_bt_conveyor_configure_clicked();
+
+    void on_bt_conveyor_reverse_clicked();
+
+    void on_bt_conveyor_con_clicked();
+
+    void on_tb_conveyor_pulse_textChanged(const QString &arg1);
+
 public slots:
     void received_callback(QByteArray log_data);
     void display_event(Display_packet data);

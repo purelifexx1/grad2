@@ -5,17 +5,17 @@ packet_handler::packet_handler()
 
 }
 
-void packet_handler::categorize(std::vector<uint8_t> *packet)
+void packet_handler::categorize(std::vector<uint8_t> &packet)
 {
     int number_of_state = strlen(end_header);
     int sync_state = 0;
     int distance = 0;
-    int packet_size = packet->size();
+    int packet_size = packet.size();
     int count = 0;
     do{
-        if(packet->at(count) == (uint8_t)(end_header[sync_state])){
+        if(packet.at(count) == (uint8_t)(end_header[sync_state])){
             sync_state++;
-        }else if(packet->at(count) == (uint8_t)(end_header[0])){
+        }else if(packet.at(count) == (uint8_t)(end_header[0])){
             sync_state = 1;
         }else{
             sync_state = 0;
@@ -24,31 +24,52 @@ void packet_handler::categorize(std::vector<uint8_t> *packet)
         count++;
         if(number_of_state == sync_state){
             QByteArray temper; // empty byte array
-            for(auto val: *packet){
+            for(auto val: packet){
                 temper.push_back(val);
             }
-            packet_extract(temper);
-            packet->erase(packet->begin(), packet->begin() + distance);
+            packet_extract(temper, count >= (packet_size));
+            packet.erase(packet.begin(), packet.begin() + distance);
             distance = 0;
             sync_state = 0;
             count = 0;
-            packet_size = packet->size();
+            packet_size = packet.size();
         }
     }while(count < packet_size);
 }
 
-void packet_handler::packet_extract(QByteArray packet)
+void packet_handler::packet_extract(QByteArray packet, bool end_buffer)
 {
     if(packet.at(0) == 0x28){
         if(packet.at(1) == packet.count() - 2){
+            archive_buffer.clear();
             routing(packet.mid(2, packet.at(1) - 2));
         }else{
-            //packet length error
-            return;
+            if(end_buffer == true){
+                //packet length error
+                log_console("Packet Length Error");
+                return;
+            }else{
+                //move data to archive buffer, check another round for end flag
+                archive_buffer.clear();
+                archive_buffer.push_back(packet);
+            }
         }
     }else{
-        //header error
-        return;
+        if(archive_buffer.size() != 0){
+            archive_buffer.push_back(packet);
+            if(archive_buffer.at(1) == archive_buffer.count() - 2){
+                routing(archive_buffer.mid(2, archive_buffer.at(1) - 2));
+            }else{
+                //packet length error
+                log_console("Packet Length Error");
+                return;
+            }
+            archive_buffer.clear();
+        }else{
+            log_console("Header sync Error");
+            //header error
+            return;
+        }
     }
 }
 
@@ -94,6 +115,8 @@ void packet_handler::routing(QByteArray packet)
 
                 break;
             }
+        break;
+        default:
         break;
     }
 }

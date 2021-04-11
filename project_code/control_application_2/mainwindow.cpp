@@ -7,7 +7,7 @@
 #include <QFileDialog>
 #include <QFile>
 
-
+QSerialPort *mSerial1;
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -158,7 +158,7 @@ void MainWindow::received_callback(QByteArray log_data)
 {
     qDebug() << log_data;
     FIFO_Buffer.insert(FIFO_Buffer.end(), log_data.begin(), log_data.end());
-    _packet_handler->categorize(&FIFO_Buffer);
+    _packet_handler->categorize(FIFO_Buffer);
 }
 
 void MainWindow::on_bt_robot_stop_clicked()
@@ -428,6 +428,18 @@ void MainWindow::object_detected(double x, double y, double roll)
 
 void MainWindow::on_testing_clicked()
 {
+    QByteArray command;
+    command.append(0x28);
+    command.append('\0');
+    command.append(0x01);
+    command.append(24);
+    ADD_VALUE(&command, 332.057, SCARA_COR_VALUE_DOUBLE);
+    ADD_VALUE(&command, 12, SCARA_COR_VALUE_DOUBLE);
+    ADD_VALUE(&command, 0, SCARA_COR_VALUE_DOUBLE);
+    command.append(VIETNAM_FLAG);
+    command.append("})");
+    command[1] = command.length() - 2;
+    mSerial->write(command, command.length());
 
 }
 
@@ -791,3 +803,86 @@ void MainWindow::closeEvent(QCloseEvent *event)
     system_parameter->Save_Configuration();
 }
 
+
+void MainWindow::on_bt_conveyor_refresh_clicked()
+{
+    ui->com_list->clear();
+    const auto list_of_port = QSerialPortInfo::availablePorts();
+        for (const QSerialPortInfo &port : list_of_port)
+            ui->cb_conveyor_com->addItem(port.portName());
+}
+
+void MainWindow::on_bt_conveyor_start_clicked()
+{
+    QByteArray temper_array;
+    temper_array.append('(');
+    temper_array.append('\0');
+    temper_array.append(')');
+    mSerial1->write(temper_array);
+}
+
+void MainWindow::on_bt_conveyor_stop_clicked()
+{
+    QByteArray temper_array;
+    temper_array.append('(');
+    temper_array.append(0x01);
+    temper_array.append(')');
+    mSerial1->write(temper_array);
+}
+
+void MainWindow::on_bt_conveyor_configure_clicked()
+{
+    QByteArray temper_array;
+    temper_array.append('(');
+    temper_array.append(0x02);
+    temper_array.append((QChar)ui->tb_conveyor_pulse->text().toInt());
+    temper_array.append(')');
+    mSerial1->write(temper_array);
+}
+
+void MainWindow::on_bt_conveyor_reverse_clicked()
+{
+    QByteArray temper_array;
+    temper_array.append('(');
+    temper_array.append(0x03);
+    temper_array.append(')');
+    mSerial1->write(temper_array);
+}
+
+void MainWindow::on_bt_conveyor_con_clicked()
+{
+    if (ui->bt_connect->text() == "Connect"){
+        ui->bt_connect->setText("Disconnect");
+        ui->bt_connect->setStyleSheet("background-color:green");
+        mSerial1 = new QSerialPort(this);
+        mSerial1->setPortName(ui->cb_conveyor_com->currentText());
+        mSerial1->setBaudRate(QSerialPort::Baud115200);
+        mSerial1->setDataBits(QSerialPort::Data8);
+        mSerial1->setParity(QSerialPort::NoParity);
+        mSerial1->setStopBits(QSerialPort::OneStop);
+        mSerial1->setFlowControl(QSerialPort::NoFlowControl);
+        mSerial1->open(QIODevice::WriteOnly);
+    }else if(ui->bt_connect->text() == "Disconnect"){
+        ui->bt_connect->setText("Connect");
+        ui->bt_connect->setStyleSheet("background-color:red");
+        mSerial1->close();
+        delete mSerial1;
+    }
+}
+
+void MainWindow::on_tb_conveyor_pulse_textChanged(const QString &arg1)
+{
+    int ppms = 0;
+    try
+    {
+        ppms = ui->tb_conveyor_pulse->text().toInt();
+    }
+    catch(QString exp)
+    {
+        return;
+    }
+    ppms = (ppms > 100) ? 100 : ppms;
+    ppms = (ppms < 0) ? 0 : ppms;
+    double sps = ppms * 10.0 * 35.5 * 3.141592654 * 21.0 / (20.0 * 200.0) / 4;
+    ui->lb_conveyor_real_sp->setText(QString::number(sps) + " mm/s");
+}

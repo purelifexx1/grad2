@@ -196,24 +196,17 @@ SCARA_StatusTypeDef	scaraInitDuty		(DUTY_Command_TypeDef command) {
 				myDUTY.task.trajectory_roll.trajectory_type = DUTY_TRAJECTORY_LINEAR;
 				status2 = scaraInitLinear(&(myDUTY.task.trajectory_roll.linear), TRAJECTORY_ROLL, angle_s*dir_angle, DUTY_MODE_INIT_QT, myDUTY.time_total);
 			} else if (DUTY_MODE_INIT_QVA == command.modeInit_type) {
+				//myDUTY.task.trajectory_3d.lspb.Tf = command.time_total;
 				myDUTY.task.trajectory_3d.trajectory_type = DUTY_TRAJECTORY_LSPB;
-				status1 = scaraInitLSPB(&(myDUTY.task.trajectory_3d.lspb), TRAJECTORY_3D,
-						 total_s, DUTY_MODE_INIT_QVA, command.v_factor, command.a_factor);
-				myDUTY.task.trajectory_roll.trajectory_type = DUTY_TRAJECTORY_LSPB;
-				status2 = scaraInitLSPB(&(myDUTY.task.trajectory_roll.lspb), TRAJECTORY_ROLL,
-						 angle_s, DUTY_MODE_INIT_QVA, command.v_factor, command.a_factor);
-				// Synchronous time end
-				if(myDUTY.task.trajectory_3d.lspb.Tf > myDUTY.task.trajectory_roll.lspb.Tf) {
-					myDUTY.task.trajectory_roll.lspb.Tf = myDUTY.task.trajectory_3d.lspb.Tf;
-					status2 = scaraInitLSPB(&(myDUTY.task.trajectory_roll.lspb), TRAJECTORY_ROLL,
-							 angle_s, DUTY_MODE_INIT_QVT, command.v_factor, command.a_factor);
-					myDUTY.time_total = myDUTY.task.trajectory_3d.lspb.Tf;
-				} else {
-					myDUTY.task.trajectory_3d.lspb.Tf = myDUTY.task.trajectory_roll.lspb.Tf;
-					status1 = scaraInitLSPB(&(myDUTY.task.trajectory_3d.lspb), TRAJECTORY_3D,
-							 total_s, DUTY_MODE_INIT_QVT, command.v_factor, command.a_factor);
-					myDUTY.time_total = myDUTY.task.trajectory_roll.lspb.Tf;
-				}
+				status1 = scaraInitLSPB1(&(myDUTY.task.trajectory_3d.lspb), TRAJECTORY_3D,
+										 total_s, DUTY_MODE_INIT_QVA, command.v_factor, command.a_factor);
+				//myDUTY.task.trajectory_3d.lspb.Tf might change at this point,
+				myDUTY.task.trajectory_roll.linear.dir = dir_angle;
+				//myDUTY.task.trajectory_roll.linear.Tf = myDUTY.task.trajectory_3d.lspb.Tf;
+				myDUTY.time_total = myDUTY.task.trajectory_3d.lspb.Tf;
+				myDUTY.task.trajectory_roll.trajectory_type = DUTY_TRAJECTORY_LINEAR;
+				status2 = scaraInitLinear(&(myDUTY.task.trajectory_roll.linear), TRAJECTORY_ROLL, angle_s*dir_angle, DUTY_MODE_INIT_QT, myDUTY.time_total);
+
 			} else {
 				return SCARA_STATUS_ERROR_MODE_INIT ;
 			}
@@ -233,24 +226,16 @@ SCARA_StatusTypeDef	scaraInitDuty		(DUTY_Command_TypeDef command) {
 				status2 = scaraInitLinear(&(myDUTY.task.trajectory_roll.linear), TRAJECTORY_ROLL, angle_s*dir_angle, DUTY_MODE_INIT_QT, myDUTY.time_total);
 
 			} else if (DUTY_MODE_INIT_QVA == command.modeInit_type) {
+				//myDUTY.task.trajectory_3d.scurve.Tf = command.time_total;
 				myDUTY.task.trajectory_3d.trajectory_type = DUTY_TRAJECTORY_SCURVE;
-				status1 = scaraInitScurve(&(myDUTY.task.trajectory_3d.scurve), TRAJECTORY_3D,
-						 total_s, DUTY_MODE_INIT_QVA, command.v_factor, command.a_factor);
-				myDUTY.task.trajectory_roll.trajectory_type = DUTY_TRAJECTORY_SCURVE;
-				status2 = scaraInitScurve(&(myDUTY.task.trajectory_roll.scurve), TRAJECTORY_ROLL,
-						 angle_s, DUTY_MODE_INIT_QVA, command.v_factor, command.a_factor);
-				// synchronous time end
-				if(myDUTY.task.trajectory_3d.scurve.Tf > myDUTY.task.trajectory_roll.scurve.Tf) {
-					myDUTY.task.trajectory_roll.scurve.Tf = myDUTY.task.trajectory_3d.scurve.Tf;
-					status2 = scaraInitScurve(&(myDUTY.task.trajectory_roll.scurve), TRAJECTORY_ROLL,
-							 angle_s, DUTY_MODE_INIT_QVT, command.v_factor, command.a_factor);
-					myDUTY.time_total = myDUTY.task.trajectory_3d.scurve.Tf;
-				} else {
-					myDUTY.task.trajectory_3d.scurve.Tf = myDUTY.task.trajectory_roll.scurve.Tf;
-					status1 = scaraInitScurve(&(myDUTY.task.trajectory_3d.scurve), TRAJECTORY_3D,
-							 total_s, DUTY_MODE_INIT_QVT, command.v_factor, command.a_factor);
-					myDUTY.time_total = myDUTY.task.trajectory_roll.scurve.Tf;
-				}
+				status1 = scaraInitScurve1(&(myDUTY.task.trajectory_3d.scurve), TRAJECTORY_3D,
+										 total_s, DUTY_MODE_INIT_QVA, command.v_factor, command.a_factor);
+				//myDUTY.task.trajectory_3d.lspb.Tf might change at this point,
+				myDUTY.task.trajectory_roll.linear.dir = dir_angle;
+				//myDUTY.task.trajectory_roll.linear.Tf = command.time_total;
+				myDUTY.time_total = myDUTY.task.trajectory_3d.scurve.Tf;
+				myDUTY.task.trajectory_roll.trajectory_type = DUTY_TRAJECTORY_LINEAR;
+				status2 = scaraInitLinear(&(myDUTY.task.trajectory_roll.linear), TRAJECTORY_ROLL, angle_s*dir_angle, DUTY_MODE_INIT_QT, myDUTY.time_total);
 			}else {
 				return SCARA_STATUS_ERROR_MODE_INIT;
 			}
@@ -368,9 +353,11 @@ SCARA_StatusTypeDef	scaraInitDuty		(DUTY_Command_TypeDef command) {
 				for ( uint8_t i = 0; i < 4; i++) {
 					myDUTY.joint.trajectory[i].trajectory_type = DUTY_TRAJECTORY_SCURVE;
 					myDUTY.joint.trajectory[i].scurve.Tf = command.time_total;
-					status1 = scaraInitScurve(&(myDUTY.joint.trajectory[i].scurve), joint_taget[i],
-										q[i], DUTY_MODE_INIT_QVT, command.v_factor, command.a_factor);
-
+					status1 = scaraInitScurve1(&(myDUTY.joint.trajectory[i].scurve), joint_taget[i],
+										q[i], DUTY_MODE_INIT_QVT, command.v_factor, command.time_total);
+					if(status1 != SCARA_STATUS_OK){
+						return status1;
+					}
 				}
 				myDUTY.time_total = command.time_total;
 			// Mode Init Acc
@@ -625,7 +612,7 @@ SCARA_StatusTypeDef	scaraInitLSPB1		(Trajectory_LSPB_TypeDef *lspb,
 
 	}else if(modeinit == DUTY_MODE_INIT_QVA){
 		//check qva condition
-		if(total_s*a_design < v_design*v_design){ //condition for ta smaller than td
+		if(total_s*a_design > v_design*v_design){ //condition for ta smaller than td
 			if(total_s/v_design < 0.3){ //td too small
 				//recalculate v_design
 				v_design = total_s/0.3;
@@ -747,7 +734,7 @@ SCARA_StatusTypeDef			scaraInitScurve1	(Trajectory_Scurve_TypeDef *scurve,
 	
 	}else if(modeinit == DUTY_MODE_INIT_QVA){
 		//check qva condition
-		if(total_s*a_design < 2*v_design*v_design){ //condition for ta smaller than tc
+		if(total_s*a_design > 2*v_design*v_design){ //condition for ta smaller than tc
 			if(total_s/v_design < 0.3){ //tc too small
 				//recalculate v_design
 				v_design = total_s/0.3;
@@ -1285,10 +1272,10 @@ SCARA_StatusTypeDef	scaraFlowDuty		(double time,
 
 			// SCURVE
 		} else if ( DUTY_TRAJECTORY_SCURVE == myDUTY.joint.trajectory[0].trajectory_type) {
-			status1 = scaraFLowScurve(&(myDUTY.joint.trajectory[0].scurve), time);
-			status2 = scaraFLowScurve(&(myDUTY.joint.trajectory[1].scurve), time);
-			status3 = scaraFLowScurve(&(myDUTY.joint.trajectory[2].scurve), time);
-			status4 = scaraFLowScurve(&(myDUTY.joint.trajectory[3].scurve), time);
+			status1 = scaraFLowScurve1(&(myDUTY.joint.trajectory[0].scurve), time);
+			status2 = scaraFLowScurve1(&(myDUTY.joint.trajectory[1].scurve), time);
+			status3 = scaraFLowScurve1(&(myDUTY.joint.trajectory[2].scurve), time);
+			status4 = scaraFLowScurve1(&(myDUTY.joint.trajectory[3].scurve), time);
 			dir0 = myDUTY.joint.trajectory[0].scurve.dir;
 			dir1 = myDUTY.joint.trajectory[1].scurve.dir;
 			dir2 = myDUTY.joint.trajectory[2].scurve.dir;
@@ -1297,11 +1284,11 @@ SCARA_StatusTypeDef	scaraFlowDuty		(double time,
 			s1 = myDUTY.joint.trajectory[1].scurve.s_current;
 			s2 = myDUTY.joint.trajectory[2].scurve.s_current;
 			s3 = myDUTY.joint.trajectory[3].scurve.s_current;
-
-			v0 = myDUTY.joint.trajectory[0].scurve.v_current;
-			v1 = myDUTY.joint.trajectory[1].scurve.v_current;
-			v2 = myDUTY.joint.trajectory[2].scurve.v_current;
-			v3 = myDUTY.joint.trajectory[3].scurve.v_current;
+//
+//			v0 = myDUTY.joint.trajectory[0].scurve.v_current;
+//			v1 = myDUTY.joint.trajectory[1].scurve.v_current;
+//			v2 = myDUTY.joint.trajectory[2].scurve.v_current;
+//			v3 = myDUTY.joint.trajectory[3].scurve.v_current;
 
 		} else {
 			return SCARA_STATUS_ERROR_TRAJECTORY;

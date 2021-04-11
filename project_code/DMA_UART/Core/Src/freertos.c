@@ -75,6 +75,7 @@ extern int32_t						current_key_speed1 = 1;
 extern double						up_z_height;
 extern double 						down_z_height;
 extern int32_t						total_num_of_point;
+extern uint8_t						pnp_move_option = CMD_MOVE_LINE;
 double *testing_array;
 extern TIM_HandleTypeDef htim7;
 osMailQId commandMailHandle;
@@ -733,7 +734,7 @@ void StartDefaultTask(void const * argument)
 					  run_time = last_T;
 				  }
 				  current_duty_state = SCARA_DUTY_STATE_FLOW;
-				  detail_array[0] = (uint8_t)(run_point * 100.0f / total_num_of_point );
+				  detail_array[0] = (uint8_t)((run_point+1) * 100.0f / total_num_of_point );
 				  respond_lenght = commandRespond1(RDP_GCODE_PROCESS, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
 				  total_respond_length += respond_lenght;
 			  }else{
@@ -750,7 +751,7 @@ void StartDefaultTask(void const * argument)
 			  run_time += T_SAMPLING;
 			  // Check Time Out
 			  if (scaraIsFinish(run_time)) {
-				if(run_point >= total_num_of_point){
+				if(run_point >= total_num_of_point-1){
 					current_duty_state = SCARA_DUTY_STATE_READY;
 					lowlayer_readTruePosition(&positionNext);
 				    kinematicForward(&positionNext);
@@ -865,15 +866,27 @@ void StartDefaultTask(void const * argument)
 				  duty_cmd.time_total = state_time;
 				  SCARA_StatusTypeDef status1;
 				  duty_cmd.v_factor = 0;
+				  duty_cmd.coordinate_type = DUTY_COORDINATES_ABS;
 				  if(operation_state == SCARA_ATTACH || operation_state == SCARA_RELEASE){
 					  status1 = SCARA_STATUS_OK;
 				  }else{
 					  if(operation_state == SCARA_MOVE_DOWN_ON_OBJECT || operation_state == SCARA_MOVE_DOWN_ON_SLOT || operation_state == SCARA_MOVE_UP_ON_OBJECT || operation_state == SCARA_MOVE_UP_ON_SLOT){
+						  duty_cmd.path_type = DUTY_PATH_LINE;
+						  duty_cmd.space_type = DUTY_SPACE_TASK;
 						  duty_cmd.trajec_type = DUTY_TRAJECTORY_LINEAR;
 						  duty_cmd.modeInit_type = DUTY_MODE_INIT_QT;
 					  }else{
-						  duty_cmd.trajec_type = DUTY_TRAJECTORY_SCURVE;
 						  duty_cmd.modeInit_type = DUTY_MODE_INIT_QVT;
+						  if(pnp_move_option == CMD_MOVE_LINE){
+							  duty_cmd.path_type = DUTY_PATH_LINE;
+							  duty_cmd.space_type = DUTY_SPACE_TASK;
+							  duty_cmd.trajec_type = DUTY_TRAJECTORY_SCURVE;
+						  }else if(pnp_move_option == CMD_MOVE_JOINT){
+							  duty_cmd.joint_type = DUTY_JOINT_4DOF;
+							  duty_cmd.space_type = DUTY_SPACE_JOINT;
+							  duty_cmd.trajec_type = DUTY_TRAJECTORY_LSPB;
+						  }
+
 					  }
 					  status1 = scaraInitDuty(duty_cmd);
 				  }

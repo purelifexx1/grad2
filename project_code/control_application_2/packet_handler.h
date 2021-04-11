@@ -11,13 +11,13 @@ class packet_handler: public QObject
 public:
     packet_handler();
     define_parameter *system_parameter;
-    void categorize(std::vector<uint8_t> *packet);
+    void categorize(std::vector<uint8_t> &packet);
     int32_t number_of_packet;
 signals:
     void on_display_event(Display_packet);
 private:
     void routing(QByteArray packet);
-    void packet_extract(QByteArray packet);
+    void packet_extract(QByteArray packet, bool end_buffer);
     void Scara_position_received(QByteArray data);
     void Detail_Status_Handler(QByteArray data, display_id id);
     QByteArray archive_buffer;
