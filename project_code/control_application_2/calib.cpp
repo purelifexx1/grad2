@@ -74,7 +74,7 @@ void Calib::run()
 
            for (size_t i = 0; i < Trans_buffer.size(); ++i)
            {
-               if (Trans_buffer[i][2]< 85 && Trans_buffer[i][2] > 80)
+               if (Trans_buffer[i][2]< 80 && Trans_buffer[i][2] > 75)
                {
                   //qDebug()<<pre_X << endl;
                   //qDebug()<<Trans_buffer[i][2] << endl;
@@ -254,8 +254,8 @@ void Transfer_CorRobot(float x_cam, float y_cam, float z_cam,
 //Tranfer Matrix
 float A[4][4] =
   {
-    {     -1,     0,    0,      333.3 },
-    {     0,     1,     0,      162.7 },
+    {     -1,     0,    0,      337.3 },
+    {     0,     1,     0,      127.7 },
     {     0,     0,     -1,     416.5 },
     {     0,     0,     0,          1 },
   };
