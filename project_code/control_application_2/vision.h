@@ -28,12 +28,9 @@ private slots:
 
     void on_CameraOff_Button_clicked();
 
-    void on_pushButton_clicked();
-
-    void on_pushButton_2_clicked();
-
     void on_checkBox_stateChanged(int arg1);
 
+    void on_ResetPoint_clicked();
 
 private:
     Ui::Vision *ui;

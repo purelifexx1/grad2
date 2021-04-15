@@ -98,42 +98,7 @@ void Vision::on_CameraOff_Button_clicked()
     CalibFrame -> terminate();
 }
 
-void Vision::on_pushButton_clicked()
-{
-    ui->comboBox->clear();
-        const auto list_of_port = QSerialPortInfo::availablePorts();
-            for (const QSerialPortInfo &port : list_of_port)
-                ui->comboBox->addItem(port.portName());
-}
 
-void Vision::on_pushButton_2_clicked()
-{
-//    if (ui->pushButton_2->text() == "Connect"){
-//            ui->pushButton_2->setText("Disconnect");
-//            ui->pushButton_2->setStyleSheet("background-color:green");
-//            mSerial = new QSerialPort(this);
-//            mSerial->setPortName(ui->comboBox->currentText());
-//            mSerial->setBaudRate(QSerialPort::Baud115200);
-//            mSerial->setDataBits(QSerialPort::Data8);
-//            mSerial->setParity(QSerialPort::NoParity);
-//            mSerial->setStopBits(QSerialPort::OneStop);
-//            mSerial->setFlowControl(QSerialPort::NoFlowControl);
-//            mSerial->open(QIODevice::ReadWrite);
-////            Received_Thread = new ReceiveThread(this);
-////            Received_Thread->set_serial_object(mSerial);
-////            connect(Received_Thread, SIGNAL(packet_received(QByteArray)), this, SLOT(received_callback(QByteArray)));
-////            Received_Thread->start();
-
-//        }else if(ui->pushButton_2->text() == "Disconnect"){
-//            ui->pushButton_2->setText("Connect");
-//            ui->pushButton_2->setStyleSheet("background-color:red");
-//            ui->checkBox->setChecked(false);
-//            //Received_Thread->stop = true;
-//            mSerial->close();
-////            delete mSerial;
-////            delete Received_Thread;
-//        }
-}
 
 void Vision::on_checkBox_stateChanged(int arg1)
 {
@@ -144,3 +109,8 @@ void Vision::on_checkBox_stateChanged(int arg1)
     }
 }
 
+
+void Vision::on_ResetPoint_clicked()
+{
+    CalibFrame->current_point = 0;
+}

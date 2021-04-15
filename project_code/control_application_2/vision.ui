@@ -14,17 +14,17 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="ResetPoint">
     <property name="geometry">
      <rect>
-      <x>105</x>
-      <y>9</y>
+      <x>190</x>
+      <y>10</y>
       <width>75</width>
       <height>23</height>
      </rect>
     </property>
     <property name="text">
-     <string>referesh</string>
+     <string>Reset</string>
     </property>
    </widget>
    <widget class="QLabel" name="CameraFrame">
@@ -65,27 +65,14 @@
    <widget class="QPushButton" name="CameraOff_Button">
     <property name="geometry">
      <rect>
-      <x>295</x>
-      <y>9</y>
+      <x>100</x>
+      <y>10</y>
       <width>75</width>
       <height>23</height>
      </rect>
     </property>
     <property name="text">
      <string>Camera Off</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_2">
-    <property name="geometry">
-     <rect>
-      <x>200</x>
-      <y>9</y>
-      <width>75</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Connect</string>
     </property>
    </widget>
    <widget class="QCheckBox" name="checkBox">
@@ -112,16 +99,6 @@
     </property>
     <property name="text">
      <string>Camera On</string>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="comboBox">
-    <property name="geometry">
-     <rect>
-      <x>400</x>
-      <y>10</y>
-      <width>69</width>
-      <height>20</height>
-     </rect>
     </property>
    </widget>
   </widget>

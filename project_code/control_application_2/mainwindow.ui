@@ -2522,6 +2522,19 @@
           <string>REVERSE</string>
          </property>
         </widget>
+        <widget class="QLabel" name="LB_FuzzyValue">
+         <property name="geometry">
+          <rect>
+           <x>180</x>
+           <y>110</y>
+           <width>81</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>None</string>
+         </property>
+        </widget>
        </widget>
       </widget>
      </widget>
@@ -2586,7 +2599,7 @@
      <x>0</x>
      <y>0</y>
      <width>1079</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

@@ -217,7 +217,7 @@ void Calib::run()
                    }
                    else Trans_buffer[i][6] ++;
 
-                   if(Trans_buffer[i][6] >= 50 || Trans_buffer[i][2] <= 65)
+                   if(Trans_buffer[i][6] >= 100 || Trans_buffer[i][2] <= 55)      // = 65
                    {
                        Trans_buffer.erase(Trans_buffer.begin() + i);
                        KF.erase(KF.begin() + i);
@@ -254,8 +254,8 @@ void Transfer_CorRobot(float x_cam, float y_cam, float z_cam,
 //Tranfer Matrix
 float A[4][4] =
   {
-    {     -1,     0,    0,      337.3 },
-    {     0,     1,     0,      127.7 },
+    {     -1,     0,    0,      339.3 },                //337.3
+    {     0,     1,     0,      124.7 },
     {     0,     0,     -1,     416.5 },
     {     0,     0,     0,          1 },
   };
