@@ -2522,17 +2522,30 @@
           <string>REVERSE</string>
          </property>
         </widget>
-        <widget class="QLabel" name="LB_FuzzyValue">
+        <widget class="QLabel" name="label_58">
          <property name="geometry">
           <rect>
            <x>180</x>
            <y>110</y>
-           <width>81</width>
-           <height>16</height>
+           <width>111</width>
+           <height>21</height>
           </rect>
          </property>
          <property name="text">
-          <string>None</string>
+          <string>Estimate Speed(mm/s): </string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="lb_estimate_conveyor_sp">
+         <property name="geometry">
+          <rect>
+           <x>300</x>
+           <y>110</y>
+           <width>71</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
          </property>
         </widget>
        </widget>
@@ -2599,7 +2612,7 @@
      <x>0</x>
      <y>0</y>
      <width>1079</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
   </widget>
