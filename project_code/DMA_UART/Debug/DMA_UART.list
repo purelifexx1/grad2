@@ -37,13 +37,13 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  16 .debug_macro  0002aef0  00000000  00000000  000726b8  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   0002916b  00000000  00000000  0009d5a8  2**0
+ 17 .debug_line   0002916e  00000000  00000000  0009d5a8  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    000df0a8  00000000  00000000  000c6713  2**0
+ 18 .debug_str    000df0a8  00000000  00000000  000c6716  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000053  00000000  00000000  001a57bb  2**0
+ 19 .comment      00000053  00000000  00000000  001a57be  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  0000969c  00000000  00000000  001a5810  2**2
+ 20 .debug_frame  0000969c  00000000  00000000  001a5814  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -4546,9 +4546,9 @@ void StartDefaultTask(void const * argument)
  800270e:	2390      	movs	r3, #144	; 0x90
  8002710:	461a      	mov	r2, r3
  8002712:	f013 fa85 	bl	8015c20 <memcpy>
-  		{259.568f, -45.056f, 0.0f} ,
-		{262.279f, -14.61f, 0.0f} ,
-		{264.560f, 15.48f, 0.0f}
+  		{258.221f, -47.1851f, 0.0f} ,
+		{260.695f, -17.075f, 0.0f} ,
+		{260.4f, 13.66f, 0.0f}
   };
 
   LOG_REPORT("free_rtos.c: PROGRAM START...", __LINE__);
@@ -5718,8 +5718,8 @@ void StartDefaultTask(void const * argument)
  8003170:	08003185 	.word	0x08003185
  8003174:	080033b3 	.word	0x080033b3
  8003178:	0800388d 	.word	0x0800388d
- 800317c:	08003bc9 	.word	0x08003bc9
- 8003180:	08003bef 	.word	0x08003bef
+ 800317c:	08003bcb 	.word	0x08003bcb
+ 8003180:	08003bf1 	.word	0x08003bf1
 	  case SCARA_METHOD_MANUAL:
 	  {
 		  switch( current_key_state) {
@@ -6531,14 +6531,14 @@ void StartDefaultTask(void const * argument)
  8003890:	f103 0305 	add.w	r3, r3, #5
  8003894:	781b      	ldrb	r3, [r3, #0]
  8003896:	2b04      	cmp	r3, #4
- 8003898:	f200 8193 	bhi.w	8003bc2 <StartDefaultTask+0x151a>
+ 8003898:	f200 8194 	bhi.w	8003bc4 <StartDefaultTask+0x151c>
  800389c:	a201      	add	r2, pc, #4	; (adr r2, 80038a4 <StartDefaultTask+0x11fc>)
  800389e:	f852 f023 	ldr.w	pc, [r2, r3, lsl #2]
  80038a2:	bf00      	nop
- 80038a4:	08003bc3 	.word	0x08003bc3
- 80038a8:	08003bc3 	.word	0x08003bc3
- 80038ac:	08003a5d 	.word	0x08003a5d
- 80038b0:	08003bc3 	.word	0x08003bc3
+ 80038a4:	08003bc5 	.word	0x08003bc5
+ 80038a8:	08003bc5 	.word	0x08003bc5
+ 80038ac:	08003a5f 	.word	0x08003a5f
+ 80038b0:	08003bc5 	.word	0x08003bc5
  80038b4:	080038b9 	.word	0x080038b9
 		  case SCARA_DUTY_STATE_INIT:{
 
@@ -6578,7 +6578,7 @@ void StartDefaultTask(void const * argument)
 			  if(status == SCARA_STATUS_OK){
  800390a:	f897 3fce 	ldrb.w	r3, [r7, #4046]	; 0xfce
  800390e:	2b00      	cmp	r3, #0
- 8003910:	d177      	bne.n	8003a02 <StartDefaultTask+0x135a>
+ 8003910:	d178      	bne.n	8003a04 <StartDefaultTask+0x135c>
 				  if(duty_cmd.trajec_type == DUTY_TRAJECTORY_LINEAR){
  8003912:	f607 53f8 	addw	r3, r7, #3576	; 0xdf8
  8003916:	7c1b      	ldrb	r3, [r3, #16]
@@ -6620,277 +6620,277 @@ void StartDefaultTask(void const * argument)
  800397e:	f507 5281 	add.w	r2, r7, #4128	; 0x1020
  8003982:	f102 0205 	add.w	r2, r2, #5
  8003986:	7013      	strb	r3, [r2, #0]
-				  detail_array[0] = (uint8_t)(run_point * 100.0f / total_num_of_point );
+				  detail_array[0] = (uint8_t)((run_point+1) * 100.0f / total_num_of_point );
  8003988:	f8d7 3ffc 	ldr.w	r3, [r7, #4092]	; 0xffc
- 800398c:	ee07 3a90 	vmov	s15, r3
- 8003990:	eef8 7ae7 	vcvt.f32.s32	s15, s15
- 8003994:	ed9f 7acb 	vldr	s14, [pc, #812]	; 8003cc4 <StartDefaultTask+0x161c>
- 8003998:	ee67 6a87 	vmul.f32	s13, s15, s14
- 800399c:	4bca      	ldr	r3, [pc, #808]	; (8003cc8 <StartDefaultTask+0x1620>)
- 800399e:	681b      	ldr	r3, [r3, #0]
- 80039a0:	ee07 3a90 	vmov	s15, r3
- 80039a4:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
- 80039a8:	eec6 7a87 	vdiv.f32	s15, s13, s14
- 80039ac:	eefc 7ae7 	vcvt.u32.f32	s15, s15
- 80039b0:	edc7 7a01 	vstr	s15, [r7, #4]
- 80039b4:	793b      	ldrb	r3, [r7, #4]
- 80039b6:	b2da      	uxtb	r2, r3
- 80039b8:	f607 5328 	addw	r3, r7, #3368	; 0xd28
- 80039bc:	701a      	strb	r2, [r3, #0]
+ 800398c:	3301      	adds	r3, #1
+ 800398e:	ee07 3a90 	vmov	s15, r3
+ 8003992:	eef8 7ae7 	vcvt.f32.s32	s15, s15
+ 8003996:	ed9f 7acb 	vldr	s14, [pc, #812]	; 8003cc4 <StartDefaultTask+0x161c>
+ 800399a:	ee67 6a87 	vmul.f32	s13, s15, s14
+ 800399e:	4bca      	ldr	r3, [pc, #808]	; (8003cc8 <StartDefaultTask+0x1620>)
+ 80039a0:	681b      	ldr	r3, [r3, #0]
+ 80039a2:	ee07 3a90 	vmov	s15, r3
+ 80039a6:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
+ 80039aa:	eec6 7a87 	vdiv.f32	s15, s13, s14
+ 80039ae:	eefc 7ae7 	vcvt.u32.f32	s15, s15
+ 80039b2:	edc7 7a01 	vstr	s15, [r7, #4]
+ 80039b6:	793b      	ldrb	r3, [r7, #4]
+ 80039b8:	b2da      	uxtb	r2, r3
+ 80039ba:	f607 5328 	addw	r3, r7, #3368	; 0xd28
+ 80039be:	701a      	strb	r2, [r3, #0]
 				  respond_lenght = commandRespond1(RDP_GCODE_PROCESS, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
- 80039be:	f607 53f8 	addw	r3, r7, #3576	; 0xdf8
- 80039c2:	6899      	ldr	r1, [r3, #8]
- 80039c4:	f607 52cc 	addw	r2, r7, #3532	; 0xdcc
- 80039c8:	f507 5381 	add.w	r3, r7, #4128	; 0x1020
- 80039cc:	f103 0308 	add.w	r3, r3, #8
- 80039d0:	681b      	ldr	r3, [r3, #0]
- 80039d2:	4413      	add	r3, r2
- 80039d4:	f607 5228 	addw	r2, r7, #3368	; 0xd28
- 80039d8:	9300      	str	r3, [sp, #0]
- 80039da:	2301      	movs	r3, #1
- 80039dc:	200b      	movs	r0, #11
- 80039de:	f7fe fcb3 	bl	8002348 <commandRespond1>
- 80039e2:	f8c7 0ff4 	str.w	r0, [r7, #4084]	; 0xff4
+ 80039c0:	f607 53f8 	addw	r3, r7, #3576	; 0xdf8
+ 80039c4:	6899      	ldr	r1, [r3, #8]
+ 80039c6:	f607 52cc 	addw	r2, r7, #3532	; 0xdcc
+ 80039ca:	f507 5381 	add.w	r3, r7, #4128	; 0x1020
+ 80039ce:	f103 0308 	add.w	r3, r3, #8
+ 80039d2:	681b      	ldr	r3, [r3, #0]
+ 80039d4:	4413      	add	r3, r2
+ 80039d6:	f607 5228 	addw	r2, r7, #3368	; 0xd28
+ 80039da:	9300      	str	r3, [sp, #0]
+ 80039dc:	2301      	movs	r3, #1
+ 80039de:	200b      	movs	r0, #11
+ 80039e0:	f7fe fcb2 	bl	8002348 <commandRespond1>
+ 80039e4:	f8c7 0ff4 	str.w	r0, [r7, #4084]	; 0xff4
 				  total_respond_length += respond_lenght;
- 80039e6:	f507 5381 	add.w	r3, r7, #4128	; 0x1020
- 80039ea:	f103 0308 	add.w	r3, r3, #8
- 80039ee:	681a      	ldr	r2, [r3, #0]
- 80039f0:	f8d7 3ff4 	ldr.w	r3, [r7, #4084]	; 0xff4
- 80039f4:	4413      	add	r3, r2
- 80039f6:	f507 5281 	add.w	r2, r7, #4128	; 0x1020
- 80039fa:	f102 0208 	add.w	r2, r2, #8
- 80039fe:	6013      	str	r3, [r2, #0]
- 8003a00:	e02c      	b.n	8003a5c <StartDefaultTask+0x13b4>
+ 80039e8:	f507 5381 	add.w	r3, r7, #4128	; 0x1020
+ 80039ec:	f103 0308 	add.w	r3, r3, #8
+ 80039f0:	681a      	ldr	r2, [r3, #0]
+ 80039f2:	f8d7 3ff4 	ldr.w	r3, [r7, #4084]	; 0xff4
+ 80039f6:	4413      	add	r3, r2
+ 80039f8:	f507 5281 	add.w	r2, r7, #4128	; 0x1020
+ 80039fc:	f102 0208 	add.w	r2, r2, #8
+ 8003a00:	6013      	str	r3, [r2, #0]
+ 8003a02:	e02c      	b.n	8003a5e <StartDefaultTask+0x13b6>
 			  }else{
 				  current_duty_state = SCARA_DUTY_STATE_FINISH;
- 8003a02:	2303      	movs	r3, #3
- 8003a04:	f507 5281 	add.w	r2, r7, #4128	; 0x1020
- 8003a08:	f102 0205 	add.w	r2, r2, #5
- 8003a0c:	7013      	strb	r3, [r2, #0]
+ 8003a04:	2303      	movs	r3, #3
+ 8003a06:	f507 5281 	add.w	r2, r7, #4128	; 0x1020
+ 8003a0a:	f102 0205 	add.w	r2, r2, #5
+ 8003a0e:	7013      	strb	r3, [r2, #0]
 				  detail_array[0] = status;
- 8003a0e:	f607 5328 	addw	r3, r7, #3368	; 0xd28
- 8003a12:	f897 2fce 	ldrb.w	r2, [r7, #4046]	; 0xfce
- 8003a16:	701a      	strb	r2, [r3, #0]
+ 8003a10:	f607 5328 	addw	r3, r7, #3368	; 0xd28
+ 8003a14:	f897 2fce 	ldrb.w	r2, [r7, #4046]	; 0xfce
+ 8003a18:	701a      	strb	r2, [r3, #0]
 				  respond_lenght = commandRespond1(RPD_ERROR, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
- 8003a18:	f607 53f8 	addw	r3, r7, #3576	; 0xdf8
- 8003a1c:	6899      	ldr	r1, [r3, #8]
- 8003a1e:	f607 52cc 	addw	r2, r7, #3532	; 0xdcc
- 8003a22:	f507 5381 	add.w	r3, r7, #4128	; 0x1020
- 8003a26:	f103 0308 	add.w	r3, r3, #8
- 8003a2a:	681b      	ldr	r3, [r3, #0]
- 8003a2c:	4413      	add	r3, r2
- 8003a2e:	f607 5228 	addw	r2, r7, #3368	; 0xd28
- 8003a32:	9300      	str	r3, [sp, #0]
- 8003a34:	2301      	movs	r3, #1
- 8003a36:	2007      	movs	r0, #7
- 8003a38:	f7fe fc86 	bl	8002348 <commandRespond1>
- 8003a3c:	f8c7 0ff4 	str.w	r0, [r7, #4084]	; 0xff4
+ 8003a1a:	f607 53f8 	addw	r3, r7, #3576	; 0xdf8
+ 8003a1e:	6899      	ldr	r1, [r3, #8]
+ 8003a20:	f607 52cc 	addw	r2, r7, #3532	; 0xdcc
+ 8003a24:	f507 5381 	add.w	r3, r7, #4128	; 0x1020
+ 8003a28:	f103 0308 	add.w	r3, r3, #8
+ 8003a2c:	681b      	ldr	r3, [r3, #0]
+ 8003a2e:	4413      	add	r3, r2
+ 8003a30:	f607 5228 	addw	r2, r7, #3368	; 0xd28
+ 8003a34:	9300      	str	r3, [sp, #0]
+ 8003a36:	2301      	movs	r3, #1
+ 8003a38:	2007      	movs	r0, #7
+ 8003a3a:	f7fe fc85 	bl	8002348 <commandRespond1>
+ 8003a3e:	f8c7 0ff4 	str.w	r0, [r7, #4084]	; 0xff4
 				  total_respond_length += respond_lenght;
- 8003a40:	f507 5381 	add.w	r3, r7, #4128	; 0x1020
- 8003a44:	f103 0308 	add.w	r3, r3, #8
- 8003a48:	681a      	ldr	r2, [r3, #0]
- 8003a4a:	f8d7 3ff4 	ldr.w	r3, [r7, #4084]	; 0xff4
- 8003a4e:	4413      	add	r3, r2
- 8003a50:	f507 5281 	add.w	r2, r7, #4128	; 0x1020
- 8003a54:	f102 0208 	add.w	r2, r2, #8
- 8003a58:	6013      	str	r3, [r2, #0]
+ 8003a42:	f507 5381 	add.w	r3, r7, #4128	; 0x1020
+ 8003a46:	f103 0308 	add.w	r3, r3, #8
+ 8003a4a:	681a      	ldr	r2, [r3, #0]
+ 8003a4c:	f8d7 3ff4 	ldr.w	r3, [r7, #4084]	; 0xff4
+ 8003a50:	4413      	add	r3, r2
+ 8003a52:	f507 5281 	add.w	r2, r7, #4128	; 0x1020
+ 8003a56:	f102 0208 	add.w	r2, r2, #8
+ 8003a5a:	6013      	str	r3, [r2, #0]
 				  break;
- 8003a5a:	e0b3      	b.n	8003bc4 <StartDefaultTask+0x151c>
+ 8003a5c:	e0b3      	b.n	8003bc6 <StartDefaultTask+0x151e>
 			  }
 		  }
 		  //break;
 
 		  case SCARA_DUTY_STATE_FLOW:{
 			  run_time += T_SAMPLING;
- 8003a5c:	a396      	add	r3, pc, #600	; (adr r3, 8003cb8 <StartDefaultTask+0x1610>)
- 8003a5e:	e9d3 2300 	ldrd	r2, r3, [r3]
- 8003a62:	f507 5180 	add.w	r1, r7, #4096	; 0x1000
- 8003a66:	f101 0110 	add.w	r1, r1, #16
- 8003a6a:	e9d1 0100 	ldrd	r0, r1, [r1]
- 8003a6e:	f7fc fc0d 	bl	800028c <__adddf3>
- 8003a72:	4602      	mov	r2, r0
- 8003a74:	460b      	mov	r3, r1
- 8003a76:	f507 5180 	add.w	r1, r7, #4096	; 0x1000
- 8003a7a:	f101 0110 	add.w	r1, r1, #16
- 8003a7e:	e9c1 2300 	strd	r2, r3, [r1]
+ 8003a5e:	a396      	add	r3, pc, #600	; (adr r3, 8003cb8 <StartDefaultTask+0x1610>)
+ 8003a60:	e9d3 2300 	ldrd	r2, r3, [r3]
+ 8003a64:	f507 5180 	add.w	r1, r7, #4096	; 0x1000
+ 8003a68:	f101 0110 	add.w	r1, r1, #16
+ 8003a6c:	e9d1 0100 	ldrd	r0, r1, [r1]
+ 8003a70:	f7fc fc0c 	bl	800028c <__adddf3>
+ 8003a74:	4602      	mov	r2, r0
+ 8003a76:	460b      	mov	r3, r1
+ 8003a78:	f507 5180 	add.w	r1, r7, #4096	; 0x1000
+ 8003a7c:	f101 0110 	add.w	r1, r1, #16
+ 8003a80:	e9c1 2300 	strd	r2, r3, [r1]
 			  // Check Time Out
 			  if (scaraIsFinish(run_time)) {
- 8003a82:	f507 5380 	add.w	r3, r7, #4096	; 0x1000
- 8003a86:	f103 0310 	add.w	r3, r3, #16
- 8003a8a:	ed93 0b00 	vldr	d0, [r3]
- 8003a8e:	f006 fca5 	bl	800a3dc <scaraIsFinish>
- 8003a92:	4603      	mov	r3, r0
- 8003a94:	2b00      	cmp	r3, #0
- 8003a96:	d039      	beq.n	8003b0c <StartDefaultTask+0x1464>
+ 8003a84:	f507 5380 	add.w	r3, r7, #4096	; 0x1000
+ 8003a88:	f103 0310 	add.w	r3, r3, #16
+ 8003a8c:	ed93 0b00 	vldr	d0, [r3]
+ 8003a90:	f006 fca4 	bl	800a3dc <scaraIsFinish>
+ 8003a94:	4603      	mov	r3, r0
+ 8003a96:	2b00      	cmp	r3, #0
+ 8003a98:	d039      	beq.n	8003b0e <StartDefaultTask+0x1466>
 				if(run_point >= total_num_of_point-1){
- 8003a98:	4b8b      	ldr	r3, [pc, #556]	; (8003cc8 <StartDefaultTask+0x1620>)
- 8003a9a:	681b      	ldr	r3, [r3, #0]
- 8003a9c:	3b01      	subs	r3, #1
- 8003a9e:	f8d7 2ffc 	ldr.w	r2, [r7, #4092]	; 0xffc
- 8003aa2:	429a      	cmp	r2, r3
- 8003aa4:	db0c      	blt.n	8003ac0 <StartDefaultTask+0x1418>
+ 8003a9a:	4b8b      	ldr	r3, [pc, #556]	; (8003cc8 <StartDefaultTask+0x1620>)
+ 8003a9c:	681b      	ldr	r3, [r3, #0]
+ 8003a9e:	3b01      	subs	r3, #1
+ 8003aa0:	f8d7 2ffc 	ldr.w	r2, [r7, #4092]	; 0xffc
+ 8003aa4:	429a      	cmp	r2, r3
+ 8003aa6:	db0c      	blt.n	8003ac2 <StartDefaultTask+0x141a>
 					current_duty_state = SCARA_DUTY_STATE_READY;
- 8003aa6:	2300      	movs	r3, #0
- 8003aa8:	f507 5281 	add.w	r2, r7, #4128	; 0x1020
- 8003aac:	f102 0205 	add.w	r2, r2, #5
- 8003ab0:	7013      	strb	r3, [r2, #0]
+ 8003aa8:	2300      	movs	r3, #0
+ 8003aaa:	f507 5281 	add.w	r2, r7, #4128	; 0x1020
+ 8003aae:	f102 0205 	add.w	r2, r2, #5
+ 8003ab2:	7013      	strb	r3, [r2, #0]
 					lowlayer_readTruePosition(&positionNext);
- 8003ab2:	4886      	ldr	r0, [pc, #536]	; (8003ccc <StartDefaultTask+0x1624>)
- 8003ab4:	f002 f92c 	bl	8005d10 <lowlayer_readTruePosition>
+ 8003ab4:	4885      	ldr	r0, [pc, #532]	; (8003ccc <StartDefaultTask+0x1624>)
+ 8003ab6:	f002 f92b 	bl	8005d10 <lowlayer_readTruePosition>
 				    kinematicForward(&positionNext);
- 8003ab8:	4884      	ldr	r0, [pc, #528]	; (8003ccc <StartDefaultTask+0x1624>)
- 8003aba:	f001 fa05 	bl	8004ec8 <kinematicForward>
+ 8003aba:	4884      	ldr	r0, [pc, #528]	; (8003ccc <StartDefaultTask+0x1624>)
+ 8003abc:	f001 fa04 	bl	8004ec8 <kinematicForward>
 					  respond_lenght = commandRespond1(RPD_ERROR, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
 					  total_respond_length += respond_lenght;
 				  }
 			  }
 		  }
 		  break;
- 8003abe:	e081      	b.n	8003bc4 <StartDefaultTask+0x151c>
+ 8003ac0:	e081      	b.n	8003bc6 <StartDefaultTask+0x151e>
 					accumulate_update(Gcode_Cor[run_point]);
- 8003ac0:	4983      	ldr	r1, [pc, #524]	; (8003cd0 <StartDefaultTask+0x1628>)
- 8003ac2:	f8d7 2ffc 	ldr.w	r2, [r7, #4092]	; 0xffc
- 8003ac6:	4613      	mov	r3, r2
- 8003ac8:	00db      	lsls	r3, r3, #3
- 8003aca:	1a9b      	subs	r3, r3, r2
- 8003acc:	009b      	lsls	r3, r3, #2
- 8003ace:	440b      	add	r3, r1
- 8003ad0:	466c      	mov	r4, sp
- 8003ad2:	f103 0210 	add.w	r2, r3, #16
- 8003ad6:	ca07      	ldmia	r2, {r0, r1, r2}
- 8003ad8:	e884 0007 	stmia.w	r4, {r0, r1, r2}
- 8003adc:	cb0f      	ldmia	r3, {r0, r1, r2, r3}
- 8003ade:	f001 f903 	bl	8004ce8 <accumulate_update>
+ 8003ac2:	4983      	ldr	r1, [pc, #524]	; (8003cd0 <StartDefaultTask+0x1628>)
+ 8003ac4:	f8d7 2ffc 	ldr.w	r2, [r7, #4092]	; 0xffc
+ 8003ac8:	4613      	mov	r3, r2
+ 8003aca:	00db      	lsls	r3, r3, #3
+ 8003acc:	1a9b      	subs	r3, r3, r2
+ 8003ace:	009b      	lsls	r3, r3, #2
+ 8003ad0:	440b      	add	r3, r1
+ 8003ad2:	466c      	mov	r4, sp
+ 8003ad4:	f103 0210 	add.w	r2, r3, #16
+ 8003ad8:	ca07      	ldmia	r2, {r0, r1, r2}
+ 8003ada:	e884 0007 	stmia.w	r4, {r0, r1, r2}
+ 8003ade:	cb0f      	ldmia	r3, {r0, r1, r2, r3}
+ 8003ae0:	f001 f902 	bl	8004ce8 <accumulate_update>
 					current_duty_state = SCARA_DUTY_STATE_OPERATION;
- 8003ae2:	2304      	movs	r3, #4
- 8003ae4:	f507 5281 	add.w	r2, r7, #4128	; 0x1020
- 8003ae8:	f102 0205 	add.w	r2, r2, #5
- 8003aec:	7013      	strb	r3, [r2, #0]
+ 8003ae4:	2304      	movs	r3, #4
+ 8003ae6:	f507 5281 	add.w	r2, r7, #4128	; 0x1020
+ 8003aea:	f102 0205 	add.w	r2, r2, #5
+ 8003aee:	7013      	strb	r3, [r2, #0]
 					run_point++;
- 8003aee:	f8d7 3ffc 	ldr.w	r3, [r7, #4092]	; 0xffc
- 8003af2:	3301      	adds	r3, #1
- 8003af4:	f8c7 3ffc 	str.w	r3, [r7, #4092]	; 0xffc
+ 8003af0:	f8d7 3ffc 	ldr.w	r3, [r7, #4092]	; 0xffc
+ 8003af4:	3301      	adds	r3, #1
+ 8003af6:	f8c7 3ffc 	str.w	r3, [r7, #4092]	; 0xffc
 					memcpy(&positionNext, &duty_cmd.target_point, sizeof(SCARA_PositionTypeDef));
- 8003af8:	4a74      	ldr	r2, [pc, #464]	; (8003ccc <StartDefaultTask+0x1624>)
- 8003afa:	f607 53f8 	addw	r3, r7, #3576	; 0xdf8
- 8003afe:	4610      	mov	r0, r2
- 8003b00:	3328      	adds	r3, #40	; 0x28
- 8003b02:	22c0      	movs	r2, #192	; 0xc0
- 8003b04:	4619      	mov	r1, r3
- 8003b06:	f012 f88b 	bl	8015c20 <memcpy>
+ 8003afa:	4a74      	ldr	r2, [pc, #464]	; (8003ccc <StartDefaultTask+0x1624>)
+ 8003afc:	f607 53f8 	addw	r3, r7, #3576	; 0xdf8
+ 8003b00:	4610      	mov	r0, r2
+ 8003b02:	3328      	adds	r3, #40	; 0x28
+ 8003b04:	22c0      	movs	r2, #192	; 0xc0
+ 8003b06:	4619      	mov	r1, r3
+ 8003b08:	f012 f88a 	bl	8015c20 <memcpy>
 		  break;
- 8003b0a:	e05b      	b.n	8003bc4 <StartDefaultTask+0x151c>
+ 8003b0c:	e05b      	b.n	8003bc6 <StartDefaultTask+0x151e>
 				SCARA_StatusTypeDef status = scaraFlowDuty(run_time , &positionNext, positionCurrent);
- 8003b0c:	4c71      	ldr	r4, [pc, #452]	; (8003cd4 <StartDefaultTask+0x162c>)
- 8003b0e:	4668      	mov	r0, sp
- 8003b10:	f104 0308 	add.w	r3, r4, #8
- 8003b14:	22b8      	movs	r2, #184	; 0xb8
- 8003b16:	4619      	mov	r1, r3
- 8003b18:	f012 f882 	bl	8015c20 <memcpy>
- 8003b1c:	e894 000c 	ldmia.w	r4, {r2, r3}
- 8003b20:	486a      	ldr	r0, [pc, #424]	; (8003ccc <StartDefaultTask+0x1624>)
- 8003b22:	f507 5180 	add.w	r1, r7, #4096	; 0x1000
- 8003b26:	f101 0110 	add.w	r1, r1, #16
- 8003b2a:	ed91 0b00 	vldr	d0, [r1]
- 8003b2e:	f005 fdef 	bl	8009710 <scaraFlowDuty>
- 8003b32:	4603      	mov	r3, r0
- 8003b34:	f887 3fcd 	strb.w	r3, [r7, #4045]	; 0xfcd
+ 8003b0e:	4c71      	ldr	r4, [pc, #452]	; (8003cd4 <StartDefaultTask+0x162c>)
+ 8003b10:	4668      	mov	r0, sp
+ 8003b12:	f104 0308 	add.w	r3, r4, #8
+ 8003b16:	22b8      	movs	r2, #184	; 0xb8
+ 8003b18:	4619      	mov	r1, r3
+ 8003b1a:	f012 f881 	bl	8015c20 <memcpy>
+ 8003b1e:	e894 000c 	ldmia.w	r4, {r2, r3}
+ 8003b22:	486a      	ldr	r0, [pc, #424]	; (8003ccc <StartDefaultTask+0x1624>)
+ 8003b24:	f507 5180 	add.w	r1, r7, #4096	; 0x1000
+ 8003b28:	f101 0110 	add.w	r1, r1, #16
+ 8003b2c:	ed91 0b00 	vldr	d0, [r1]
+ 8003b30:	f005 fdee 	bl	8009710 <scaraFlowDuty>
+ 8003b34:	4603      	mov	r3, r0
+ 8003b36:	f887 3fcd 	strb.w	r3, [r7, #4045]	; 0xfcd
 				if ( SCARA_STATUS_OK == status) {
- 8003b38:	f897 3fcd 	ldrb.w	r3, [r7, #4045]	; 0xfcd
- 8003b3c:	2b00      	cmp	r3, #0
- 8003b3e:	d113      	bne.n	8003b68 <StartDefaultTask+0x14c0>
+ 8003b3a:	f897 3fcd 	ldrb.w	r3, [r7, #4045]	; 0xfcd
+ 8003b3e:	2b00      	cmp	r3, #0
+ 8003b40:	d113      	bne.n	8003b6a <StartDefaultTask+0x14c2>
 					lowlayer_computeAndWritePulse(positionCurrent, positionNext);
- 8003b40:	4c64      	ldr	r4, [pc, #400]	; (8003cd4 <StartDefaultTask+0x162c>)
- 8003b42:	4a62      	ldr	r2, [pc, #392]	; (8003ccc <StartDefaultTask+0x1624>)
- 8003b44:	ab2c      	add	r3, sp, #176	; 0xb0
- 8003b46:	4611      	mov	r1, r2
- 8003b48:	22c0      	movs	r2, #192	; 0xc0
- 8003b4a:	4618      	mov	r0, r3
- 8003b4c:	f012 f868 	bl	8015c20 <memcpy>
- 8003b50:	4668      	mov	r0, sp
- 8003b52:	f104 0310 	add.w	r3, r4, #16
- 8003b56:	22b0      	movs	r2, #176	; 0xb0
- 8003b58:	4619      	mov	r1, r3
- 8003b5a:	f012 f861 	bl	8015c20 <memcpy>
- 8003b5e:	e894 000f 	ldmia.w	r4, {r0, r1, r2, r3}
- 8003b62:	f002 fa65 	bl	8006030 <lowlayer_computeAndWritePulse>
+ 8003b42:	4c64      	ldr	r4, [pc, #400]	; (8003cd4 <StartDefaultTask+0x162c>)
+ 8003b44:	4a61      	ldr	r2, [pc, #388]	; (8003ccc <StartDefaultTask+0x1624>)
+ 8003b46:	ab2c      	add	r3, sp, #176	; 0xb0
+ 8003b48:	4611      	mov	r1, r2
+ 8003b4a:	22c0      	movs	r2, #192	; 0xc0
+ 8003b4c:	4618      	mov	r0, r3
+ 8003b4e:	f012 f867 	bl	8015c20 <memcpy>
+ 8003b52:	4668      	mov	r0, sp
+ 8003b54:	f104 0310 	add.w	r3, r4, #16
+ 8003b58:	22b0      	movs	r2, #176	; 0xb0
+ 8003b5a:	4619      	mov	r1, r3
+ 8003b5c:	f012 f860 	bl	8015c20 <memcpy>
+ 8003b60:	e894 000f 	ldmia.w	r4, {r0, r1, r2, r3}
+ 8003b64:	f002 fa64 	bl	8006030 <lowlayer_computeAndWritePulse>
 		  break;
- 8003b66:	e02d      	b.n	8003bc4 <StartDefaultTask+0x151c>
+ 8003b68:	e02d      	b.n	8003bc6 <StartDefaultTask+0x151e>
 					  current_duty_state = SCARA_DUTY_STATE_FINISH;
- 8003b68:	2303      	movs	r3, #3
- 8003b6a:	f507 5281 	add.w	r2, r7, #4128	; 0x1020
- 8003b6e:	f102 0205 	add.w	r2, r2, #5
- 8003b72:	7013      	strb	r3, [r2, #0]
+ 8003b6a:	2303      	movs	r3, #3
+ 8003b6c:	f507 5281 	add.w	r2, r7, #4128	; 0x1020
+ 8003b70:	f102 0205 	add.w	r2, r2, #5
+ 8003b74:	7013      	strb	r3, [r2, #0]
 					  detail_array[0] = status;
- 8003b74:	f607 5328 	addw	r3, r7, #3368	; 0xd28
- 8003b78:	f897 2fcd 	ldrb.w	r2, [r7, #4045]	; 0xfcd
- 8003b7c:	701a      	strb	r2, [r3, #0]
+ 8003b76:	f607 5328 	addw	r3, r7, #3368	; 0xd28
+ 8003b7a:	f897 2fcd 	ldrb.w	r2, [r7, #4045]	; 0xfcd
+ 8003b7e:	701a      	strb	r2, [r3, #0]
 					  respond_lenght = commandRespond1(RPD_ERROR, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
- 8003b7e:	f607 53f8 	addw	r3, r7, #3576	; 0xdf8
- 8003b82:	6899      	ldr	r1, [r3, #8]
- 8003b84:	f607 52cc 	addw	r2, r7, #3532	; 0xdcc
- 8003b88:	f507 5381 	add.w	r3, r7, #4128	; 0x1020
- 8003b8c:	f103 0308 	add.w	r3, r3, #8
- 8003b90:	681b      	ldr	r3, [r3, #0]
- 8003b92:	4413      	add	r3, r2
- 8003b94:	f607 5228 	addw	r2, r7, #3368	; 0xd28
- 8003b98:	9300      	str	r3, [sp, #0]
- 8003b9a:	2301      	movs	r3, #1
- 8003b9c:	2007      	movs	r0, #7
- 8003b9e:	f7fe fbd3 	bl	8002348 <commandRespond1>
- 8003ba2:	f8c7 0ff4 	str.w	r0, [r7, #4084]	; 0xff4
+ 8003b80:	f607 53f8 	addw	r3, r7, #3576	; 0xdf8
+ 8003b84:	6899      	ldr	r1, [r3, #8]
+ 8003b86:	f607 52cc 	addw	r2, r7, #3532	; 0xdcc
+ 8003b8a:	f507 5381 	add.w	r3, r7, #4128	; 0x1020
+ 8003b8e:	f103 0308 	add.w	r3, r3, #8
+ 8003b92:	681b      	ldr	r3, [r3, #0]
+ 8003b94:	4413      	add	r3, r2
+ 8003b96:	f607 5228 	addw	r2, r7, #3368	; 0xd28
+ 8003b9a:	9300      	str	r3, [sp, #0]
+ 8003b9c:	2301      	movs	r3, #1
+ 8003b9e:	2007      	movs	r0, #7
+ 8003ba0:	f7fe fbd2 	bl	8002348 <commandRespond1>
+ 8003ba4:	f8c7 0ff4 	str.w	r0, [r7, #4084]	; 0xff4
 					  total_respond_length += respond_lenght;
- 8003ba6:	f507 5381 	add.w	r3, r7, #4128	; 0x1020
- 8003baa:	f103 0308 	add.w	r3, r3, #8
- 8003bae:	681a      	ldr	r2, [r3, #0]
- 8003bb0:	f8d7 3ff4 	ldr.w	r3, [r7, #4084]	; 0xff4
- 8003bb4:	4413      	add	r3, r2
- 8003bb6:	f507 5281 	add.w	r2, r7, #4128	; 0x1020
- 8003bba:	f102 0208 	add.w	r2, r2, #8
- 8003bbe:	6013      	str	r3, [r2, #0]
+ 8003ba8:	f507 5381 	add.w	r3, r7, #4128	; 0x1020
+ 8003bac:	f103 0308 	add.w	r3, r3, #8
+ 8003bb0:	681a      	ldr	r2, [r3, #0]
+ 8003bb2:	f8d7 3ff4 	ldr.w	r3, [r7, #4084]	; 0xff4
+ 8003bb6:	4413      	add	r3, r2
+ 8003bb8:	f507 5281 	add.w	r2, r7, #4128	; 0x1020
+ 8003bbc:	f102 0208 	add.w	r2, r2, #8
+ 8003bc0:	6013      	str	r3, [r2, #0]
 		  break;
- 8003bc0:	e000      	b.n	8003bc4 <StartDefaultTask+0x151c>
+ 8003bc2:	e000      	b.n	8003bc6 <StartDefaultTask+0x151e>
 
 		  }
 		  break;
 		  
 		  default:
 			  break;
- 8003bc2:	bf00      	nop
+ 8003bc4:	bf00      	nop
 		  }
 	  }
 
 	  break;
- 8003bc4:	f000 bc0a 	b.w	80043dc <StartDefaultTask+0x1d34>
+ 8003bc6:	f000 bc09 	b.w	80043dc <StartDefaultTask+0x1d34>
 	  case SCARA_METHOD_TEST:
 	  {
 		  lowlayer_writePulse(test_value[0], test_value[1], test_value[2], test_value[3]);
- 8003bc8:	f607 53f4 	addw	r3, r7, #3572	; 0xdf4
- 8003bcc:	f993 0000 	ldrsb.w	r0, [r3]
- 8003bd0:	f607 53f4 	addw	r3, r7, #3572	; 0xdf4
- 8003bd4:	f993 1001 	ldrsb.w	r1, [r3, #1]
- 8003bd8:	f607 53f4 	addw	r3, r7, #3572	; 0xdf4
- 8003bdc:	f993 2002 	ldrsb.w	r2, [r3, #2]
- 8003be0:	f607 53f4 	addw	r3, r7, #3572	; 0xdf4
- 8003be4:	f993 3003 	ldrsb.w	r3, [r3, #3]
- 8003be8:	f002 fbca 	bl	8006380 <lowlayer_writePulse>
+ 8003bca:	f607 53f4 	addw	r3, r7, #3572	; 0xdf4
+ 8003bce:	f993 0000 	ldrsb.w	r0, [r3]
+ 8003bd2:	f607 53f4 	addw	r3, r7, #3572	; 0xdf4
+ 8003bd6:	f993 1001 	ldrsb.w	r1, [r3, #1]
+ 8003bda:	f607 53f4 	addw	r3, r7, #3572	; 0xdf4
+ 8003bde:	f993 2002 	ldrsb.w	r2, [r3, #2]
+ 8003be2:	f607 53f4 	addw	r3, r7, #3572	; 0xdf4
+ 8003be6:	f993 3003 	ldrsb.w	r3, [r3, #3]
+ 8003bea:	f002 fbc9 	bl	8006380 <lowlayer_writePulse>
 	  }
 	  break;
- 8003bec:	e3f6      	b.n	80043dc <StartDefaultTask+0x1d34>
+ 8003bee:	e3f5      	b.n	80043dc <StartDefaultTask+0x1d34>
 
 
 	  case SCARA_METHOD_PICK_AND_PLACE:
 	  {
 		  switch(current_duty_state) {
- 8003bee:	f507 5381 	add.w	r3, r7, #4128	; 0x1020
- 8003bf2:	f103 0305 	add.w	r3, r3, #5
- 8003bf6:	781b      	ldrb	r3, [r3, #0]
- 8003bf8:	3b01      	subs	r3, #1
- 8003bfa:	2b03      	cmp	r3, #3
- 8003bfc:	f200 83ed 	bhi.w	80043da <StartDefaultTask+0x1d32>
- 8003c00:	a201      	add	r2, pc, #4	; (adr r2, 8003c08 <StartDefaultTask+0x1560>)
- 8003c02:	f852 f023 	ldr.w	pc, [r2, r3, lsl #2]
- 8003c06:	bf00      	nop
+ 8003bf0:	f507 5381 	add.w	r3, r7, #4128	; 0x1020
+ 8003bf4:	f103 0305 	add.w	r3, r3, #5
+ 8003bf8:	781b      	ldrb	r3, [r3, #0]
+ 8003bfa:	3b01      	subs	r3, #1
+ 8003bfc:	2b03      	cmp	r3, #3
+ 8003bfe:	f200 83ec 	bhi.w	80043da <StartDefaultTask+0x1d32>
+ 8003c02:	a201      	add	r2, pc, #4	; (adr r2, 8003c08 <StartDefaultTask+0x1560>)
+ 8003c04:	f852 f023 	ldr.w	pc, [r2, r3, lsl #2]
  8003c08:	08003c19 	.word	0x08003c19
  8003c0c:	08004227 	.word	0x08004227
  8003c10:	080043cb 	.word	0x080043cb

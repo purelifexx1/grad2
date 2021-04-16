@@ -220,12 +220,12 @@ void StartDefaultTask(void const * argument)
   double state_time = 0;
   int run_point = 0;
   const SCARA_Slot_TypeDef SLot_Cordinate[NUM_OF_OBJECT] = {
-  		{254.445f, -136.263f, 0.0f} ,
-  		{259.705f, -106.984f, 0.0f} ,
-  		{260.121f, -75.136f, 0.0f} ,
-  		{259.568f, -45.056f, 0.0f} ,
-		{262.279f, -14.61f, 0.0f} ,
-		{264.560f, 15.48f, 0.0f}
+  		{254.112f, -137.7f, 0.0f} ,
+  		{256.021f, -107.46f, 0.0f} ,
+  		{257.2121f, -76.9947f, 0.0f} ,
+  		{258.221f, -47.1851f, 0.0f} ,
+		{260.695f, -17.075f, 0.0f} ,
+		{260.4f, 13.66f, 0.0f}
   };
 
   LOG_REPORT("free_rtos.c: PROGRAM START...", __LINE__);
