@@ -94,6 +94,7 @@ void Calib::run()
 //                      pre_id = Trans_buffer[i][0];
 //                      pre_X = Trans_buffer[i][1];
                       Trans_buffer[i][7] = 2222;
+                      qDebug()<<"Current point = " << current_point << endl;
                       current_point--;
 
                   }
@@ -107,6 +108,7 @@ void Calib::run()
        if (Set==true)
         {
            Set = false;
+           std::vector<std::vector<double>> copy_buffer;
            if (!buffer.empty())
            {
                if(buffer.size() > Trans_buffer.size())      //detect if there is new point
@@ -128,9 +130,7 @@ void Calib::run()
                        Trans_buffer.push_back(buffer_tmp);
                        Set_KalmanFilter(KF, state, meas);   // Create KF
                    }
-               }
-
-               std::vector<std::vector<double>> copy_buffer;
+               }               
                for (size_t i = 0; i < Trans_buffer.size(); ++i)
                {
                    copy_buffer.push_back(Trans_buffer.at(i));
@@ -212,26 +212,29 @@ void Calib::run()
                    }
 
                }
-               for (size_t i = 0; i < copy_buffer.size(); ++i)          //Check LIFE_CYCLE
+
+           }
+           for (size_t i = 0; i < Trans_buffer.size(); ++i)          //Check LIFE_CYCLE
+           {
+               if (copy_buffer.empty())
                {
-                   if(copy_buffer[i][1] == 2222 && copy_buffer[i][2] == 2222 && Trans_buffer[i][7] == 0)
-                   {
-                       Trans_buffer[i][6] = 0;
-                   }
-                   else Trans_buffer[i][6] ++;
+                   Trans_buffer[i][6] ++;
+               }
+               else if(copy_buffer[i][1] == 2222 && copy_buffer[i][2] == 2222 && Trans_buffer[i][7] == 0)
+               {
+                   Trans_buffer[i][6] = 0;
+               }
+               else Trans_buffer[i][6] ++;
 
-                   if(Trans_buffer[i][6] >= 100 || Trans_buffer[i][2] <= 55)      // = 65
-                   {
-                       Trans_buffer.erase(Trans_buffer.begin() + i);
-                       KF.erase(KF.begin() + i);
-                       state.erase(state.begin() + i);
-                       meas.erase(meas.begin() + i);
-                       break;
-
-                   }
+               if(Trans_buffer[i][6] >= 100 || Trans_buffer[i][2] <= 65)      // = 65
+               {
+                   Trans_buffer.erase(Trans_buffer.begin() + i);
+                   KF.erase(KF.begin() + i);
+                   state.erase(state.begin() + i);
+                   meas.erase(meas.begin() + i);
+                   break;
 
                }
-
 
            }
 
