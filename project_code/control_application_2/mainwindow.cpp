@@ -27,9 +27,7 @@ MainWindow::MainWindow(QWidget *parent)
      SET_GCODE_SMOOTH_UI(false);
      global_ui = ui;
      system_parameter->Load_Configuration();
-     fuzzy_control.fuzzy_set_data({0,10,20,30,40,50,100},{16.63,16.63,35.5,54.38,75.38,93.23,93.23});
-
-
+    fuzzy_control.fuzzy_set_data({0,10,20,30,40,50,100},{16.63,16.63,35.5,54.38,75.38,93.23,93.23});
 }
 
 MainWindow::~MainWindow()
@@ -866,9 +864,9 @@ void MainWindow::on_tb_conveyor_pulse_textChanged(const QString &arg1)
     try
     {
         ppms = ui->tb_conveyor_pulse->text().toInt();
-        double FuzzyValue;
-        fuzzy_control.output_fuzzy(ui->tb_conveyor_pulse->text().toDouble(),FuzzyValue);
-        ui->LB_FuzzyValue->setText(QString::number(FuzzyValue) + " mm/s");
+        double fuzzy_value;
+        fuzzy_control.output_fuzzy(ui->tb_conveyor_pulse->text().toDouble(), fuzzy_value);
+        ui->lb_estimate_conveyor_sp->setText(QString::number(fuzzy_value) + " mm/s");
     }
     catch(QString exp)
     {
