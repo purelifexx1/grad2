@@ -329,7 +329,7 @@ void imageProcess(Mat input, Mat& output, int x_crop, int y_crop, Point& center_
         center_final.y = int(center_final_temp.y/center.size());
         circle(output,center_final,1,Scalar(0, 255, 0),2);
         theta_final = theta_final_temp/theta_total.size();
-        if (theta_final < 0) theta_final = theta_final + 90;
+        //if (theta_final < 0) theta_final = theta_final + 90;
     }
 
 

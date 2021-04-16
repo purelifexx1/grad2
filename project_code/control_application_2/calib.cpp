@@ -61,13 +61,14 @@ void Calib::run()
                {
                    // >>>> Matrix A
                    //KF[i].transitionMatrix.at<float>(2) = dT;
-                   KF[i].transitionMatrix.at<float>(8) = dT;
+                   KF[i].transitionMatrix.at<float>(9) = dT;
                    state[i] = KF[i].predict();
                    //cout << "X_predict = " << state[i].at<float>(0) << "Y_predict = " << state[i].at<float>(1)<< endl;
                    //Update Trans_buffer
                    Trans_buffer[i][1] = state[i].at<float>(0);
                    Trans_buffer[i][2] = state[i].at<float>(1);
-                   Trans_buffer[i][4] = state[i].at<float>(2);
+                   Trans_buffer[i][4] = state[i].at<float>(4);
+                   Trans_buffer[i][0] = round(state[i].at<float>(5));
                    //qDebug()<<"X_pre"<<i<<"= "<<Trans_buffer[i][1]<<"Y_pre = "<<Trans_buffer[i][2]<<y_limit<<endl;
                }
            }
@@ -181,6 +182,7 @@ void Calib::run()
                            meas[min_element_index].at<float>(0) = x_robot;
                            meas[min_element_index].at<float>(1) = y_robot;
                            meas[min_element_index].at<float>(2) = float(buffer[i][3]);
+                           meas[min_element_index].at<float>(3) = float(buffer[i][0]);
                            // Set the Initialization for Kalman Filter
                            if (Trans_buffer[min_element_index][5] == 0) // if Flag Already Set the Initialization == false
                            {
@@ -191,6 +193,7 @@ void Calib::run()
                                state[min_element_index].at<float>(2) = 0;
                                state[min_element_index].at<float>(3) = 0;
                                state[min_element_index].at<float>(4) = meas[min_element_index].at<float>(2);
+                               state[min_element_index].at<float>(5) = meas[min_element_index].at<float>(3);
                                // <<<< Initialization
                                KF[min_element_index].statePost = state[min_element_index];
                                // Trans_buffer
@@ -288,17 +291,18 @@ float B[4][1]=
 void Set_KalmanFilter(vector<KalmanFilter>& KF, vector<Mat>& state, vector<Mat>& meas)
 {
     //Set Kalman Filter
-    KF.push_back(KalmanFilter(5, 3, 0, CV_32F));
-    state.push_back(Mat(5, 1, CV_32F));  // [x,y,v_x,v_y,theta]
-    meas.push_back(Mat(3, 1, CV_32F));   // [z_x,z_y,z_theta]
+    KF.push_back(KalmanFilter(6, 4, 0, CV_32F));
+    state.push_back(Mat(6, 1, CV_32F));  // [x,y,v_x,v_y,theta,id]
+    meas.push_back(Mat(4, 1, CV_32F));   // [z_x,z_y,z_theta,z_id]
     int index = int(KF.size()) -1 ;
     // Transition State Matrix A
     // Note: set dT at each processing step!
-        // [ 1 0 dT 0  0 ]
-        // [ 0 1 0  dT 0 ]
-        // [ 0 0 1  0  0 ]
-        // [ 0 0 0  1  0 ]
-        // [ 0 0 0  0  1 ]
+        // [ 1 0 dT 0  0  0 ]
+        // [ 0 1 0  dT 0  0 ]
+        // [ 0 0 1  0  0  0 ]
+        // [ 0 0 0  1  0  0 ]
+        // [ 0 0 0  0  1  0 ]
+        // [ 0 0 0  0  0  1 ]
     setIdentity(KF[index].transitionMatrix);
     // Measure Matrix H
     // [ 1 0 0 0 ]
@@ -308,6 +312,7 @@ void Set_KalmanFilter(vector<KalmanFilter>& KF, vector<Mat>& state, vector<Mat>&
     setIdentity(KF[index].processNoiseCov, cv::Scalar::all(1e-0));
     // Measures Noise Covariance Matrix R
     KF[index].measurementNoiseCov.at<float>(0) = 50*1e-0;
-    KF[index].measurementNoiseCov.at<float>(4) = 5*1e-0;// The smaller scale value, the faster it change
-    KF[index].measurementNoiseCov.at<float>(8) = 50*1e-0;
+    KF[index].measurementNoiseCov.at<float>(5) = 5*1e-0;// The smaller scale value, the faster it change
+    KF[index].measurementNoiseCov.at<float>(10) = 50*1e-0;
+    KF[index].measurementNoiseCov.at<float>(15) = 50*1e-0;
 }
