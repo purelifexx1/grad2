@@ -211,7 +211,7 @@ void Calib::run()
                }
                for (size_t i = 0; i < copy_buffer.size(); ++i)          //Check LIFE_CYCLE
                {
-                   if(copy_buffer[i][1] == 2222 && copy_buffer[i][2] == 2222)
+                   if(copy_buffer[i][1] == 2222 && copy_buffer[i][2] == 2222 && Trans_buffer[i][7] == 0)
                    {
                        Trans_buffer[i][6] = 0;
                    }
@@ -254,8 +254,8 @@ void Transfer_CorRobot(float x_cam, float y_cam, float z_cam,
 //Tranfer Matrix
 float A[4][4] =
   {
-    {     -1,     0,    0,      339.3 },                //337.3
-    {     0,     1,     0,      124.7 },
+    {     -1,     0,    0,      336.3 },                //337.3
+    {     0,     1,     0,      126.7 },
     {     0,     0,     -1,     416.5 },
     {     0,     0,     0,          1 },
   };
