@@ -14,21 +14,19 @@ using namespace std;
 // Initialize the parameters
 float confThreshold = 0.6; // Confidence threshold
 float nmsThreshold = 0.4;  // Non-maximum suppression threshold
-int inpWidth = 416;  // Width of network's input image
-int inpHeight = 416; // Height of network's input image
-//Calib camera
-//Mat cameraMatrix = (Mat_<double>(3,3) <<   709.610699,        0, 309.137357,
-//                                                  0,  945.254236,  209.405394,
-//                                                  0,        0,        1);
-//
-//Mat distCoeffs = (Mat_<double>(1,5) <<   -1.061549e-01, 2.486004e+00, -1.159369e-02, 7.784208e-03, -8.79829e+00);
-//UMat U_cameraMatrix = cameraMatrix.getUMat(ACCESS_READ);
-//UMat U_distCoeffs = distCoeffs.getUMat(ACCESS_READ);
+int inpWidth = 384;  // Width of network's input image
+int inpHeight = 384; // Height of network's input image
+//Parameter of Mask ROI
+int left_Mask = 112 ;              // x pixel
+int top_Mask  =  35 ;              // y pixel
+int width_Mask= 416;              // width pixel
+int height_Mask=416;              // height pixel
 
 vector<string> classes;
 
 // Remove the bounding boxes with low confidence using non-maxima suppression
-void postprocess(Mat& frame, const vector<Mat>& out, vector<vector<double>>& buffer,Point& center, double& theta);
+void postprocess(Mat& frame, const vector<Mat>& out, vector<vector<double>>& buffer,Point& center, double& theta,
+                 int left_Mask, int top_Mask, int width_Mask, int height_Mask);
 
 // Draw the predicted bounding box
 void drawPred(int classId, float conf, int left, int top, int right, int bottom, Mat& frame,
@@ -69,12 +67,19 @@ void detect::run()
         //Rect Roi;
         //Mat newCameraMtx = getOptimalNewCameraMatrix(U_cameraMatrix, U_distCoeffs, Size(640,480), 0, Size(640,480), &Roi);
         //initUndistortRectifyMap(U_cameraMatrix, U_distCoeffs, UMat(),newCameraMtx, Size(640,480), CV_16SC2, map1, map2);
+        //Create ROI
+        Mat Mask(480,640, CV_8UC3, cv::Scalar(0, 0, 0));
+        rectangle(Mask, Point(left_Mask+width_Mask,top_Mask+height_Mask), Point(left_Mask,top_Mask), cv::Scalar(255, 255, 255),-1);
+        Rect2d MaskDeep(left_Mask,top_Mask,width_Mask,height_Mask);
         while (true)
         {            
             //Get frame
             mVideoCap >> mFrame;
+            //mFrame = mFrame & Mask;
+            Mat MaskCrop = mFrame(MaskDeep);
             m_time.start();
-            U_mFrame = mFrame.getUMat(ACCESS_READ) ;
+            //U_mFrame = mFrame.getUMat(ACCESS_READ) ;
+            U_mFrame = MaskCrop.getUMat(ACCESS_READ) ;
             resize(U_mFrame,U_mFrame_resize,Size(inpWidth,inpHeight));
             //Calib camera
             //remap(U_mFrame,U_Calib,map1,map2,INTER_LINEAR);
@@ -97,7 +102,7 @@ void detect::run()
             // Remove the bounding boxes with low confidence
 
             buffer.clear();
-            postprocess(mFrame, outs, buffer, center, theta);
+            postprocess(mFrame, outs, buffer, center, theta, left_Mask,top_Mask, width_Mask, height_Mask);
             string label = format("FPS : %f ", (double)m_time.elapsed());
             // Put efficiency information. The function getPerfProfile returns the overall time for inference(t) and the timings for each of the layers(in layersTimes)
             //vector<double> layersTimes;
@@ -122,7 +127,8 @@ void detect::run()
 }
 
 // Remove the bounding boxes with low confidence using non-maxima suppression
-void postprocess(Mat& frame, const vector<Mat>& outs, vector<vector<double>>& buffer, Point& center, double& theta)
+void postprocess(Mat& frame, const vector<Mat>& outs, vector<vector<double>>& buffer, Point& center, double& theta,
+                 int left_Mask, int top_Mask, int width_Mask, int height_Mask)
 {
     vector<int> classIds;
     vector<float> confidences;
@@ -143,10 +149,16 @@ void postprocess(Mat& frame, const vector<Mat>& outs, vector<vector<double>>& bu
             minMaxLoc(scores, 0, &confidence, 0, &classIdPoint);
             if (confidence > confThreshold)
             {
-                int centerX = (int)(data[0] * frame.cols);
-                int centerY = (int)(data[1] * frame.rows);
-                int width = (int)(data[2] * frame.cols);
-                int height = (int)(data[3] * frame.rows);
+//                int centerX = (int)(data[0] * frame.cols);
+//                int centerY = (int)(data[1] * frame.rows);
+//                int width = (int)(data[2] * frame.cols);
+//                int height = (int)(data[3] * frame.rows);
+//                int left = centerX - width / 2;
+//                int top = centerY - height / 2;
+                int centerX = (int)(data[0] * width_Mask) + left_Mask;
+                int centerY = (int)(data[1] * height_Mask) + top_Mask;
+                int width = (int)(data[2] * width_Mask);
+                int height = (int)(data[3] * height_Mask);
                 int left = centerX - width / 2;
                 int top = centerY - height / 2;
 
@@ -180,16 +192,16 @@ void postprocess(Mat& frame, const vector<Mat>& outs, vector<vector<double>>& bu
             //cout<< "X = "<<(center.x - frame.cols/2)<<"Y = "<<(center.y - frame.rows/2)<<theta<<endl;
             buffer.push_back(buffer_tmp);
         }
-        else
-        {
-            //Add data
-            buffer_tmp.push_back(classIds[idx]);
-            buffer_tmp.push_back(2222);
-            buffer_tmp.push_back(2222);
-            buffer_tmp.push_back(2222);
-            //cout<< "X = "<<(center.x - frame.cols/2)<<"Y = "<<(center.y - frame.rows/2)<<theta<<endl;
-            buffer.push_back(buffer_tmp);
-        }
+//        else
+//        {
+//            //Add data
+//            buffer_tmp.push_back(classIds[idx]);
+//            buffer_tmp.push_back(2222);
+//            buffer_tmp.push_back(2222);
+//            buffer_tmp.push_back(2222);
+//            //cout<< "X = "<<(center.x - frame.cols/2)<<"Y = "<<(center.y - frame.rows/2)<<theta<<endl;
+//            buffer.push_back(buffer_tmp);
+//        }
 
     }
 }

@@ -47,7 +47,7 @@ void Calib::run()
     current_point = 0;
    while (true)
    {
-       if(count_delay>=15000)
+       if(count_delay>=20000)
        {
            count_delay = 0;
            //Time per frame
@@ -69,13 +69,13 @@ void Calib::run()
                    Trans_buffer[i][2] = state[i].at<float>(1);
                    Trans_buffer[i][4] = state[i].at<float>(4);
                    Trans_buffer[i][0] = round(state[i].at<float>(5));
-                   //qDebug()<<"X_pre"<<i<<"= "<<Trans_buffer[i][1]<<"Y_pre = "<<Trans_buffer[i][2]<<y_limit<<endl;
+                   //qDebug()<<"X_pre"<<i<<"= "<<Trans_buffer[i][1]<<"Y_pre = "<<Trans_buffer[i][2]<<state[i].at<float>(3)<<state[i].at<float>(2)<<endl;
                }
            }
 
            for (size_t i = 0; i < Trans_buffer.size(); ++i)
            {
-               if (Trans_buffer[i][2]< 80 && Trans_buffer[i][2] > 75)
+               if (Trans_buffer[i][2]< 62 && Trans_buffer[i][2] > 58)
                {
                   //qDebug()<<pre_X << endl;
                   //qDebug()<<Trans_buffer[i][2] << endl;
@@ -120,7 +120,7 @@ void Calib::run()
                        // Trans_buffer
                        vector<double> buffer_tmp;
                        buffer_tmp.push_back(2222);          //0 Id
-                       buffer_tmp.push_back(334);           //1 x
+                       buffer_tmp.push_back(340);           //1 x
                        buffer_tmp.push_back(140);           //2 y
                        buffer_tmp.push_back(2222);          //3 z
                        buffer_tmp.push_back(2222);          //4 theta
@@ -191,7 +191,7 @@ void Calib::run()
                                state[min_element_index].at<float>(0) = meas[min_element_index].at<float>(0);
                                state[min_element_index].at<float>(1) = meas[min_element_index].at<float>(1);
                                state[min_element_index].at<float>(2) = 0;
-                               state[min_element_index].at<float>(3) = 0;
+                               state[min_element_index].at<float>(3) = -1;
                                state[min_element_index].at<float>(4) = meas[min_element_index].at<float>(2);
                                state[min_element_index].at<float>(5) = meas[min_element_index].at<float>(3);
                                // <<<< Initialization
@@ -226,7 +226,7 @@ void Calib::run()
                }
                else Trans_buffer[i][6] ++;
 
-               if(Trans_buffer[i][6] >= 100 || Trans_buffer[i][2] <= 65)      // = 65
+               if(Trans_buffer[i][6] >= 150 || Trans_buffer[i][2] <= 50)      // = 65
                {
                    Trans_buffer.erase(Trans_buffer.begin() + i);
                    KF.erase(KF.begin() + i);
@@ -308,14 +308,19 @@ void Set_KalmanFilter(vector<KalmanFilter>& KF, vector<Mat>& state, vector<Mat>&
         // [ 0 0 0  0  0  1 ]
     setIdentity(KF[index].transitionMatrix);
     // Measure Matrix H
-    // [ 1 0 0 0 ]
-    // [ 0 1 0 0 ]
-    setIdentity(KF[index].measurementMatrix);
+    // [ 1 0 0 0 0 0 ]
+    // [ 0 1 0 0 0 0 ]
+    // [ 0 0 0 0 1 0 ]
+    // [ 0 0 0 0 0 1 ]
+    //setIdentity(KF[index].measurementMatrix);
+    KF[index].measurementMatrix.at<float>(0) = 1;
+    KF[index].measurementMatrix.at<float>(7) = 1;
+    KF[index].measurementMatrix.at<float>(23) = 1;
     // Process Noise Covariance Matrix Q
     setIdentity(KF[index].processNoiseCov, cv::Scalar::all(1e-0));
     // Measures Noise Covariance Matrix R
     KF[index].measurementNoiseCov.at<float>(0) = 50*1e-0;
-    KF[index].measurementNoiseCov.at<float>(5) = 5*1e-0;// The smaller scale value, the faster it change
+    KF[index].measurementNoiseCov.at<float>(5) = 1*1e-1;// The smaller scale value, the faster it change
     KF[index].measurementNoiseCov.at<float>(10) = 50*1e-0;
     KF[index].measurementNoiseCov.at<float>(15) = 50*1e-0;
 }
