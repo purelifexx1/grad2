@@ -278,6 +278,8 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
 					if(length == 3){ // 1 byte categorize read type + 2 byte define
 						temp_pointer = 2;
 						position_type = message[temp_pointer];
+						uint8_t lala[2] = {12, 24};
+						uint16_t tes = *(uint16_t*)lala;
 						return CMD_READ_POSITION;
 					}else{
 						return CMD_ERROR;

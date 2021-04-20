@@ -76,9 +76,10 @@ int32_t	packPayload		(uint8_t *input_buff, uint8_t *output_buff, int32_t in_leng
  */
 int32_t	unPackPayload	(uint8_t *message_buff, int32_t in_length, uint8_t*data_packet) {
 
-	int32_t data_length = in_length - 2;
+	int32_t data_length = in_length - 3;
+	uint16_t packet_length = *(uint16_t*)(&message_buff[1]);
 	//check packet length
-	if(message_buff[1] == data_length && backup_available == 0){
+	if(packet_length == data_length && backup_available == 0){
 		// check minimum lenght
 		if (in_length < MIN_MESSAGE_LENGHT) {
 			return -1;
@@ -88,14 +89,14 @@ int32_t	unPackPayload	(uint8_t *message_buff, int32_t in_length, uint8_t*data_pa
 		if(message_buff[0] != START_CHAR){
 			return -1;
 		}
-		memcpy(data_packet, &message_buff[2], data_length - RECEIVE_END_LENGTH);
-	}else if(message_buff[1] != data_length && backup_available == 0){
-		backup_available = 1;
+		memcpy(data_packet, &message_buff[3], data_length - RECEIVE_END_LENGTH);
+	}else if(packet_length != data_length && backup_available == 0){
 		// check start char
 		if(message_buff[0] != START_CHAR){
 			return -1;
 		}
-		memcpy(data_packet, &message_buff[2], data_length);
+		backup_available = 1;
+		memcpy(data_packet, &message_buff[3], data_length);
 		backup_length = data_length;
 		return - 1;
 	}else if(backup_available == 1){

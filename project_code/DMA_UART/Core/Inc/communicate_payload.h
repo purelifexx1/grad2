@@ -21,7 +21,7 @@
 #define MIN_MESSAGE_LENGHT	(4)
 
 uint8_t backup_available;
-uint8_t backup_length;
+uint16_t backup_length;
 
 int32_t	packPayload		(uint8_t *input_buff, uint8_t *output_buff, int32_t len);
 int32_t	unPackPayload	(uint8_t *message_buff, int32_t in_lenght, uint8_t*data_packet);
