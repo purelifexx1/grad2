@@ -227,6 +227,10 @@ void StartDefaultTask(void const * argument)
 		{260.695f, -17.075f, 0.0f} ,
 		{260.4f, 13.66f, 0.0f}
   };
+  const double placement_spacing = -20.0f;
+  uint8_t Slot_Placement[NUM_OF_OBJECT] = {
+		  0, 0, 0, 0, 0, 0
+  };
 
   LOG_REPORT("free_rtos.c: PROGRAM START...", __LINE__);
 
@@ -724,7 +728,7 @@ void StartDefaultTask(void const * argument)
 		  }
 		  break;
 		  case SCARA_DUTY_STATE_OPERATION:{
-			  update_gcode_point(&duty_cmd, Gcode_Cor[run_point], run_point);
+			  update_gcode_point(&duty_cmd, run_point);
 			  SCARA_StatusTypeDef status;
 			  status = scaraInitDuty(duty_cmd);
 			  if(status == SCARA_STATUS_OK){
@@ -756,9 +760,15 @@ void StartDefaultTask(void const * argument)
 					lowlayer_readTruePosition(&positionNext);
 				    kinematicForward(&positionNext);
 				}else{
-					accumulate_update(Gcode_Cor[run_point]);
+					if(Gcode_Mode == GCODE_SMOOTH_LSPB){
+						accumulate_update(Gcode_Cor[run_point++]);
+					}else if(Gcode_Cor[run_point].configure.type_define[0] == BEZIER_TYPE){
+						run_point+=2;
+					}else{
+						run_point++;
+					}
 					current_duty_state = SCARA_DUTY_STATE_OPERATION;
-					run_point++;
+
 					memcpy(&positionNext, &duty_cmd.target_point, sizeof(SCARA_PositionTypeDef));
 				}
 
@@ -838,12 +848,13 @@ void StartDefaultTask(void const * argument)
 					  }
 					  break;
 					  case SCARA_MOVE_TO_SLOT :{
-
-						  Object[object_tail_pointer].object_position.x = SLot_Cordinate[Object[object_tail_pointer].object_position.object_type].posx;
-						  Object[object_tail_pointer].object_position.y = SLot_Cordinate[Object[object_tail_pointer].object_position.object_type].posy;
-						  Object[object_tail_pointer].object_position.roll = SLot_Cordinate[Object[object_tail_pointer].object_position.object_type].roll;
+						  ObjectType current_type = Object[object_tail_pointer].object_position.object_type;
+						  Object[object_tail_pointer].object_position.x = SLot_Cordinate[current_type].posx + Slot_Placement[current_type]*placement_spacing;
+						  Object[object_tail_pointer].object_position.y = SLot_Cordinate[current_type].posy;
+						  Object[object_tail_pointer].object_position.roll = SLot_Cordinate[current_type].roll;
 						  Object[object_tail_pointer].object_position.z = UP_HEIGHT;
 						  state_time = MOVE_TIME;
+						  Slot_Placement[Object[object_tail_pointer].object_position.object_type] = (current_type + 1)%2;
 					  }
 					  break;
 					  case SCARA_MOVE_DOWN_ON_SLOT:{

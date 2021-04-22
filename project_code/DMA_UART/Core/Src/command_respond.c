@@ -37,12 +37,15 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
         case FILE_TRANSMISION:
         {
         	temp_pointer = 1;
-
+        	uint16_t timeout_value = 0;
         	do {
         		Gcode_Packet_Command_TypeDef move_type 	= message[temp_pointer] & 0x0f;
 				switch (move_type){
 				case FIRST_PACKET:{
 					Gcode_Mode = message[temp_pointer++] >> 4 & 0x0f;
+					if(Gcode_Mode == GCODE_LINEAR){
+						bezier_wc = (double)B2I(temp_pointer)*COR_INVERSE_SCALE; temp_pointer+=4;
+					}
 					down_z_height = (double)B2I(temp_pointer)*COR_INVERSE_SCALE; temp_pointer+=4;
 					up_z_height   = (double)B2I(temp_pointer)*COR_INVERSE_SCALE; temp_pointer+=4;
 					total_num_of_point = B2I(temp_pointer);						 temp_pointer+=4;
@@ -60,9 +63,13 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
 					current_clutch_index++;
 				}
 				break;
+				case BEZIER_TYPE:
 				case LINEAR_TYPE:{
 					Gcode_Cor[point_counter].configure.type_define[0] = move_type;
 					Gcode_Cor[point_counter].configure.type_define[1] = message[temp_pointer++] >> 4 & 0x0f;
+					if(move_type == BEZIER_TYPE){
+						Gcode_Cor[point_counter].I = B2I(temp_pointer);	temp_pointer+=4;
+					}
 					Gcode_Cor[point_counter].X = B2I(temp_pointer);	temp_pointer+=4;
 					Gcode_Cor[point_counter].Y = B2I(temp_pointer);	temp_pointer+=4;
 					if(Gcode_Mode == GCODE_LINEAR){
@@ -92,6 +99,7 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
 				}
 				break;
 				}
+				if(timeout_value++ == 0xffff) break;
         	}while(temp_pointer < length);
         	return CMD_GCODE;
 

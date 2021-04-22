@@ -119,7 +119,8 @@ typedef enum
 typedef enum
 {
 	  DUTY_PATH_LINE					= 0x00U,  /*!< Path planning straight line in task space */
-	  DUTY_PATH_CIRCLE					= 0x01U  /*!< Path planning circle in task space */
+	  DUTY_PATH_CIRCLE					= 0x01U,  /*!< Path planning circle in task space */
+	  DUTY_PATH_BEZIER_CURVE			= 0x02U
 }PathTypeDef;
 
 typedef enum
@@ -133,7 +134,8 @@ typedef enum
 	  DUTY_TRAJECTORY_LSPB				= 0x00U,  /*!< Trajectory planning LSBP */
 	  DUTY_TRAJECTORY_SCURVE			= 0x01U,  /*!< Trajectory planning S-curve */
 	  DUTY_TRAJECTORY_LINEAR			= 0x02U,
-	  DUTY_TRAJECTORY_GCODE_LSPB		= 0x03U
+	  DUTY_TRAJECTORY_GCODE_LSPB		= 0x03U,
+	  DUTY_TRAJECTORY_BEZIER_CURVE		= 0x04U
 }TrajectoryTypeDef;
 
 typedef enum
@@ -416,7 +418,7 @@ typedef struct
 }SCARA_Slot_TypeDef;
 typedef struct
 {
-	uint16_t 						clutch_index;
+	uint16_t 						clutch_index; //
 	Gcode_Packet_Command_TypeDef    type_define[2]; //0 for move type, 1 for height
 }Gcode_Cor_Properties_TypeDef;
 typedef struct
@@ -486,6 +488,7 @@ SCARA_StatusTypeDef			scaraFlowCircle		(Path_Circle_TypeDef *circle, double s);
 SCARA_StatusTypeDef			scaraFlowLSPB		(Trajectory_LSPB_TypeDef *lspb, double time);
 SCARA_StatusTypeDef			scaraFlowLSPB1		(Trajectory_LSPB_TypeDef *lspb, double time);
 SCARA_StatusTypeDef			scaraFLowScurve		(Trajectory_Scurve_TypeDef *scurve, double time);
+SCARA_StatusTypeDef			scaraFlowBezierCurve(Path_Line_TypeDef *line, double s);
 SCARA_StatusTypeDef			scaraFLowScurve1		(Trajectory_Scurve_TypeDef *scurve, double t);
 SCARA_StatusTypeDef			scaraFlowGCODE		(double *s, double time);
 
