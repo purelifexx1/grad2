@@ -38,15 +38,17 @@ typedef struct
     double          Feed = 0;
     double          T = 0;
     bool            check[Value_Check_Typedef_NUM] = {false, false, false, false, false, false};
-    GCode_TypeDef   Command;
-    double          gradiant;
-    double          delta_gradiant;
+    GCode_TypeDef   Command = G00;
+    double          gradiant = 0;
+    double          delta_gradiant = 0;
     bool            change_height_border = false;
+    bool            bezier_segment = false;
 }GCode_Coordinate_TypeDef;
 typedef enum
 {
     FIRST_PACKET,                 //these contains in 4 bit low
     LINEAR_TYPE,   //G00, G01     //these contains in 4 bit low
+    BEZIER_TYPE,                  //these contains in 4 bit low
     ARC_CW_TYPE,   //G02          //these contains in 4 bit low
     ARC_AW_TYPE,   //G03          //these contains in 4 bit low
     CLUTCH_HEADER_TYPE,           //these contains in 4 bit low
@@ -82,7 +84,8 @@ public:
     Gcode_Decoder_DTC_TypeDef Process_Line(QString Line);
     Gcode_Decoder_DTC_TypeDef package_data(Gcode_Packet_Command_TypeDef execute_mode);
     Gcode_Decoder_DTC_TypeDef Process_Compress_Gcode_Data();
-    Gcode_Decoder_DTC_TypeDef Gradiant_Process(double limit_angle);
+    Gcode_Decoder_DTC_TypeDef LSPB_Process(double limit_angle);
+    Gcode_Decoder_DTC_TypeDef Linear_Process(double limit_angle);
     double calculate_linear_distance(GCode_Coordinate_TypeDef start, GCode_Coordinate_TypeDef end);
     double calculate_circle_distance(GCode_Coordinate_TypeDef start, GCode_Coordinate_TypeDef end);
     double solve_quad(double a, double b, double c);
@@ -91,6 +94,7 @@ public:
     QList<GCode_Coordinate_TypeDef>              compact_data;
     QList<QByteArray>                            data_packet;
     std::vector<QList<GCode_Coordinate_TypeDef>> execute_data;
+    QList<GCode_Coordinate_TypeDef>              bezier_execute_data;
     std::vector<LSPB_Parameter_TypeDef>          clutch_configure_data;
 private:
     QString Command_String[4] = {"G00", "G01", "G02", "G03"};

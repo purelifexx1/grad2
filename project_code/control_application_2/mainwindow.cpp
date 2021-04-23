@@ -165,11 +165,11 @@ void MainWindow::on_bt_robot_stop_clicked()
 {
     QByteArray command;
     command.append(START_CHAR);
-    command.append('\0');
+    command.append("00");
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_STOPNOW);
     command.append(RECEIVE_END);
-    command[1] = command.length() - 2;
+    PACKET_DEFINE_LENGTH(command);
     mSerial->write(command, command.length());
 }
 
@@ -178,11 +178,11 @@ void MainWindow::on_bt_scan_limit_clicked()
 {
     QByteArray command;
     command.append(START_CHAR);
-    command.append('\0');
+    command.append("00");
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_SCAN_LIMIT);
     command.append(RECEIVE_END);
-    command[1] = command.length() - 2;
+    PACKET_DEFINE_LENGTH(command);
     mSerial->write(command, command.length());
 }
 
@@ -190,7 +190,7 @@ void MainWindow::on_bt_home_clicked()
 {
     QByteArray command;
     command.append(START_CHAR);
-    command.append('\0');
+    command.append("00");
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_MOVE_LINE);
     ADD_VALUE(&command, 200.0, SCARA_COR_VALUE_TEXT);
@@ -203,7 +203,7 @@ void MainWindow::on_bt_home_clicked()
     command.append(DUTY_COORDINATES_ABS);
     command.append(DUTY_TRAJECTORY_LSPB);
     command.append(RECEIVE_END);
-    command[1] = command.length() - 2;
+    PACKET_DEFINE_LENGTH(command);
     mSerial->write(command, command.length());
 }
 
@@ -211,7 +211,7 @@ void MainWindow::on_bt_movL_clicked()
 {
     QByteArray command;
     command.append(START_CHAR);
-    command.append('\0');
+    command.append("00");
     command.append(COMMAND_TRANSMISION);
     if(ui->rb_movL->isChecked() == true){
         command.append(CMD_MOVE_LINE);
@@ -252,7 +252,7 @@ void MainWindow::on_bt_movL_clicked()
         command.append(DUTY_TRAJECTORY_LINEAR);
     }
     command.append(RECEIVE_END);
-    command[1] = command.length() - 2;
+    PACKET_DEFINE_LENGTH(command);
     mSerial->write(command, command.length());
 }
 
@@ -260,7 +260,7 @@ void MainWindow::on_bt_model_setting_clicked()
 {
     QByteArray command;
     command.append(START_CHAR);
-    command.append('\0');
+    command.append("00");
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_TEST_METHOD_SETTING);
     command.append(ui->tb_m1_pulse->text().toUInt());
@@ -268,7 +268,7 @@ void MainWindow::on_bt_model_setting_clicked()
     command.append(ui->tb_m3_pulse->text().toUInt());
     command.append(ui->tb_m4_pulse->text().toUInt());
     command.append(RECEIVE_END);
-    command[1] = command.length() - 2;
+    PACKET_DEFINE_LENGTH(command);
     mSerial->write(command, command.length());
 }
 
@@ -276,12 +276,12 @@ void MainWindow::on_bt_on_magnet_clicked()
 {
     QByteArray command;
     command.append(START_CHAR);
-    command.append('\0');
+    command.append("00");
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_OUTPUT);
     command.append('\1');
     command.append(RECEIVE_END);
-    command[1] = command.length() - 2;
+    PACKET_DEFINE_LENGTH(command);
     mSerial->write(command, command.length());
 }
 
@@ -289,12 +289,12 @@ void MainWindow::on_bt_off_magnet_clicked()
 {
     QByteArray command;
     command.append(START_CHAR);
-    command.append('\0');
+    command.append("00");
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_OUTPUT);
     command.append('\0');
     command.append(RECEIVE_END);
-    command[1] = command.length() - 2;
+    PACKET_DEFINE_LENGTH(command);
     mSerial->write(command, command.length());
 }
 
@@ -302,7 +302,7 @@ void MainWindow::on_bt_read_position_clicked()
 {
     QByteArray command;
     command.append(START_CHAR);
-    command.append('\0');
+    command.append("00");
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_READ_POSITION);
     if(ui->rb_real_type->isChecked() == true){
@@ -315,7 +315,7 @@ void MainWindow::on_bt_read_position_clicked()
         command.append(ESTIMATE_POSITION_DATA);
     }
     command.append(RECEIVE_END);
-    command[1] = command.length() - 2;
+    PACKET_DEFINE_LENGTH(command);
     mSerial->write(command, command.length());
     MovC_ACK = DISPLAY_ONLY;
 }
@@ -324,14 +324,14 @@ void MainWindow::on_bt_keycommand()
 {
     QByteArray command;
     command.append(START_CHAR);
-    command.append('\0');
+    command.append("00");
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_KEYBOARD);
     QPushButton *obj_sender = (QPushButton*)sender();
     uint8_t selection = (uint8_t)obj_sender->objectName().split('_')[2].toInt() - 1;
     command.append(selection);
     command.append(RECEIVE_END);
-    command[1] = command.length() - 2;
+    PACKET_DEFINE_LENGTH(command);
     mSerial->write(command, command.length());
 }
 
@@ -339,7 +339,7 @@ void MainWindow::on_bt_key_setsp_clicked()
 {
     QByteArray command;
     command.append(START_CHAR);
-    command.append('\0');
+    command.append("00");
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_KEY_SPEED);
     uint8_t key_speed = (uint8_t)ui->tb_key_setsp->text().toInt();
@@ -347,7 +347,7 @@ void MainWindow::on_bt_key_setsp_clicked()
     key_speed = (key_speed < SHIFT_KEY_MIN)?SHIFT_KEY_MIN:key_speed;
     command.append(key_speed);
     command.append(RECEIVE_END);
-    command[1] = command.length() - 2;
+    PACKET_DEFINE_LENGTH(command);
     mSerial->write(command, command.length());
 }
 
@@ -355,7 +355,7 @@ void MainWindow::on_bt_set_method_clicked()
 {
     QByteArray command;
     command.append(START_CHAR);
-    command.append('\0');
+    command.append("00");
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_METHOD_CHANGE);
     if(ui->rb_manual->isChecked() == true){
@@ -374,7 +374,7 @@ void MainWindow::on_bt_set_method_clicked()
         return;
     }
     command.append(RECEIVE_END);
-    command[1] = command.length() - 2;
+    PACKET_DEFINE_LENGTH(command);
     mSerial->write(command, command.length());
 }
 
@@ -387,7 +387,7 @@ void MainWindow::on_bt_testmt()
 {
     QByteArray command;
     command.append(START_CHAR);
-    command.append('\0');
+    command.append("00");
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_MOTOR_TEST);
     uint8_t sign = (ui->hs_testmt_sign->value() == 1)?1:0;
@@ -403,7 +403,7 @@ void MainWindow::on_bt_testmt()
        command.append(SCARA_TEST_MOTOR_STOP);
     }
     command.append(RECEIVE_END);
-    command[1] = command.length() -2;
+    PACKET_DEFINE_LENGTH(command);
     mSerial->write(command, command.length());
 }
 
@@ -411,7 +411,7 @@ void MainWindow::object_detected(double x, double y, double roll)
 {
     QByteArray command;
     command.append(0x28);
-    command.append('\0');
+    command.append("00");
     command.append(0x01);
     command.append(24);
     int32_t number = (int32_t)(x * 1000000);
@@ -420,15 +420,19 @@ void MainWindow::object_detected(double x, double y, double roll)
     command.append(reinterpret_cast<const char*>(&number), sizeof(number));
     number = (int32_t)(roll* 1000000);
     command.append(reinterpret_cast<const char*>(&number), sizeof(number));
-    command.append('\0');
+    command.append("00");
     command.append("})");
-    command[1] = command.length() - 2;
+    PACKET_DEFINE_LENGTH(command);
     mSerial->write(command, command.length());
 }
 
 void MainWindow::on_testing_clicked()
 {
-
+    GCode_Coordinate_TypeDef t1, t2;
+    t1.Feed = 12.45;
+    t2 = t1;
+    t1.Feed = 45.6;
+    qDebug()<<"endd";
 }
 
 
@@ -436,7 +440,7 @@ void MainWindow::on_bt_conveyor_sp_clicked()
 {
     QByteArray command;
     command.append(START_CHAR);
-    command.append('\0');
+    command.append("00");
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_SETUP_CONVEYOR_SPEED);
     ADD_VALUE(&command, ui->tb_conveyor_sp->text(), SCARA_COR_VALUE_TEXT);
@@ -450,7 +454,7 @@ void MainWindow::on_bt_conveyor_sp_clicked()
         command.append(CMD_MOVE_LINE);
     }
     command.append(RECEIVE_END);
-    command[1] = command.length() - 2;
+    PACKET_DEFINE_LENGTH(command);
     mSerial->write(command, command.length());
 }
 
@@ -501,9 +505,10 @@ void MainWindow::on_bt_process_clicked()
         log_console("Failed to write Gcode file. DTC code: " + QString::number(Gcode_DTC));
     }
     if(ui->cb_enable_smooth->isChecked() == true){
-        Gcode_DTC = gcode->Gradiant_Process(ui->tb_limit_angle->text().toDouble());
+        Gcode_DTC = gcode->LSPB_Process(ui->tb_limit_angle->text().toDouble());
         gcode->package_data(GCODE_SMOOTH_LSPB);
     }else{
+        Gcode_DTC = gcode->Linear_Process(ui->tb_limit_angle->text().toDouble());
         gcode->package_data(GCODE_LINEAR);
     }
     QByteArray send_packet;
@@ -518,11 +523,11 @@ void MainWindow::on_bt_gcode_start_clicked()
 {
     QByteArray command;
     command.append(START_CHAR);
-    command.append('\0');
+    command.append("00");
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_GCODE_RUN);
     command.append(RECEIVE_END);
-    command[1] = command.length() - 2;
+    PACKET_DEFINE_LENGTH(command);
     mSerial->write(command, command.length());
 }
 
@@ -530,11 +535,11 @@ void MainWindow::on_bt_gcode_stop_clicked()
 {
     QByteArray command;
     command.append(START_CHAR);
-    command.append('\0');
+    command.append("00");
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_GCODE_STOP);
     command.append(RECEIVE_END);
-    command[1] = command.length() - 2;
+    PACKET_DEFINE_LENGTH(command);
     mSerial->write(command, command.length());
 }
 
@@ -542,11 +547,11 @@ void MainWindow::on_bt_gcode_pause_clicked()
 {
     QByteArray command;
     command.append(START_CHAR);
-    command.append('\0');
+    command.append("00");
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_GCODE_PAUSE);
     command.append(RECEIVE_END);
-    command[1] = command.length() - 2;
+    PACKET_DEFINE_LENGTH(command);
     mSerial->write(command, command.length());
 }
 
@@ -554,11 +559,11 @@ void MainWindow::on_bt_gcode_resume_clicked()
 {
     QByteArray command;
     command.append(START_CHAR);
-    command.append('\0');
+    command.append("00");
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_GCODE_RESUME);
     command.append(RECEIVE_END);
-    command[1] = command.length() - 2;
+    PACKET_DEFINE_LENGTH(command);
     mSerial->write(command, command.length());
 }
 
@@ -566,7 +571,7 @@ void MainWindow::on_bt_gcode_configure_clicked()
 {
     QByteArray command;
     command.append(START_CHAR);
-    command.append('\0');
+    command.append("00");
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_GCODE_CONFIGURE);
     ADD_VALUE(&command, ui->tb_x_offset->text(), SCARA_COR_VALUE_TEXT);
@@ -574,7 +579,7 @@ void MainWindow::on_bt_gcode_configure_clicked()
     ADD_VALUE(&command, ui->tb_z_offset->text(), SCARA_COR_VALUE_TEXT);
     ADD_VALUE(&command, ui->tb_hold_roll_angle->text(), SCARA_COR_VALUE_TEXT);
     command.append(RECEIVE_END);
-    command[1] = command.length() - 2;
+    PACKET_DEFINE_LENGTH(command);
     mSerial->write(command, command.length());
 }
 
@@ -582,12 +587,12 @@ void MainWindow::on_bt_movC1_clicked()
 {
     QByteArray command;
     command.append(START_CHAR);
-    command.append('\0');
+    command.append("00");
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_READ_POSITION);
     command.append(REAL_POSITION_DATA);
     command.append(RECEIVE_END);
-    command[1] = command.length() - 2;
+    PACKET_DEFINE_LENGTH(command);
     mSerial->write(command, command.length());
     MovC_ACK = MOVC_TYPE1;
     //process data when current coordinate is received
@@ -701,7 +706,7 @@ void  MainWindow::MovC_Hanlder(Coordinate_Receive_Handler_TypeDef type, Display_
 
     QByteArray command;
     command.append(START_CHAR);
-    command.append('\0');
+    command.append("00");
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_MOVE_CIRCLE);
     ADD_VALUE(&command, target_x, SCARA_COR_VALUE_DOUBLE);
@@ -743,7 +748,7 @@ void  MainWindow::MovC_Hanlder(Coordinate_Receive_Handler_TypeDef type, Display_
         command.append(DUTY_TRAJECTORY_LINEAR);
     }
     command.append(RECEIVE_END);
-    command[1] = command.length() - 2;
+    PACKET_DEFINE_LENGTH(command);
     mSerial->write(command, command.length());
 
 }
@@ -752,12 +757,12 @@ void MainWindow::on_bt_movC2_clicked()
 {
     QByteArray command;
     command.append(START_CHAR);
-    command.append('\0');
+    command.append("00");
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_READ_POSITION);
     command.append(REAL_POSITION_DATA);
     command.append(RECEIVE_END);
-    command[1] = command.length() - 2;
+    PACKET_DEFINE_LENGTH(command);
     mSerial->write(command, command.length());
     MovC_ACK = MOVC_TYPE2;
     //process data when current coordinate is received

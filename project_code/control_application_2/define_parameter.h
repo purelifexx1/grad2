@@ -21,6 +21,10 @@
     file_content.append(value);               \
     file_content.append("\n");              \
 }
+#define PACKET_DEFINE_LENGTH(temper_array) {                  \
+    temper_array[1] = (temper_array.length() - 3) & 0xff;     \
+    temper_array[2] = (temper_array.length() - 3) >> 8 & 0xff;\
+}
 typedef enum
 {
     DISPLAY_POSITION,
@@ -136,7 +140,8 @@ typedef enum
       DUTY_TRAJECTORY_LSPB				= 0x00U,  /*!< Trajectory planning LSBP */
       DUTY_TRAJECTORY_SCURVE			= 0x01U,  /*!< Trajectory planning S-curve */
       DUTY_TRAJECTORY_LINEAR            = 0x02U,
-      DUTY_TRAJECTORY_GCODE_LSPB        = 0x03U
+      DUTY_TRAJECTORY_GCODE_LSPB        = 0x03U,
+      DUTY_TRAJECTORY_BEZIER_CURVE		= 0x04U
 }TrajectoryTypeDef;
 
 typedef enum
