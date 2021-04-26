@@ -1210,8 +1210,8 @@ SCARA_StatusTypeDef	scaraFlowDuty		(double time,
 			z = myDUTY.task.path.circle.z_current;
 		} else if(DUTY_PATH_BEZIER_CURVE == myDUTY.task.path.path_type){
 			status1 = scaraFlowBezierCurve(&(myDUTY.task.path.line), s);
-			x = myDUTY.task.path.circle.x_current;
-			y = myDUTY.task.path.circle.y_current;
+			x = myDUTY.task.path.line.x_current;
+			y = myDUTY.task.path.line.y_current;
 			z = myDUTY.task.path.line.z0;
 		}else {
 			return SCARA_STATUS_ERROR_TASK;
@@ -1614,7 +1614,7 @@ uint8_t					scaraIsScanLimit(void) {
 }
 
 uint8_t					scaraIsFinish		(double run_time) {
-	if(myDUTY.time_total  < run_time) {
+	if(myDUTY.time_total < run_time) {
 		return TRUE;
 	} else {
 		return FALSE;

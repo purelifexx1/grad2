@@ -402,7 +402,7 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
 						//duty_cmd->target_point.z = (double)(*(int32_t*)(&message[temp_pointer+=4]))*COR_INVERSE_SCALE;
 						duty_cmd->target_point.roll = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
 						duty_cmd->target_point.object_type = message[temp_pointer+=4];
-						duty_cmd->target_point.t = (double)(TIM2->CNT);
+						duty_cmd->target_point.packet_time_stamp = GET_MICROS;
 
 					}else{
 						return CMD_ERROR;

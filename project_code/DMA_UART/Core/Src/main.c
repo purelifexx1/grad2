@@ -100,14 +100,11 @@ int main(void)
   MX_TIM7_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-//  HAL_GPIO_WritePin(CAPTURE_ENABLE_GPIO_Port, CAPTURE_ENABLE_Pin, RESET);
-//  int32_t enc_0, enc_1, enc_2;
-  //int32_t cap_0, cap_1, cap_2;
-//  uint8_t lim0, lim1, lim2, lim3 , lim_regiter;
-  //char report[30];
-  //uint32_t total_pulse = 0;
-  //lowlayer_writePulse(0, 0, 0, 0);
-  //HAL_Delay(10);
+  if(!(CoreDebug->DEMCR & CoreDebug_DEMCR_TRCENA_Msk)){
+  		CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+  		DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+  	}
+  	DWT->CYCCNT = 0;
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */

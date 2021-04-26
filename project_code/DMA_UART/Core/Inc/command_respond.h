@@ -34,7 +34,6 @@ double UP_HEIGHT;
 double DOWN_HEIGHT_ON_OBJECT;
 double DOWN_HEIGHT_ON_SLOT;
 double conveyor_speed;
-
 typedef enum
 {
 	CMD_STOPNOW = 0x00,

@@ -227,7 +227,7 @@ void StartDefaultTask(void const * argument)
 		{260.695f, -17.075f, 0.0f} ,
 		{260.4f, 13.66f, 0.0f}
   };
-  const double placement_spacing = -20.0f;
+  const double placement_spacing = -34.0f;
   uint8_t Slot_Placement[NUM_OF_OBJECT] = {
 		  0, 0, 0, 0, 0, 0
   };
@@ -249,10 +249,10 @@ void StartDefaultTask(void const * argument)
 //   positionNext.Theta4 = 0;
 //   positionNext.t = 0;
 
-  positionNext.Theta1 = -1.48267f;
-  positionNext.Theta2 = 2.35575f;
-  positionNext.D3 = 0.034999;
-  positionNext.Theta4 = 2.96586;
+  positionNext.Theta1 = -1.4345;
+  positionNext.Theta2 = 1.7213f;
+  positionNext.D3 = 9.826;
+  positionNext.Theta4 = 0.28676;
   positionNext.t = 0;
 
   kinematicForward(&positionNext);
@@ -470,7 +470,8 @@ void StartDefaultTask(void const * argument)
 				  	  break;
 				  	  case SCARA_METHOD_PICK_AND_PLACE:{
 				  		  memcpy(&Object[object_head_pointer].object_position, &duty_cmd.target_point, sizeof(SCARA_PositionTypeDef));
-				  		  Object[object_head_pointer].timer_value = (uint16_t)duty_cmd.target_point.t;
+				  		  //Object[object_head_pointer].timer_value = (uint16_t)duty_cmd.target_point.t;
+				  		  Object[object_head_pointer].timer_value = duty_cmd.target_point.packet_time_stamp;
 				  		  object_head_pointer = (object_head_pointer+1)%8;
 				  		  detail_array[0] = OBJECT_DETECTED;
 						  respond_lenght = commandRespond1(RPD_OK, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
@@ -732,7 +733,7 @@ void StartDefaultTask(void const * argument)
 			  SCARA_StatusTypeDef status;
 			  status = scaraInitDuty(duty_cmd);
 			  if(status == SCARA_STATUS_OK){
-				  if(duty_cmd.trajec_type == DUTY_TRAJECTORY_LINEAR){
+				  if(duty_cmd.trajec_type == DUTY_TRAJECTORY_LINEAR || duty_cmd.trajec_type == DUTY_TRAJECTORY_BEZIER_CURVE){
 					  run_time = 0;
 				  }else if(duty_cmd.trajec_type == DUTY_TRAJECTORY_GCODE_LSPB){
 					  run_time = last_T;
@@ -768,8 +769,11 @@ void StartDefaultTask(void const * argument)
 						run_point++;
 					}
 					current_duty_state = SCARA_DUTY_STATE_OPERATION;
-
-					memcpy(&positionNext, &duty_cmd.target_point, sizeof(SCARA_PositionTypeDef));
+					positionNext.x = duty_cmd.target_point.x;
+					positionNext.y = duty_cmd.target_point.y;
+					positionNext.z = duty_cmd.target_point.z;
+					positionNext.roll = duty_cmd.target_point.roll;
+					//memcpy(&positionNext, &duty_cmd.target_point, sizeof(SCARA_PositionTypeDef));
 				}
 
 //				lowlayer_readTruePosition(&positionNext);
@@ -825,7 +829,7 @@ void StartDefaultTask(void const * argument)
 			  if(object_tail_pointer != object_head_pointer){
 				  switch(operation_state){
 					  case SCARA_MOVE_TO_TARGET:{
-						  double wait_time = TIMER_SCALE*((uint16_t)(TIM2->CNT - Object[object_tail_pointer].timer_value)) + MOVE_TIME + PUT_DOWN_TIME_ON_OBJECT + ATTACH_TIME;
+						  double wait_time = 1e-6*((uint64_t)(GET_MICROS - Object[object_tail_pointer].timer_value)) + MOVE_TIME + PUT_DOWN_TIME_ON_OBJECT + ATTACH_TIME;
 						  Object[object_tail_pointer].object_position.y -= wait_time*conveyor_speed;
 						  Object[object_tail_pointer].object_position.z = UP_HEIGHT;
 						  state_time = MOVE_TIME;
@@ -854,7 +858,7 @@ void StartDefaultTask(void const * argument)
 						  Object[object_tail_pointer].object_position.roll = SLot_Cordinate[current_type].roll;
 						  Object[object_tail_pointer].object_position.z = UP_HEIGHT;
 						  state_time = MOVE_TIME;
-						  Slot_Placement[Object[object_tail_pointer].object_position.object_type] = (current_type + 1)%2;
+						  Slot_Placement[current_type] = (Slot_Placement[current_type] + 1)%2;
 					  }
 					  break;
 					  case SCARA_MOVE_DOWN_ON_SLOT:{

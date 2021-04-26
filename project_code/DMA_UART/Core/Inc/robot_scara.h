@@ -177,7 +177,7 @@ typedef struct
 	double						q_theta2;
 	double						q_d3;
 	double						q_theta4;
-	double						a;
+	uint64_t					packet_time_stamp;
 	double						t;
 	double						total_time;
 	double 						x;
@@ -395,7 +395,7 @@ typedef struct
 {
 	SCARA_PositionTypeDef 		object_position;
 	SCARA_PositionTypeDef		slot_position;
-	uint16_t					timer_value;
+	uint64_t					timer_value;
 }SCARA_Pick_And_Place_Package;
 
 typedef enum

@@ -140,7 +140,8 @@
 /* Coordinate value scale number for transmission */
 #define COR_FOWARD_SCALE 1000000.0f
 #define COR_INVERSE_SCALE 0.000001f
-
+#define au32_ticks	(SystemCoreClock / 1000000)
+#define GET_MICROS 	(DWT->CYCCNT / au32_ticks)
 /* Auto pick and place operation parameter definition */
 //#define PUT_DOWN_TIME_ON_SLOT 	0.3f
 //#define PUT_DOWN_TIME_ON_OBJECT	0.3f
