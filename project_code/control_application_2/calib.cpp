@@ -94,7 +94,7 @@ void Calib::run()
 //                      pre_id = Trans_buffer[i][0];
 //                      pre_X = Trans_buffer[i][1];
                       Trans_buffer[i][7] = 2222;
-                      qDebug()<<"Current point = " << current_point << endl;
+                      qDebug()<<"Current point = " << current_point <<"; V_y =  " <<state[i].at<float>(3)<<endl;
                       current_point--;
 
                   }
@@ -137,8 +137,9 @@ void Calib::run()
                }
                for (size_t i = 0; i < buffer.size(); ++i)
                {
-                   if (!(buffer[i][1]==2222 && buffer[i][2]==2222 && buffer[i][3]==2222) && (-85 < buffer[i][1]) &&
-                           (buffer[i][1] < 130) && !copy_buffer.empty())
+                   if (!(buffer[i][1]==2222 && buffer[i][2]==2222 && buffer[i][3]==2222) && !copy_buffer.empty()
+                          && (-85 < buffer[i][1]) && (buffer[i][1] < 130) )
+
                    {
                        //Set distort center point
                        Mat_<Point2f> center_org(1,1), center_undis(1,1);
@@ -237,6 +238,10 @@ void Calib::run()
                }
 
            }
+           if (Trans_buffer.empty() && current_point > 0)
+           {
+               current_point = 0;
+           }
 
 //           if (!Trans_buffer.empty())
 //           {
@@ -260,8 +265,8 @@ void Transfer_CorRobot(float x_cam, float y_cam, float z_cam,
 //Tranfer Matrix
 float A[4][4] =
   {
-    {     -1,     0,    0,      336.3 },                //337.3
-    {     0,     1,     0,      126.7 },
+    {     -1,     0,    0,      336.3 },                //
+    {     0,     1,     0,      118.7 },                //126.7 _ 2: 135.7
     {     0,     0,     -1,     416.5 },
     {     0,     0,     0,          1 },
   };
@@ -315,6 +320,7 @@ void Set_KalmanFilter(vector<KalmanFilter>& KF, vector<Mat>& state, vector<Mat>&
     //setIdentity(KF[index].measurementMatrix);
     KF[index].measurementMatrix.at<float>(0) = 1;
     KF[index].measurementMatrix.at<float>(7) = 1;
+    KF[index].measurementMatrix.at<float>(16) = 1;
     KF[index].measurementMatrix.at<float>(23) = 1;
     // Process Noise Covariance Matrix Q
     setIdentity(KF[index].processNoiseCov, cv::Scalar::all(1e-0));

@@ -192,16 +192,16 @@ void postprocess(Mat& frame, const vector<Mat>& outs, vector<vector<double>>& bu
             //cout<< "X = "<<(center.x - frame.cols/2)<<"Y = "<<(center.y - frame.rows/2)<<theta<<endl;
             buffer.push_back(buffer_tmp);
         }
-//        else
-//        {
-//            //Add data
-//            buffer_tmp.push_back(classIds[idx]);
-//            buffer_tmp.push_back(2222);
-//            buffer_tmp.push_back(2222);
-//            buffer_tmp.push_back(2222);
-//            //cout<< "X = "<<(center.x - frame.cols/2)<<"Y = "<<(center.y - frame.rows/2)<<theta<<endl;
-//            buffer.push_back(buffer_tmp);
-//        }
+        else
+        {
+            //Add data
+            buffer_tmp.push_back(classIds[idx]);
+            buffer_tmp.push_back(2222);
+            buffer_tmp.push_back(2222);
+            buffer_tmp.push_back(2222);
+            //cout<< "X = "<<(center.x - frame.cols/2)<<"Y = "<<(center.y - frame.rows/2)<<theta<<endl;
+            buffer.push_back(buffer_tmp);
+        }
 
     }
 }

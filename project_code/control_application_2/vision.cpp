@@ -2,6 +2,7 @@
 #include "ui_vision.h"
 #include "detect.h"
 #include "calib.h"
+#include "define_parameter.h"
 
 
 
@@ -73,7 +74,7 @@ void Vision::send_packet(double x, double y, double roll, ObjectType flag_type, 
 {
     QByteArray command;
     command.append(0x28);
-    command.append('\0');
+    command.append("00");
     command.append(0x01);
     command.append(24);
     ADD_VALUE(&command, x, SCARA_COR_VALUE_DOUBLE);
@@ -81,7 +82,7 @@ void Vision::send_packet(double x, double y, double roll, ObjectType flag_type, 
     ADD_VALUE(&command, roll, SCARA_COR_VALUE_DOUBLE);
     command.append(flag_type);
     command.append("})");
-    command[1] = command.length() - 2;
+    PACKET_DEFINE_LENGTH(command);
     mSerial->write(command, command.length());
 }
 
