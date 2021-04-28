@@ -89,12 +89,13 @@ public:
     double calculate_linear_distance(GCode_Coordinate_TypeDef start, GCode_Coordinate_TypeDef end);
     double calculate_circle_distance(GCode_Coordinate_TypeDef start, GCode_Coordinate_TypeDef end);
     double solve_quad(double a, double b, double c);
+    QList<GCode_Coordinate_TypeDef> bisectrix_calculation(GCode_Coordinate_TypeDef first, GCode_Coordinate_TypeDef second, GCode_Coordinate_TypeDef third);
     GCode_Coordinate_TypeDef                     current_data;
     QList<GCode_Coordinate_TypeDef>              raw_data;
     QList<GCode_Coordinate_TypeDef>              compact_data;
     QList<QByteArray>                            data_packet;
     std::vector<QList<GCode_Coordinate_TypeDef>> execute_data;
-    QList<GCode_Coordinate_TypeDef>              bezier_execute_data;
+    QList<GCode_Coordinate_TypeDef>              linear_execute_data;
     std::vector<LSPB_Parameter_TypeDef>          clutch_configure_data;
 private:
     QString Command_String[4] = {"G00", "G01", "G02", "G03"};

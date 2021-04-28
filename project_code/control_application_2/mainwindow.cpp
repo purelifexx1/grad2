@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->bt_start_test, SIGNAL(clicked()), this, SLOT(on_bt_testmt()));
     connect(ui->bt_stop_test, SIGNAL(clicked()), this, SLOT(on_bt_testmt()));
     SET_CONTROL_UI_STATE(false);
-     SET_GCODE_SMOOTH_UI(false);
+     SET_GCODE_UI(false);
      global_ui = ui;
      system_parameter->Load_Configuration();
     fuzzy_control.fuzzy_set_data({0,10,20,30,40,50,100},{16.63,16.63,35.5,54.38,75.38,93.23,93.23});
@@ -504,10 +504,10 @@ void MainWindow::on_bt_process_clicked()
     }else{
         log_console("Failed to write Gcode file. DTC code: " + QString::number(Gcode_DTC));
     }
-    if(ui->cb_enable_smooth->isChecked() == true){
+    if(ui->rb_gcode_lspb->isChecked() == true){
         Gcode_DTC = gcode->LSPB_Process(ui->tb_limit_angle->text().toDouble());
         gcode->package_data(GCODE_SMOOTH_LSPB);
-    }else{
+    }else if(ui->rb_gcode_linear->isChecked() == true){
         Gcode_DTC = gcode->Linear_Process(ui->tb_limit_angle->text().toDouble());
         gcode->package_data(GCODE_LINEAR);
     }
@@ -777,14 +777,6 @@ void MainWindow::on_bt_sw_test_clicked()
     }
 }
 
-void MainWindow::on_cb_enable_smooth_stateChanged(int arg1)
-{
-    if(ui->cb_enable_smooth->isChecked() == true){
-        SET_GCODE_SMOOTH_UI(true);
-    }else{
-        SET_GCODE_SMOOTH_UI(false);
-    }
-}
 void MainWindow::on_VisionButton_clicked()
 {
     vision  = new Vision;
@@ -881,4 +873,40 @@ void MainWindow::on_tb_conveyor_pulse_textChanged(const QString &arg1)
     ppms = (ppms < 0) ? 0 : ppms;
     double sps = ppms * 10.0 * 35.5 * 3.141592654 * 21.0 / (20.0 * 200.0) / 4;
     ui->lb_conveyor_real_sp->setText(QString::number(sps) + " mm/s");
+}
+
+void MainWindow::on_rb_gcode_lspb_clicked()
+{
+    SET_GCODE_UI(false);
+}
+
+void MainWindow::on_rb_gcode_linear_clicked()
+{
+    SET_GCODE_UI(true);
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+    QByteArray command;
+    command.append(START_CHAR);
+    command.append("00");
+    command.append(COMMAND_TRANSMISION);
+    command.append(CMD_STEP_ON_OFF);
+    command.append(0x01);
+    command.append(RECEIVE_END);
+    PACKET_DEFINE_LENGTH(command);
+    mSerial->write(command, command.length());
+}
+
+void MainWindow::on_pushButton_2_clicked()
+{
+    QByteArray command;
+    command.append(START_CHAR);
+    command.append("00");
+    command.append(COMMAND_TRANSMISION);
+    command.append(CMD_STEP_ON_OFF);
+    command.append('\0');
+    command.append(RECEIVE_END);
+    PACKET_DEFINE_LENGTH(command);
+    mSerial->write(command, command.length());
 }

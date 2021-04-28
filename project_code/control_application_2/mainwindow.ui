@@ -444,7 +444,7 @@
       </rect>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -1963,19 +1963,6 @@
         <string>Initial speed (mm/s)</string>
        </property>
       </widget>
-      <widget class="QCheckBox" name="cb_enable_smooth">
-       <property name="geometry">
-        <rect>
-         <x>220</x>
-         <y>170</y>
-         <width>131</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Enable Gcode Smooth</string>
-       </property>
-      </widget>
       <widget class="QLineEdit" name="tb_limit_angle">
        <property name="geometry">
         <rect>
@@ -2006,7 +1993,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>190</y>
+         <y>200</y>
          <width>201</width>
          <height>41</height>
         </rect>
@@ -2021,11 +2008,56 @@
       <widget class="QLineEdit" name="tb_gcode_wc">
        <property name="geometry">
         <rect>
-         <x>250</x>
-         <y>220</y>
-         <width>81</width>
+         <x>230</x>
+         <y>170</y>
+         <width>51</width>
          <height>21</height>
         </rect>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_59">
+       <property name="geometry">
+        <rect>
+         <x>290</x>
+         <y>170</y>
+         <width>61</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Curve index</string>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="rb_gcode_lspb">
+       <property name="geometry">
+        <rect>
+         <x>230</x>
+         <y>200</y>
+         <width>121</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>LSPB segment mode</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="rb_gcode_linear">
+       <property name="geometry">
+        <rect>
+         <x>360</x>
+         <y>200</y>
+         <width>84</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Linear mode</string>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
        </property>
       </widget>
      </widget>
@@ -2569,11 +2601,11 @@
       <x>10</x>
       <y>240</y>
       <width>251</width>
-      <height>51</height>
+      <height>81</height>
      </rect>
     </property>
     <property name="title">
-     <string>Output shaft</string>
+     <string>Output Control Tab</string>
     </property>
     <widget class="QPushButton" name="bt_off_magnet">
      <property name="geometry">
@@ -2601,12 +2633,38 @@
       <string>Magnet on</string>
      </property>
     </widget>
+    <widget class="QPushButton" name="pushButton">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>50</y>
+       <width>80</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Step On</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_2">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>50</y>
+       <width>80</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Step off</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QPushButton" name="bt_sw_test">
     <property name="geometry">
      <rect>
-      <x>50</x>
-      <y>310</y>
+      <x>10</x>
+      <y>320</y>
       <width>80</width>
       <height>21</height>
      </rect>

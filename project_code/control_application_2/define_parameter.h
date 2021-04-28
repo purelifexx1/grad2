@@ -77,6 +77,8 @@ typedef enum
     WRONG_COORDINATE,
     OUTPUT_ON,
     OUTPUT_OFF,
+    STEP_ON,
+    STEP_OFF,
     WRONG_OUTPUT_VALUE,
     WRONG_READ_POSITION_TYPE,
     TEST_VALUE_SETTING,
@@ -179,6 +181,7 @@ typedef enum
     CMD_TEST_METHOD_SETTING,
     CMD_METHOD_CHANGE,
     CMD_MOTOR_TEST,
+    CMD_STEP_ON_OFF,
 
     CMD_GCODE_STOP,
     CMD_GCODE_PAUSE,
@@ -356,6 +359,8 @@ public:
                                              "Wrong Coordinate type",
                                              "Output On",
                                              "Output Off",
+                                             "Step Online",
+                                             "Step Offline",
                                              "Wrong output value",
                                              "Wrong position type requirement",
                                              "Test value setting successfully",
@@ -395,6 +400,7 @@ public:
         "CMD_TEST_METHOD_SETTING",
         "CMD_METHOD_CHANGE",
         "CMD_MOTOR_TEST",
+        "CMD_STEP_ON_OFF",
 
         "CMD_GCODE_STOP",
         "CMD_GCODE_PAUSE",

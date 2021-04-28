@@ -82,9 +82,9 @@ void define_parameter::Save_Configuration()
     SAVE_CONFIGURE(OFF_Z_VALUE, global_ui->tb_z_offset->text());
     SAVE_CONFIGURE(OFF_ROLL_ANGLE, global_ui->tb_hold_roll_angle->text());
     SAVE_CONFIGURE(GCODE_INITIAL_SP, global_ui->tb_gcode_initial->text());
-    if(global_ui->cb_enable_smooth->isChecked() == true){
+    if(global_ui->rb_gcode_lspb->isChecked() == true){
         SAVE_CONFIGURE(GCODE_SMOOTH_OPTION, "1");
-    }else{
+    }else if(global_ui->rb_gcode_linear->isChecked() == true){
         SAVE_CONFIGURE(GCODE_SMOOTH_OPTION, "0");
     }
     SAVE_CONFIGURE(GCODE_SMOOTH_VALUE, global_ui->tb_limit_angle->text());
@@ -167,9 +167,9 @@ void define_parameter::Load_Configuration()
             break;
             case GCODE_SMOOTH_OPTION   :
                 if(value == "1"){
-                    global_ui->cb_enable_smooth->setChecked(true);
+                    global_ui->rb_gcode_lspb->setChecked(true);
                 }else if(value == "0"){
-                    global_ui->cb_enable_smooth->setChecked(false);
+                    global_ui->rb_gcode_linear->setChecked(false);
                 }
             break;
             case GCODE_SMOOTH_VALUE    :

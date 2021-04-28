@@ -12,6 +12,7 @@ void Gcode_Decoder::Clear_Data()
     data_packet.clear();
     execute_data.clear();
     clutch_configure_data.clear();
+    linear_execute_data.clear();
 }
 Gcode_Decoder_DTC_TypeDef Gcode_Decoder::Process_Line(QString Line)
 {
@@ -196,13 +197,13 @@ Gcode_Decoder_DTC_TypeDef Gcode_Decoder::package_data(Gcode_Packet_Command_TypeD
     temper_array.append("00");
     temper_array.append(FILE_TRANSMISION);
     temper_array.append(execute_mode << 4 | FIRST_PACKET);
-    if(execute_mode == GCODE_LINEAR){
-        ADD_VALUE(&temper_array, global_ui->tb_gcode_wc->text(), SCARA_COR_VALUE_TEXT);
-    }
+//    if(execute_mode == GCODE_LINEAR){
+//        ADD_VALUE(&temper_array, global_ui->tb_gcode_wc->text(), SCARA_COR_VALUE_TEXT);
+//    }
     ADD_VALUE(&temper_array, Min_Z, SCARA_COR_VALUE_DOUBLE);
     ADD_VALUE(&temper_array, Max_Z, SCARA_COR_VALUE_DOUBLE);
     if(execute_mode == GCODE_LINEAR){
-        ADD_VALUE(&temper_array, bezier_execute_data.count(), INT32_VALUE);
+        ADD_VALUE(&temper_array, linear_execute_data.count(), INT32_VALUE);
     }else if(execute_mode == GCODE_SMOOTH_LSPB){
         ADD_VALUE(&temper_array, compact_data.count() - 1, INT32_VALUE);
     }
@@ -214,51 +215,52 @@ Gcode_Decoder_DTC_TypeDef Gcode_Decoder::package_data(Gcode_Packet_Command_TypeD
         //init 10 point in a row into 1 sending packet
         int count = 0;
         Gcode_Packet_Command_TypeDef tool_height;
-        for(int i = 0; i < bezier_execute_data.count(); i++){
+        for(int i = 0; i < linear_execute_data.count(); i++){
             if(count == 0){
                 temper_array.append(START_CHAR);
                 temper_array.append("00");
                 temper_array.append(FILE_TRANSMISION);
             }
 
-            if(abs(bezier_execute_data.at(i).Z - Max_Z) < 0.001){
+            if(abs(linear_execute_data.at(i).Z - Max_Z) < 0.001){
                 tool_height = UP_Z;
-            }else if(abs(bezier_execute_data.at(i).Z - Min_Z) < 0.001){
+            }else if(abs(linear_execute_data.at(i).Z - Min_Z) < 0.001){
                 tool_height = DOWN_Z;
             }else{
                 return UNMATCH_Z_HEIGHT;
             }
 
-            switch(bezier_execute_data.at(i).Command){
+            switch(linear_execute_data.at(i).Command){
                 case G00:
                 case G01:{
-                    if(bezier_execute_data.at(i).bezier_segment == true){
-                        temper_array.append(tool_height << 4 | BEZIER_TYPE);
-                        ADD_VALUE(&temper_array, bezier_execute_data.at(i).I, SCARA_COR_VALUE_DOUBLE);
-                    }else{
-                        temper_array.append(tool_height << 4 | LINEAR_TYPE);
-                    }
-                    ADD_VALUE(&temper_array, bezier_execute_data.at(i).X, SCARA_COR_VALUE_DOUBLE);
-                    ADD_VALUE(&temper_array, bezier_execute_data.at(i).Y, SCARA_COR_VALUE_DOUBLE);
-                    ADD_VALUE(&temper_array, bezier_execute_data.at(i).Feed, SCARA_COR_VALUE_DOUBLE);
+//                    if(linear_execute_data.at(i).bezier_segment == true){
+//                        temper_array.append(tool_height << 4 | BEZIER_TYPE);
+//                        ADD_VALUE(&temper_array, linear_execute_data.at(i).I, SCARA_COR_VALUE_DOUBLE);
+//                    }else{
+//                        temper_array.append(tool_height << 4 | LINEAR_TYPE);
+//                    }
+                    temper_array.append(tool_height << 4 | LINEAR_TYPE);
+                    ADD_VALUE(&temper_array, linear_execute_data.at(i).X, SCARA_COR_VALUE_DOUBLE);
+                    ADD_VALUE(&temper_array, linear_execute_data.at(i).Y, SCARA_COR_VALUE_DOUBLE);
+                    ADD_VALUE(&temper_array, linear_execute_data.at(i).Feed, SCARA_COR_VALUE_DOUBLE);
                 }
                 break;
                 case G02:{
                     temper_array.append(tool_height << 4 | ARC_CW_TYPE);
-                    ADD_VALUE(&temper_array, bezier_execute_data.at(i).X, SCARA_COR_VALUE_DOUBLE);
-                    ADD_VALUE(&temper_array, bezier_execute_data.at(i).Y, SCARA_COR_VALUE_DOUBLE);
-                    ADD_VALUE(&temper_array, bezier_execute_data.at(i).Feed, SCARA_COR_VALUE_DOUBLE);
-                    ADD_VALUE(&temper_array, bezier_execute_data.at(i).I, SCARA_COR_VALUE_DOUBLE);
-                    ADD_VALUE(&temper_array, bezier_execute_data.at(i).J, SCARA_COR_VALUE_DOUBLE);
+                    ADD_VALUE(&temper_array, linear_execute_data.at(i).X, SCARA_COR_VALUE_DOUBLE);
+                    ADD_VALUE(&temper_array, linear_execute_data.at(i).Y, SCARA_COR_VALUE_DOUBLE);
+                    ADD_VALUE(&temper_array, linear_execute_data.at(i).Feed, SCARA_COR_VALUE_DOUBLE);
+                    ADD_VALUE(&temper_array, linear_execute_data.at(i).I, SCARA_COR_VALUE_DOUBLE);
+                    ADD_VALUE(&temper_array, linear_execute_data.at(i).J, SCARA_COR_VALUE_DOUBLE);
                 }
                 break;
                 case G03:{
                     temper_array.append(tool_height << 4 | ARC_AW_TYPE);
-                    ADD_VALUE(&temper_array, bezier_execute_data.at(i).X, SCARA_COR_VALUE_DOUBLE);
-                    ADD_VALUE(&temper_array, bezier_execute_data.at(i).Y, SCARA_COR_VALUE_DOUBLE);
-                    ADD_VALUE(&temper_array, bezier_execute_data.at(i).Feed, SCARA_COR_VALUE_DOUBLE);
-                    ADD_VALUE(&temper_array, bezier_execute_data.at(i).I, SCARA_COR_VALUE_DOUBLE);
-                    ADD_VALUE(&temper_array, bezier_execute_data.at(i).J, SCARA_COR_VALUE_DOUBLE);
+                    ADD_VALUE(&temper_array, linear_execute_data.at(i).X, SCARA_COR_VALUE_DOUBLE);
+                    ADD_VALUE(&temper_array, linear_execute_data.at(i).Y, SCARA_COR_VALUE_DOUBLE);
+                    ADD_VALUE(&temper_array, linear_execute_data.at(i).Feed, SCARA_COR_VALUE_DOUBLE);
+                    ADD_VALUE(&temper_array, linear_execute_data.at(i).I, SCARA_COR_VALUE_DOUBLE);
+                    ADD_VALUE(&temper_array, linear_execute_data.at(i).J, SCARA_COR_VALUE_DOUBLE);
                 }
                 break;
             }
@@ -429,25 +431,26 @@ Gcode_Decoder_DTC_TypeDef Gcode_Decoder::Linear_Process(double limit_angle)
         }
     }
 
-    //process if there are any Bezier curve which has the degree higher than 2
+    //curve all the significant delta gradiant segment
     for(int i = 0; i < execute_data.size(); i++){
-        if(execute_data.at(i).size() == 1){
-            GCode_Coordinate_TypeDef temper_coor = execute_data.at(i).at(0);
-            temper_coor.X = (temper_coor.X + execute_data.at(i-1).at(execute_data.at(i-1).size() -1).X)/2;
-            temper_coor.Y = (temper_coor.Y + execute_data.at(i-1).at(execute_data.at(i-1).size() -1).Y)/2;
-            execute_data[i].insert(execute_data.at(i).begin(), temper_coor);
-        }
         if(i != 0){
-            bezier_execute_data[bezier_execute_data.size() - 1].bezier_segment = true;
-            bezier_execute_data[bezier_execute_data.size() - 1].I = calculate_linear_distance(bezier_execute_data.at(bezier_execute_data.size() - 2), bezier_execute_data.at(bezier_execute_data.size() - 1))
-                    + calculate_linear_distance(bezier_execute_data.at(bezier_execute_data.size() - 1), execute_data.at(i).at(0));
+            QList<GCode_Coordinate_TypeDef> temper_list;
+            if(execute_data.at(i-1).size() == 1){
+                temper_list = bisectrix_calculation(execute_data.at(i-2).at(execute_data.at(i-2).size()-1), execute_data.at(i-1).at(0), execute_data.at(i).at(0));
+            }else{
+                temper_list = bisectrix_calculation(execute_data.at(i-1).at(execute_data.at(i-1).size()-2), execute_data.at(i-1).at(execute_data.at(i-1).size()-1), execute_data.at(i).at(0));
+            }
+            linear_execute_data.pop_back();
+            linear_execute_data.push_back(temper_list.at(0));
+            linear_execute_data.push_back(temper_list.at(1));
         }
         for(int j = 0; j < execute_data.at(i).size(); j++){
-            bezier_execute_data.push_back(execute_data.at(i).at(j));
+            linear_execute_data.push_back(execute_data.at(i).at(j));
         }
     }
     return GCODE_OK;
 }
+
 Gcode_Decoder_DTC_TypeDef Gcode_Decoder::LSPB_Process(double limit_angle)
 {
     limit_angle = fabs(limit_angle*M_PI/180);
@@ -571,7 +574,62 @@ void Gcode_Decoder::LSPB_calculation(double total_s, double veloc, LSPB_Paramete
     output.Sa = output.acc[0]*pow(output.Ta, 2);
     output.Sd = output.constant[0]*output.Td + output.constant[1];
 }
-
+QList<GCode_Coordinate_TypeDef> Gcode_Decoder::bisectrix_calculation(GCode_Coordinate_TypeDef first, GCode_Coordinate_TypeDef second, GCode_Coordinate_TypeDef third)
+{
+    double line_in = calculate_linear_distance(first, second);
+    double line_out = calculate_linear_distance(second, third);
+    double min_line;
+    min_line = (line_in < line_out)?line_in:line_out;
+    double insight_angle = M_PI - third.delta_gradiant;
+    double in_grad = second.gradiant;
+    double out_grad = third.gradiant;
+    double reverse_in_grad = in_grad + M_PI;
+    reverse_in_grad = (reverse_in_grad >= M_PI)?-(2*M_PI - reverse_in_grad):reverse_in_grad;
+    double bisec_grad;
+    if(fabs(reverse_in_grad - out_grad) >= M_PI){
+        if(reverse_in_grad == M_PI){
+            reverse_in_grad = -M_PI;
+        }else if(out_grad == M_PI){
+            out_grad = -M_PI;
+        }
+    }
+    bisec_grad = (reverse_in_grad + out_grad)/2;
+    double cutoff_dis = min_line - min_line*global_ui->tb_gcode_wc->text().toDouble();
+    double hypotenuse = cutoff_dis/cos(insight_angle/2);
+    double intersect_x = second.X;
+    double intersect_y = second.Y;
+    double CenterX = intersect_x + hypotenuse*cos(bisec_grad);
+    double CenterY = intersect_y + hypotenuse*sin(bisec_grad);
+    double EndX = intersect_x + cutoff_dis*cos(out_grad);
+    double EndY = intersect_y + cutoff_dis*sin(out_grad);
+    double StartX = intersect_x + cutoff_dis*cos(reverse_in_grad);
+    double StartY = intersect_y + cutoff_dis*sin(reverse_in_grad);
+    QList<GCode_Coordinate_TypeDef> temper_list({first, second});
+    temper_list[0].X = StartX;
+    temper_list[0].Y = StartY;
+    temper_list[0].Command = G00;
+    temper_list[1].X = EndX;
+    temper_list[1].Y = EndY;
+    temper_list[1].I = CenterX - StartX;
+    temper_list[1].J = CenterY - StartY;
+    double angleS = atan2(StartY-CenterY, StartX-CenterX);
+    double angleE = atan2(EndY-CenterY, EndX-CenterX);
+    double delta_angle = angleE - angleS;
+    if(fabs(delta_angle) > M_PI){
+        if(delta_angle > 0){
+            temper_list[1].Command = G02;
+        }else{
+            temper_list[1].Command = G03;
+        }
+    }else{
+        if(delta_angle > 0){
+            temper_list[1].Command = G03;
+        }else{
+            temper_list[1].Command = G02;
+        }
+    }
+    return temper_list;
+}
 void Gcode_Decoder::Init_Current_Data(double x, double y, double z, double feed)
 {
     current_data.X = x;

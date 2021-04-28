@@ -763,8 +763,8 @@ void StartDefaultTask(void const * argument)
 				}else{
 					if(Gcode_Mode == GCODE_SMOOTH_LSPB){
 						accumulate_update(Gcode_Cor[run_point++]);
-					}else if(Gcode_Cor[run_point].configure.type_define[0] == BEZIER_TYPE){
-						run_point+=2;
+					//}else if(Gcode_Cor[run_point].configure.type_define[0] == BEZIER_TYPE){
+						//run_point+=2;
 					}else{
 						run_point++;
 					}

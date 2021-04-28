@@ -26,6 +26,7 @@ extern SCARA_LSPB_Clutch_TypeDef  gcode_clutch_configure[200];
 Position_DataType position_type;
 SCARA_Gcode_Cor_TypeDef	Gcode_Cor[1000];
 uint16_t point_counter = 0, current_clutch_index = 0;
+uint8_t step_status;
 Robot_CommandTypedef pnp_move_option;
 Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_command, DUTY_Command_TypeDef *duty_cmd) {
 	Transfer_Protocol protocol_id = message[0];
@@ -43,9 +44,9 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
 				switch (move_type){
 				case FIRST_PACKET:{
 					Gcode_Mode = message[temp_pointer++] >> 4 & 0x0f;
-					if(Gcode_Mode == GCODE_LINEAR){
-						bezier_wc = (double)B2I(temp_pointer)*COR_INVERSE_SCALE; temp_pointer+=4;
-					}
+//					if(Gcode_Mode == GCODE_LINEAR){
+//						bezier_wc = (double)B2I(temp_pointer)*COR_INVERSE_SCALE; temp_pointer+=4;
+//					}
 					down_z_height = (double)B2I(temp_pointer)*COR_INVERSE_SCALE; temp_pointer+=4;
 					up_z_height   = (double)B2I(temp_pointer)*COR_INVERSE_SCALE; temp_pointer+=4;
 					total_num_of_point = B2I(temp_pointer);						 temp_pointer+=4;
@@ -63,13 +64,13 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
 					current_clutch_index++;
 				}
 				break;
-				case BEZIER_TYPE:
+//				case BEZIER_TYPE:
 				case LINEAR_TYPE:{
 					Gcode_Cor[point_counter].configure.type_define[0] = move_type;
 					Gcode_Cor[point_counter].configure.type_define[1] = message[temp_pointer++] >> 4 & 0x0f;
-					if(move_type == BEZIER_TYPE){
-						Gcode_Cor[point_counter].I = B2I(temp_pointer);	temp_pointer+=4;
-					}
+//					if(move_type == BEZIER_TYPE){
+//						Gcode_Cor[point_counter].I = B2I(temp_pointer);	temp_pointer+=4;
+//					}
 					Gcode_Cor[point_counter].X = B2I(temp_pointer);	temp_pointer+=4;
 					Gcode_Cor[point_counter].Y = B2I(temp_pointer);	temp_pointer+=4;
 					if(Gcode_Mode == GCODE_LINEAR){
@@ -477,6 +478,23 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
 					return CMD_GCODE_RESUME;
 				}
 				break;
+				case CMD_STEP_ON_OFF:
+				{
+					if(length == 3){ //1 byte status + 2 define byte
+						temp_pointer = 2;
+						if(message[temp_pointer] == 1){
+							step_status = 1;
+							HAL_GPIO_WritePin(STEP_ENABLE_GPIO_Port, STEP_ENABLE_Pin, GPIO_PIN_RESET);
+						}else if(message[temp_pointer] == 0){
+							step_status = 0;
+							HAL_GPIO_WritePin(STEP_ENABLE_GPIO_Port, STEP_ENABLE_Pin, GPIO_PIN_SET);
+						}
+					}else{
+						return CMD_ERROR;
+					}
+					return CMD_STEP_ON_OFF;
+				}
+				break;
 				//Unknow command id
 				default:
 				{
@@ -609,6 +627,18 @@ Robot_RespondTypedef	commandReply	(Robot_CommandTypedef cmd_type,
 		ret = RPD_ERROR;
 	}
 		break;
+	case CMD_STEP_ON_OFF:{
+		if(step_status == 1){
+			detail[(*detail_length)++] = STEP_ON;
+			ret = RPD_OK;
+		}else if(step_status == 0){
+			detail[(*detail_length)++] = STEP_OFF;
+			ret = RPD_OK;
+		}else{
+			ret = RPD_ERROR;
+		}
+	}
+	break;
 	default:
 		detail[(*detail_length)++] = UNKNOW_COMMAND;
 		ret = RPD_ERROR;

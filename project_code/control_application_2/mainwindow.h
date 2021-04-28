@@ -8,10 +8,9 @@
 #include "gcode_decoder.h"
 #include "vision.h"
 
-#define SET_GCODE_SMOOTH_UI(value){         \
-    ui->label_54->setEnabled(value);         \
-    ui->label_55->setEnabled(value);         \
-    ui->tb_limit_angle->setEnabled(value);   \
+#define SET_GCODE_UI(value){         \
+    ui->label_59->setEnabled(value);         \
+    ui->tb_gcode_wc->setEnabled(value);   \
 }
 #define METHOD_TAB_ENABLE(index, state) {                    \
     if(state == true){                                       \
@@ -114,8 +113,6 @@ private slots:
 
     void on_bt_sw_test_clicked();
 
-    void on_cb_enable_smooth_stateChanged(int arg1);
-
     void on_VisionButton_clicked();
 
 
@@ -132,6 +129,14 @@ private slots:
     void on_bt_conveyor_con_clicked();
 
     void on_tb_conveyor_pulse_textChanged(const QString &arg1);
+
+    void on_rb_gcode_lspb_clicked();
+
+    void on_rb_gcode_linear_clicked();
+
+    void on_pushButton_clicked();
+
+    void on_pushButton_2_clicked();
 
 public slots:
     void received_callback(QByteArray log_data);

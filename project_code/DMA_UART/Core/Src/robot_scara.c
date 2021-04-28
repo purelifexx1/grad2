@@ -158,9 +158,10 @@ SCARA_StatusTypeDef	scaraInitDuty		(DUTY_Command_TypeDef command) {
 										command.arc_dir );
 			total_s = myDUTY.task.path.circle.total_s;
 
-		}else if(DUTY_PATH_BEZIER_CURVE == command.path_type){
-			myDUTY.task.path.path_type = DUTY_PATH_BEZIER_CURVE;
-			myDUTY.task.path.line.z0 = command.target_point.z;
+//		}else if(DUTY_PATH_BEZIER_CURVE == command.path_type){
+//			myDUTY.task.path.path_type = DUTY_PATH_BEZIER_CURVE;
+//			myDUTY.task.path.line.z0 = command.target_point.z;
+//		}
 		}else {
 			return SCARA_STATUS_ERROR_TASK;
 		}
@@ -249,13 +250,15 @@ SCARA_StatusTypeDef	scaraInitDuty		(DUTY_Command_TypeDef command) {
 			myDUTY.task.trajectory_roll.trajectory_type = DUTY_TRAJECTORY_LINEAR;
 			myDUTY.time_total = command.time_total;
 			status2 = scaraInitLinear(&(myDUTY.task.trajectory_roll.linear), TRAJECTORY_ROLL, angle_s*dir_angle, DUTY_MODE_INIT_QT, command.time_total - last_T);
-		}else if(DUTY_TRAJECTORY_BEZIER_CURVE == command.trajec_type){
-			myDUTY.task.trajectory_roll.linear.dir = dir_angle;
-			myDUTY.task.trajectory_3d.trajectory_type = DUTY_TRAJECTORY_BEZIER_CURVE;
-			myDUTY.time_total = command.time_total;
-			status1 = SCARA_STATUS_OK;
-			status2 = scaraInitLinear(&(myDUTY.task.trajectory_roll.linear), TRAJECTORY_ROLL, angle_s*dir_angle, DUTY_MODE_INIT_QT, myDUTY.time_total);
-		}else {
+		}
+//		else if(DUTY_TRAJECTORY_BEZIER_CURVE == command.trajec_type){
+//			myDUTY.task.trajectory_roll.linear.dir = dir_angle;
+//			myDUTY.task.trajectory_3d.trajectory_type = DUTY_TRAJECTORY_BEZIER_CURVE;
+//			myDUTY.time_total = command.time_total;
+//			status1 = SCARA_STATUS_OK;
+//			status2 = scaraInitLinear(&(myDUTY.task.trajectory_roll.linear), TRAJECTORY_ROLL, angle_s*dir_angle, DUTY_MODE_INIT_QT, myDUTY.time_total);
+//		}
+		else {
 			return SCARA_STATUS_ERROR_TRAJECTORY;
 		}
 		// Check Init Status
@@ -1178,13 +1181,15 @@ SCARA_StatusTypeDef	scaraFlowDuty		(double time,
 			status1 = SCARA_STATUS_OK;
 			status2 = SCARA_STATUS_OK;
 
-		}else if(DUTY_TRAJECTORY_BEZIER_CURVE == myDUTY.task.trajectory_3d.trajectory_type){
-			s = time/myDUTY.time_total;
-			angle = myDUTY.task.trajectory_roll.linear.constant_v*time;
-			dir_roll = myDUTY.task.trajectory_roll.linear.dir;
-			status1 = SCARA_STATUS_OK;
-			status2 = SCARA_STATUS_OK;
-		}else{
+		}
+//		else if(DUTY_TRAJECTORY_BEZIER_CURVE == myDUTY.task.trajectory_3d.trajectory_type){
+//			s = time/myDUTY.time_total;
+//			angle = myDUTY.task.trajectory_roll.linear.constant_v*time;
+//			dir_roll = myDUTY.task.trajectory_roll.linear.dir;
+//			status1 = SCARA_STATUS_OK;
+//			status2 = SCARA_STATUS_OK;
+//		}
+		else{
 			return SCARA_STATUS_ERROR_TRAJECTORY;
 		}
 
@@ -1208,12 +1213,14 @@ SCARA_StatusTypeDef	scaraFlowDuty		(double time,
 			x = myDUTY.task.path.circle.x_current;
 			y = myDUTY.task.path.circle.y_current;
 			z = myDUTY.task.path.circle.z_current;
-		} else if(DUTY_PATH_BEZIER_CURVE == myDUTY.task.path.path_type){
-			status1 = scaraFlowBezierCurve(&(myDUTY.task.path.line), s);
-			x = myDUTY.task.path.line.x_current;
-			y = myDUTY.task.path.line.y_current;
-			z = myDUTY.task.path.line.z0;
-		}else {
+		}
+//		else if(DUTY_PATH_BEZIER_CURVE == myDUTY.task.path.path_type){
+//			status1 = scaraFlowBezierCurve(&(myDUTY.task.path.line), s);
+//			x = myDUTY.task.path.line.x_current;
+//			y = myDUTY.task.path.line.y_current;
+//			z = myDUTY.task.path.line.z0;
+//		}
+		else {
 			return SCARA_STATUS_ERROR_TASK;
 		}
 
