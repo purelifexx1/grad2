@@ -51,6 +51,14 @@ void MainWindow::display_event(Display_packet data)
                 ui->tb_d3_cur_val->setText(QString::number(data.RealData.D3));
                 log_console("Position data received");
                 log_console("--------------------------");
+
+                cv::Mat matrix = cv::Mat(4, 4, CV_32F) ;
+                foward_kinematic(data.RealData.theta1,data.RealData.theta2,data.RealData.D3,data.RealData.theta4,
+                                 matrix);
+                std::ostringstream oss;
+                 oss << "Matrix =" << matrix << endl;
+                QString matContent(oss.str().c_str());
+                qDebug()<< matContent ;
             }else{
                 MovC_Hanlder(MovC_ACK, data);
             }
@@ -909,4 +917,23 @@ void MainWindow::on_pushButton_2_clicked()
     command.append(RECEIVE_END);
     PACKET_DEFINE_LENGTH(command);
     mSerial->write(command, command.length());
+}
+
+void MainWindow::foward_kinematic(double theta1, double theta2, double d3, double theta4, cv::Mat &m){
+    m.at<float>(0,0) = cos(theta1 + theta2 - theta4);
+    m.at<float>(0,1) = sin(theta1 + theta2 - theta4);
+    m.at<float>(0,2) = 0;
+    m.at<float>(0,3) = 160*cos(theta1+theta2) + 197*cos(theta1) + 32.36*cos(theta1+theta2-theta4);
+    m.at<float>(1,0) = sin(theta1 + theta2 - theta4);
+    m.at<float>(1,1) = -cos(theta1 + theta2 - theta4);
+    m.at<float>(1,2) = 0;
+    m.at<float>(1,3) = 160*sin(theta1+theta2) + 197*sin(theta1) + 32.36*sin(theta1+theta2-theta4);
+    m.at<float>(2,0) = 0;
+    m.at<float>(2,1) = 0;
+    m.at<float>(2,2) = -1;
+    m.at<float>(2,3) = 133.33 - d3;
+    m.at<float>(3,0) = 0;
+    m.at<float>(3,1) = 0;
+    m.at<float>(3,2) = 0;
+    m.at<float>(3,3) = 1;
 }
