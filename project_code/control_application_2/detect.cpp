@@ -12,7 +12,7 @@ using namespace dnn;
 using namespace std;
 
 // Initialize the parameters
-float confThreshold = 0.6; // Confidence threshold
+float confThreshold = 0.65; // Confidence threshold
 float nmsThreshold = 0.4;  // Non-maximum suppression threshold
 int inpWidth = 384;  // Width of network's input image
 int inpHeight = 384; // Height of network's input image
