@@ -287,8 +287,6 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
 					if(length == 3){ // 1 byte categorize read type + 2 byte define
 						temp_pointer = 2;
 						position_type = message[temp_pointer];
-						uint8_t lala[2] = {12, 24};
-						uint16_t tes = *(uint16_t*)lala;
 						return CMD_READ_POSITION;
 					}else{
 						return CMD_ERROR;
@@ -564,20 +562,40 @@ Robot_RespondTypedef	commandReply	(Robot_CommandTypedef cmd_type,
 	case CMD_READ_POSITION:
 		{
 			SCARA_PositionTypeDef position;
-			if(position_type == REAL_POSITION_DATA || position_type == REAL_POSITION_DATA_PLUS_UPDATE){
+			if(position_type == READ_CONTINUOUS_ENABLE){
+				detail[(*detail_length)++] = POSREAD_CONTINUOUS_ENABLE;
+//				lowlayer_readTruePosition(&position);
+//				kinematicForward(&position);
+//				if(position_type == REAL_POSITION_DATA_PLUS_UPDATE){
+//					scaraUpdatePosition(&position);
+//				}
+				ret = RPD_OK;
+				continuous_update = 1;
+			}else if(position_type == READ_CONTINUOUS_DISABLE){
+				detail[(*detail_length)++] = POSREAD_CONTINUOUS_DISABLE;
+//				scaraGetPosition(&position);
+				continuous_update = 0;
+				ret = RPD_OK;
+			}else if(position_type == POSITION_UPDATE){
+				detail[(*detail_length)++] = UPDATE_REAL_POS;
+				SCARA_PositionTypeDef position;
 				lowlayer_readTruePosition(&position);
 				kinematicForward(&position);
-				if(position_type == REAL_POSITION_DATA_PLUS_UPDATE){
-					scaraUpdatePosition(&position);
-				}
-			}else if(position_type == ESTIMATE_POSITION_DATA){
-				scaraGetPosition(&position);
+				scaraUpdatePosition(&position);
+				ret = RPD_OK;
+			}else if(position_type == READ_REAL_DATA){
+				SCARA_PositionTypeDef position;
+				lowlayer_readTruePosition(&position);
+				kinematicForward(&position);
+				*detail_length = scaraPosition_packaging(detail, position);
+				ret =  RPD_POSITION;
 			}else{
 				detail[(*detail_length)++] = WRONG_READ_POSITION_TYPE;
 				return RPD_ERROR;
 			}
-			*detail_length = scaraPosition_packaging(detail, position);
-			ret =  RPD_POSITION;
+//			*detail_length = scaraPosition_packaging(detail, position);
+//			ret =  RPD_POSITION;
+//			ret =  RPD_OK;
 		}
 		break;
 	case CMD_TEST_METHOD_SETTING:

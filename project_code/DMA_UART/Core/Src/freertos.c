@@ -76,6 +76,7 @@ extern double						up_z_height;
 extern double 						down_z_height;
 extern int32_t						total_num_of_point;
 extern uint8_t						pnp_move_option = CMD_MOVE_LINE;
+extern uint8_t 						continuous_update = 0;
 double *testing_array;
 extern TIM_HandleTypeDef htim7;
 osMailQId commandMailHandle;
@@ -182,20 +183,21 @@ void StartDefaultTask(void const * argument)
 
 
   // Report buffer;
+  uint8_t				update_pos_cycle = 0;
   int8_t 				test_value[4];
-  uint8_t				respond[40];
+  uint8_t				respond[80];
   int32_t				respond_lenght;
   //uint8_t				position[135];
   //uint8_t				infor[145];
-  int32_t				infor_lenght;
-  uint8_t				task_usb[150];
-  int32_t				task_usb_lenght;
+//  int32_t				infor_lenght;
+//  uint8_t				task_usb[150];
+//  int32_t				task_usb_lenght;
   int32_t 				total_respond_length;
-  int32_t 				detail_ptr;
-  uint8_t				detail_array[10];
+//  int32_t 				detail_ptr;
+  uint8_t				detail_array[80];
 
-  uint8_t				respond_packed[50];
-  int32_t				respond_packed_lenght;
+//  uint8_t				respond_packed[50];
+//  int32_t				respond_packed_lenght;
   //uint8_t				infor_packed[150];
   int32_t				infor_packed_lenght;
   //uint8_t				usb_buff[350];
@@ -210,6 +212,7 @@ void StartDefaultTask(void const * argument)
   SCARA_ScanStateTypeDef	current_scan_state;
   SCARA_KeyStateTypeDef		current_key_state;
   SCARA_KeyTypeDef			current_key;
+  SCARA_PositionTypeDef 	update_position;
   int32_t					current_key_speed;
   double						run_time;
 
@@ -266,13 +269,13 @@ void StartDefaultTask(void const * argument)
 	  osSignalWait(0x01, osWaitForever); // Very Important
 	  /* 1--- Reset Value ---*/
 	  respond_lenght		= 0;
-	  respond_packed_lenght = 0;
-	  infor_lenght			= 0;
+//	  respond_packed_lenght = 0;
+//	  infor_lenght			= 0;
 	  infor_packed_lenght	= 0;
-	  task_usb_lenght		= 0;
-	  usb_lenght			= 0;
+	  //task_usb_lenght		= 0;
+	  //usb_lenght			= 0;
 	  total_respond_length  = 0;
-	  detail_ptr 			= 0;
+//	  detail_ptr 			= 0;
 	  // Update new position
 	  memcpy(&positionPrevios, &positionCurrent, sizeof(SCARA_PositionTypeDef));
 	  memcpy(&positionCurrent, &positionNext, sizeof(SCARA_PositionTypeDef));
@@ -474,7 +477,8 @@ void StartDefaultTask(void const * argument)
 				  		  Object[object_head_pointer].timer_value = duty_cmd.target_point.packet_time_stamp;
 				  		  object_head_pointer = (object_head_pointer+1)%8;
 				  		  detail_array[0] = OBJECT_DETECTED;
-						  respond_lenght = commandRespond1(RPD_OK, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
+				  		  detail_array[1] = duty_cmd.target_point.object_type;
+						  respond_lenght = commandRespond1(RPD_OK, duty_cmd.id_command, detail_array, 2, &respond[total_respond_length]);
 						  total_respond_length += respond_lenght;
 				  	  }
 				  	  break;
@@ -966,7 +970,14 @@ void StartDefaultTask(void const * argument)
 
 	  }
 	  }
-
+	  if(continuous_update == 1 && update_pos_cycle++ >= 10){
+		  update_pos_cycle = 0;
+		  lowlayer_readTruePosition(&update_position);
+		  kinematicForward(&update_position);
+		  respond_lenght = scaraPosition_packaging(detail_array, update_position);
+		  respond_lenght = commandRespond1(RPD_POSITION, CMD_READ_POSITION, detail_array, respond_lenght, &respond[total_respond_length]);
+		  total_respond_length += respond_lenght;
+	  }
 	  /* 4--- Send to PC Phase ---*/
 	if(total_respond_length > 0){
 		CDC_Transmit_FS(respond, total_respond_length);

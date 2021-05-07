@@ -22,6 +22,7 @@ double up_z_height, down_z_height;
 int32_t current_key_speed1;
 int32_t total_num_of_point;
 int8_t  test_value_array[4];
+uint8_t continuous_update;
 SCARA_LSPB_Clutch_TypeDef  gcode_clutch_configure[200];
 double PUT_DOWN_TIME_ON_SLOT;
 double PUT_DOWN_TIME_ON_OBJECT;
@@ -115,6 +116,9 @@ typedef enum
 	STEP_ON,
 	STEP_OFF,
     WRONG_OUTPUT_VALUE,
+	POSREAD_CONTINUOUS_ENABLE,
+	POSREAD_CONTINUOUS_DISABLE,
+	UPDATE_REAL_POS,
 	WRONG_READ_POSITION_TYPE,
     TEST_VALUE_SETTING,
     RELATIVE,
@@ -143,9 +147,10 @@ typedef enum
 
 typedef enum
 {
-	REAL_POSITION_DATA,
-	REAL_POSITION_DATA_PLUS_UPDATE,
-	ESTIMATE_POSITION_DATA
+	READ_CONTINUOUS_ENABLE,
+	READ_CONTINUOUS_DISABLE,
+	POSITION_UPDATE,
+	READ_REAL_DATA,
 }Position_DataType;
 
 
