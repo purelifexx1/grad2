@@ -2,7 +2,6 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <opencv2/opencv.hpp>
 #include "receivethread.h"
 #include "define_parameter.h"
 #include "packet_handler.h"
@@ -149,7 +148,6 @@ private:
     Coordinate_Receive_Handler_TypeDef MovC_ACK = DISPLAY_ONLY;
     void MovC_Hanlder(Coordinate_Receive_Handler_TypeDef type, Display_packet data);
     Vision *vision;
-    void foward_kinematic(double theta1, double theta2, double d3, double theta4, cv::Mat &m);
 protected:
     void closeEvent(QCloseEvent *event);
 };
