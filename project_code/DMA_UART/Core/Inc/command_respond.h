@@ -23,6 +23,8 @@ int32_t current_key_speed1;
 int32_t total_num_of_point;
 int8_t  test_value_array[4];
 uint8_t continuous_update;
+uint8_t offset_data_available;
+uint8_t Gcode_data_available;
 SCARA_LSPB_Clutch_TypeDef  gcode_clutch_configure[200];
 double PUT_DOWN_TIME_ON_SLOT;
 double PUT_DOWN_TIME_ON_OBJECT;
@@ -58,9 +60,9 @@ typedef enum
     CMD_JOB_PUSH_MOVE_JOINT,
     CMD_GCODE_CONFIGURE,
     CMD_GCODE_RESUME,
-    CMD_GCODE_RUN,// 7 job
+    CMD_GCODE_RUN,
 
-    CMD_KEYBOARD,// 2 key board
+    CMD_KEYBOARD,
 	CMD_KEY_SPEED,
 
 	CMD_ERROR,
@@ -135,6 +137,9 @@ typedef enum
 	OBJECT_DETECTED 	,
 	GCODE_TRANSFER_FINISH,
 	GCODE_OFFSET_CONFIGURE,
+	GCODE_OFFSET_MISSING,
+	GCODE_DATA_MISSING,
+	GCODE_MODE_NOT_READY,
     STOP_NOW        ,
     START_SCAN      ,
     BUSY            ,

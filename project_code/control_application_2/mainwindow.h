@@ -138,6 +138,8 @@ private slots:
 
     void on_pushButton_2_clicked();
 
+    void on_bt_load_offset_clicked();
+
 public slots:
     void received_callback(QByteArray log_data);
     void display_event(Display_packet data);

@@ -55,13 +55,13 @@ void define_parameter::Convert_And_Append(QByteArray *object_array, QVariant con
         case SCARA_COR_VALUE_TEXT:
         {
             QString temp = convert_object.toString();
-            int32_t number = (int32_t)(temp.toDouble()*SCARA_FOWARD_SCALE);
+            int32_t number = (int32_t)(temp.toDouble()*DATA_FOWARD_SCALE);
             object_array->append(reinterpret_cast<const char*>(&number), sizeof(number));
         }
         break;
         case SCARA_COR_VALUE_DOUBLE:
         {
-            int32_t number = (int32_t)(convert_object.toDouble()*SCARA_FOWARD_SCALE);
+            int32_t number = (int32_t)(convert_object.toDouble()*DATA_FOWARD_SCALE);
             object_array->append(reinterpret_cast<const char*>(&number), sizeof(number));
         }
         break;

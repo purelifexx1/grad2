@@ -184,14 +184,14 @@
     <widget class="QLabel" name="label_11">
      <property name="geometry">
       <rect>
-       <x>100</x>
+       <x>90</x>
        <y>110</y>
        <width>47</width>
        <height>13</height>
       </rect>
      </property>
      <property name="text">
-      <string>Roll</string>
+      <string>Roll`</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_12">
@@ -251,12 +251,12 @@
       <rect>
        <x>10</x>
        <y>140</y>
-       <width>80</width>
+       <width>81</width>
        <height>21</height>
       </rect>
      </property>
      <property name="text">
-      <string>Read position</string>
+      <string>Update</string>
      </property>
     </widget>
     <widget class="QRadioButton" name="rb_real_type">
@@ -264,12 +264,12 @@
       <rect>
        <x>10</x>
        <y>170</y>
-       <width>71</width>
+       <width>111</width>
        <height>19</height>
       </rect>
      </property>
      <property name="text">
-      <string>Real Type</string>
+      <string>Continuous enable</string>
      </property>
      <property name="checked">
       <bool>true</bool>
@@ -278,30 +278,30 @@
     <widget class="QRadioButton" name="rb_estimate_type">
      <property name="geometry">
       <rect>
-       <x>90</x>
+       <x>130</x>
        <y>170</y>
-       <width>91</width>
-       <height>19</height>
+       <width>111</width>
+       <height>20</height>
       </rect>
      </property>
      <property name="text">
-      <string>Estimate Type</string>
+      <string>Continuous disable</string>
      </property>
      <property name="checked">
       <bool>false</bool>
      </property>
     </widget>
-    <widget class="QCheckBox" name="cb_update_true_pos">
+    <widget class="QRadioButton" name="rb_real_data_update">
      <property name="geometry">
       <rect>
-       <x>100</x>
+       <x>130</x>
        <y>140</y>
-       <width>121</width>
+       <width>111</width>
        <height>19</height>
       </rect>
      </property>
      <property name="text">
-      <string>Update True Position</string>
+      <string>Real data update</string>
      </property>
     </widget>
    </widget>
@@ -460,7 +460,7 @@
         </rect>
        </property>
        <property name="currentIndex">
-        <number>2</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="tab_4">
         <attribute name="title">
@@ -2058,6 +2058,19 @@
        </property>
        <property name="checked">
         <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="bt_load_offset">
+       <property name="geometry">
+        <rect>
+         <x>380</x>
+         <y>130</y>
+         <width>80</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Load point</string>
        </property>
       </widget>
      </widget>

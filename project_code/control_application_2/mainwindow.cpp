@@ -49,10 +49,11 @@ void MainWindow::display_event(Display_packet data)
                 ui->tb_theta2_cur_val->setText(QString::number(data.RealData.theta2));
                 ui->tb_theta4_cur_val->setText(QString::number(data.RealData.theta4));
                 ui->tb_d3_cur_val->setText(QString::number(data.RealData.D3));
-                log_console("Position data received");
-                log_console("--------------------------");
+//                log_console("Position data received");
+//                log_console("--------------------------");
             }else{
                 MovC_Hanlder(MovC_ACK, data);
+                MovC_ACK = DISPLAY_ONLY;
             }
         }
         break;
@@ -91,6 +92,12 @@ void MainWindow::display_event(Display_packet data)
                 case MANUAL_SPEED:{
                     detail_string += system_parameter->DETAIL_STATUS[data.Reference_String.at(t)] +
                             ": " + QString::number(data.Reference_String.at(t+1)) + "; ";
+                    t++;
+                }
+                break;
+                case OBJECT_DETECTED:{
+                    detail_string += system_parameter->DETAIL_STATUS[data.Reference_String.at(t)] +
+                            ": " + system_parameter->OBJECT_String[data.Reference_String.at(t+1)] + "; ";
                     t++;
                 }
                 break;
@@ -306,13 +313,16 @@ void MainWindow::on_bt_read_position_clicked()
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_READ_POSITION);
     if(ui->rb_real_type->isChecked() == true){
-        if(ui->cb_update_true_pos->isChecked() == true){
-            command.append(REAL_POSITION_DATA_PLUS_UPDATE);
-        }else{
-            command.append(REAL_POSITION_DATA);
-        }
+        command.append(READ_CONTINUOUS_ENABLE);
+//        if(ui->cb_update_true_pos->isChecked() == true){
+//            command.append(REAL_POSITION_DATA_PLUS_UPDATE);
+//        }else{
+//            command.append(REAL_POSITION_DATA);
+//        }
     }else if(ui->rb_estimate_type->isChecked() == true){
-        command.append(ESTIMATE_POSITION_DATA);
+        command.append(READ_CONTINUOUS_DISABLE);
+    }else if(ui->rb_real_data_update->isChecked() == true){
+        command.append(POSITION_UPDATE);
     }
     command.append(RECEIVE_END);
     PACKET_DEFINE_LENGTH(command);
@@ -590,7 +600,7 @@ void MainWindow::on_bt_movC1_clicked()
     command.append("00");
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_READ_POSITION);
-    command.append(REAL_POSITION_DATA);
+    command.append(READ_REAL_DATA);
     command.append(RECEIVE_END);
     PACKET_DEFINE_LENGTH(command);
     mSerial->write(command, command.length());
@@ -760,7 +770,7 @@ void MainWindow::on_bt_movC2_clicked()
     command.append("00");
     command.append(COMMAND_TRANSMISION);
     command.append(CMD_READ_POSITION);
-    command.append(REAL_POSITION_DATA);
+    command.append(READ_REAL_DATA);
     command.append(RECEIVE_END);
     PACKET_DEFINE_LENGTH(command);
     mSerial->write(command, command.length());
@@ -909,4 +919,18 @@ void MainWindow::on_pushButton_2_clicked()
     command.append(RECEIVE_END);
     PACKET_DEFINE_LENGTH(command);
     mSerial->write(command, command.length());
+}
+
+void MainWindow::on_bt_load_offset_clicked()
+{
+    ui->tb_x_cor->setText(ui->tb_x_offset->text());
+    ui->tb_y_cor->setText(ui->tb_y_offset->text());
+    ui->tb_z_cor->setText(ui->tb_z_offset->text());
+    ui->tb_roll_ang->setText(ui->tb_hold_roll_angle->text());
+    ui->tb_v_factor->setText("0");
+    ui->tb_time->setText("2");
+    ui->rb_movJ->setChecked(true);
+    ui->rb_abs->setChecked(true);
+    ui->rb_lspb->setChecked(true);
+    ui->rb_qvt->setChecked(true);
 }

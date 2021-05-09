@@ -23,6 +23,8 @@ extern double UP_HEIGHT 				= 131.0f;
 extern double DOWN_HEIGHT_ON_OBJECT 	= 126.5f;
 extern double DOWN_HEIGHT_ON_SLOT 	    = 126.5f;
 extern SCARA_LSPB_Clutch_TypeDef  gcode_clutch_configure[200];
+extern uint8_t offset_data_available = 0;
+extern uint8_t Gcode_data_available = 0;
 Position_DataType position_type;
 SCARA_Gcode_Cor_TypeDef	Gcode_Cor[1000];
 uint16_t point_counter = 0, current_clutch_index = 0;
@@ -47,8 +49,8 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
 //					if(Gcode_Mode == GCODE_LINEAR){
 //						bezier_wc = (double)B2I(temp_pointer)*COR_INVERSE_SCALE; temp_pointer+=4;
 //					}
-					down_z_height = (double)B2I(temp_pointer)*COR_INVERSE_SCALE; temp_pointer+=4;
-					up_z_height   = (double)B2I(temp_pointer)*COR_INVERSE_SCALE; temp_pointer+=4;
+					down_z_height = (double)B2I(temp_pointer)*DATA_INVERSE_SCALE; temp_pointer+=4;
+					up_z_height   = (double)B2I(temp_pointer)*DATA_INVERSE_SCALE; temp_pointer+=4;
 					total_num_of_point = B2I(temp_pointer);						 temp_pointer+=4;
 					point_counter = 0;
 					current_clutch_index = 0;
@@ -138,8 +140,8 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
                 {
                     if (length == 10){ // 2 int32_t number + 2 define byte
 						temp_pointer = -2;
-						duty_cmd->v_factor = B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
-						duty_cmd->a_factor = B2I(temp_pointer)*COR_INVERSE_SCALE;
+						duty_cmd->v_factor = B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+						duty_cmd->a_factor = B2I(temp_pointer)*DATA_INVERSE_SCALE;
                     }else{
                         return CMD_ERROR;
                     }
@@ -167,25 +169,25 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
 						uint8_t mode_init;
 						temp_pointer = -2;
 
-						duty_cmd->target_point.x = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
-						duty_cmd->target_point.y = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
-						duty_cmd->target_point.z = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
-						duty_cmd->target_point.roll = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
-						duty_cmd->v_factor = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
+						duty_cmd->target_point.x = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+						duty_cmd->target_point.y = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+						duty_cmd->target_point.z = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+						duty_cmd->target_point.roll = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+						duty_cmd->v_factor = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
 						mode_init = message[temp_pointer+=4];
 
 						if(mode_init == DUTY_MODE_INIT_QVA){
 							duty_cmd->modeInit_type = DUTY_MODE_INIT_QVA;
-							duty_cmd->a_factor = (double)B2I(temp_pointer+=1)*COR_INVERSE_SCALE;
+							duty_cmd->a_factor = (double)B2I(temp_pointer+=1)*DATA_INVERSE_SCALE;
 						}else if(mode_init == DUTY_MODE_INIT_QVT){
 							duty_cmd->modeInit_type = DUTY_MODE_INIT_QVT;
-							duty_cmd->time_total = (double)B2I(temp_pointer+=1)*COR_INVERSE_SCALE;
+							duty_cmd->time_total = (double)B2I(temp_pointer+=1)*DATA_INVERSE_SCALE;
 						}else if(mode_init == DUTY_MODE_INIT_QT){
 							duty_cmd->modeInit_type = DUTY_MODE_INIT_QT;
-							duty_cmd->time_total = (double)B2I(temp_pointer+=1)*COR_INVERSE_SCALE;
+							duty_cmd->time_total = (double)B2I(temp_pointer+=1)*DATA_INVERSE_SCALE;
 						}else if(mode_init == DUTY_MODE_INIT_QV){
 							duty_cmd->modeInit_type = DUTY_MODE_INIT_QV;
-							duty_cmd->v_factor = (double)B2I(temp_pointer+=1)*COR_INVERSE_SCALE;
+							duty_cmd->v_factor = (double)B2I(temp_pointer+=1)*DATA_INVERSE_SCALE;
 						}else{
 							return CMD_ERROR;
 						}
@@ -217,12 +219,12 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
                 	if(length == 34){ // 7 int32_t number + 4 byte number + 2 define byte
                 		uint8_t mode_init, arc_type;
                 		temp_pointer = -2;
-                		duty_cmd->target_point.x      = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
-                		duty_cmd->target_point.y      = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
-                		duty_cmd->sub_point.x 	      = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
-                		duty_cmd->sub_point.y         = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
-                		duty_cmd->target_point.roll   = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
-                		duty_cmd->v_factor			  = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
+                		duty_cmd->target_point.x      = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+                		duty_cmd->target_point.y      = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+                		duty_cmd->sub_point.x 	      = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+                		duty_cmd->sub_point.y         = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+                		duty_cmd->target_point.roll   = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+                		duty_cmd->v_factor			  = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
                 		arc_type = message[temp_pointer+=4];
                 		if(arc_type == ARC_AW_TYPE){
                 			duty_cmd->arc_dir = 1;
@@ -234,16 +236,16 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
                 		mode_init = message[temp_pointer+=1];
 						if(mode_init == DUTY_MODE_INIT_QVA){
 							duty_cmd->modeInit_type = DUTY_MODE_INIT_QVA;
-							duty_cmd->a_factor = (double)B2I(temp_pointer+=1)*COR_INVERSE_SCALE;
+							duty_cmd->a_factor = (double)B2I(temp_pointer+=1)*DATA_INVERSE_SCALE;
 						}else if(mode_init == DUTY_MODE_INIT_QVT){
 							duty_cmd->modeInit_type = DUTY_MODE_INIT_QVT;
-							duty_cmd->time_total = (double)B2I(temp_pointer+=1)*COR_INVERSE_SCALE;
+							duty_cmd->time_total = (double)B2I(temp_pointer+=1)*DATA_INVERSE_SCALE;
 						}else if(mode_init == DUTY_MODE_INIT_QT){
 							duty_cmd->modeInit_type = DUTY_MODE_INIT_QT;
-							duty_cmd->time_total = (double)B2I(temp_pointer+=1)*COR_INVERSE_SCALE;
+							duty_cmd->time_total = (double)B2I(temp_pointer+=1)*DATA_INVERSE_SCALE;
 						}else if(mode_init == DUTY_MODE_INIT_QV){
 							duty_cmd->modeInit_type = DUTY_MODE_INIT_QV;
-							duty_cmd->v_factor = (double)B2I(temp_pointer+=1)*COR_INVERSE_SCALE;
+							duty_cmd->v_factor = (double)B2I(temp_pointer+=1)*DATA_INVERSE_SCALE;
 						}else{
 							return CMD_ERROR;
 						}
@@ -396,10 +398,10 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
 				{
 					if (length == 15){ // 3 int32_t number + 1 byte object type + 2 define byte
 						temp_pointer = -2;
-						duty_cmd->target_point.x = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
-						duty_cmd->target_point.y = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
+						duty_cmd->target_point.x = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+						duty_cmd->target_point.y = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
 						//duty_cmd->target_point.z = (double)(*(int32_t*)(&message[temp_pointer+=4]))*COR_INVERSE_SCALE;
-						duty_cmd->target_point.roll = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
+						duty_cmd->target_point.roll = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
 						duty_cmd->target_point.object_type = message[temp_pointer+=4];
 						duty_cmd->target_point.packet_time_stamp = GET_MICROS;
 
@@ -416,17 +418,17 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
 				{
 					if (length == 47) { // 11 int32_t number + 1 byte move type + 2 define byte
 						temp_pointer = -2;
-						conveyor_speed           = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
-						PUT_DOWN_TIME_ON_SLOT 	 = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
-						PUT_DOWN_TIME_ON_OBJECT	 = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
-						PICK_UP_TIME_ON_OBJECT 	 = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
-						PICK_UP_TIME_ON_SLOT	 = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
-						MOVE_TIME 				 = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
-						ATTACH_TIME 			 = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
-						DETACH_TIME 			 = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
-						UP_HEIGHT 				 = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
-						DOWN_HEIGHT_ON_OBJECT 	 = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
-						DOWN_HEIGHT_ON_SLOT 	 = (double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
+						conveyor_speed           = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+						PUT_DOWN_TIME_ON_SLOT 	 = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+						PUT_DOWN_TIME_ON_OBJECT	 = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+						PICK_UP_TIME_ON_OBJECT 	 = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+						PICK_UP_TIME_ON_SLOT	 = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+						MOVE_TIME 				 = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+						ATTACH_TIME 			 = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+						DETACH_TIME 			 = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+						UP_HEIGHT 				 = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+						DOWN_HEIGHT_ON_OBJECT 	 = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+						DOWN_HEIGHT_ON_SLOT 	 = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
 						pnp_move_option 		 = message[temp_pointer+=4];
 						return CMD_SETUP_CONVEYOR_SPEED;
 					}else{
@@ -438,10 +440,10 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
 				{
 					if(length == 18) { // 4 int32_t number + 2 define byte
 						temp_pointer = -2;
-						offset_x = 	(double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
-						offset_y = 	(double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
-						offset_z = 	(double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
-						roll_angle =(double)B2I(temp_pointer+=4)*COR_INVERSE_SCALE;
+						offset_x = 	(double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+						offset_y = 	(double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+						offset_z = 	(double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+						roll_angle =(double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
 						return CMD_GCODE_CONFIGURE;
 					}else{
 						return CMD_ERROR;
@@ -610,6 +612,7 @@ Robot_RespondTypedef	commandReply	(Robot_CommandTypedef cmd_type,
 		break;
 	case CMD_GCODE:{
 		if(point_counter == total_num_of_point){
+			Gcode_data_available = 1;
 			detail[(*detail_length)++] = GCODE_TRANSFER_FINISH;
 			ret = RPD_OK;
 		}else{
@@ -619,6 +622,7 @@ Robot_RespondTypedef	commandReply	(Robot_CommandTypedef cmd_type,
 	break;
 	case CMD_GCODE_CONFIGURE:
 	{
+		offset_data_available = 1;
 		detail[(*detail_length)++] = GCODE_OFFSET_CONFIGURE;
 		ret = RPD_OK;
 	}

@@ -6,8 +6,8 @@
 #include "ui_mainwindow.h"
 #define START_CHAR         0x28
 #define RECEIVE_END        "})"
-#define SCARA_FOWARD_SCALE 1000000
-#define SCARA_INVERSE_SCALE 0.000001f
+#define DATA_FOWARD_SCALE 1000000
+#define DATA_INVERSE_SCALE 0.000001f
 #define SHIFT_KEY_MAX       14
 #define SHIFT_KEY_MIN       1
 #define MINIMUM_LINEAR_TIME_FRAME  0.03
@@ -80,6 +80,9 @@ typedef enum
     STEP_ON,
     STEP_OFF,
     WRONG_OUTPUT_VALUE,
+    POSREAD_CONTINUOUS_ENABLE,
+    POSREAD_CONTINUOUS_DISABLE,
+    UPDATE_REAL_POS,
     WRONG_READ_POSITION_TYPE,
     TEST_VALUE_SETTING,
     RELATIVE,
@@ -96,6 +99,9 @@ typedef enum
     OBJECT_DETECTED ,
     GCODE_TRANSFER_FINISH,
     GCODE_OFFSET_CONFIGURE,
+    GCODE_OFFSET_MISSING,
+    GCODE_DATA_MISSING,
+    GCODE_MODE_NOT_READY,
     STOP_NOW        ,
     START_SCAN      ,
     BUSY            ,
@@ -283,9 +289,10 @@ typedef struct
 
 typedef enum
 {
-    REAL_POSITION_DATA,
-    REAL_POSITION_DATA_PLUS_UPDATE,
-    ESTIMATE_POSITION_DATA
+    READ_CONTINUOUS_ENABLE,
+    READ_CONTINUOUS_DISABLE,
+    POSITION_UPDATE,
+    READ_REAL_DATA
 }Position_DataType;
 
 typedef enum{
@@ -362,6 +369,9 @@ public:
                                              "Step Online",
                                              "Step Offline",
                                              "Wrong output value",
+                                             "Position continuous read mode enable",
+                                             "Position continuous read mode disable",
+                                             "Real position updated",
                                              "Wrong position type requirement",
                                              "Test value setting successfully",
                                              "Relative",
@@ -378,12 +388,14 @@ public:
                                              "Object Detected",
                                              "Gcode transfer process completed",
                                              "Gcode offset data configured succesfully",
+                                             "Offset data hasn't been set",
+                                             "Gcode data missing",
+                                             "Robot still in gcode init mode, please fulfill all the condition",
                                              "Stop Now",
                                              "Start scan",
                                              "Busy",
                                              "Has not SCAN yet",
                                              "METHOD isn't correct",
-
                                              ""
                                             };
     QString COMMAND_STRING[NUM_OF_COMMAND_STRING] = {
@@ -432,6 +444,14 @@ public:
         "RPD_OK" 	  ,
         "RPD_TRANSFER",
         "RPD_DUTY"
+    };
+    QString OBJECT_String[NUM_OF_OBJECT] = {
+        "VIETNAM_FLAG",
+        "SWITZERLAND_FLAG",
+        "SWEDEN_FLAG",
+        "ENGLAND_FLAG",
+        "GERMANY_FLAG",
+        "JAPAN_FLAG",
     };
 
     define_parameter();

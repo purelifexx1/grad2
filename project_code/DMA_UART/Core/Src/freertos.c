@@ -27,6 +27,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tim.h"
+#include "math.h"
 #include <stdio.h>
 #include <string.h>
 #include <malloc.h>
@@ -199,9 +200,9 @@ void StartDefaultTask(void const * argument)
 //  uint8_t				respond_packed[50];
 //  int32_t				respond_packed_lenght;
   //uint8_t				infor_packed[150];
-  int32_t				infor_packed_lenght;
+  //int32_t				infor_packed_lenght;
   //uint8_t				usb_buff[350];
-  int32_t				usb_lenght;
+  //int32_t				usb_lenght;
   // Debug variables
   //uint32_t total_pulse = 0;
 
@@ -271,7 +272,7 @@ void StartDefaultTask(void const * argument)
 	  respond_lenght		= 0;
 //	  respond_packed_lenght = 0;
 //	  infor_lenght			= 0;
-	  infor_packed_lenght	= 0;
+//	  infor_packed_lenght	= 0;
 	  //task_usb_lenght		= 0;
 	  //usb_lenght			= 0;
 	  total_respond_length  = 0;
@@ -310,7 +311,7 @@ void StartDefaultTask(void const * argument)
 //					if(Gcode_Cor == NULL){
 //					  int t =2;
 //					}
-				  current_duty_state = SCARA_DUTY_STATE_READY;
+				  current_duty_state = SCARA_DUTY_STATE_INIT;
 				  current_method = SCARA_METHOD_GCODE;
 				  detail_array[0] = GCODE_METHOD;
 				respond_lenght = commandRespond1(RPD_OK, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
@@ -385,7 +386,7 @@ void StartDefaultTask(void const * argument)
 						  case SCARA_MODE_DUTY:
 							  {
 								  if (SCARA_MODE_DUTY == current_mode && SCARA_DUTY_STATE_READY == current_duty_state) {
-									  scaraSetScanFlag();
+									  //scaraSetScanFlag();
 //									  if(duty_cmd.modeInit_type == DUTY_MODE_INIT_LINEAR){
 //										  current_method = SCARA_METHOD_AUTO;
 //									  }
@@ -452,7 +453,7 @@ void StartDefaultTask(void const * argument)
 					  break;
 				  	  case SCARA_METHOD_GCODE:
 				  	  {
-				  		  if(current_duty_state == SCARA_DUTY_STATE_READY && duty_cmd.id_command == CMD_GCODE_RUN){
+				  		  if(current_duty_state == SCARA_DUTY_STATE_READY && duty_cmd.id_command == CMD_GCODE_RUN && Gcode_data_available && offset_data_available){
 				  			  if(Gcode_Mode == GCODE_LINEAR){
 				  				run_point = 1;
 				  			  }else if(Gcode_Mode == GCODE_SMOOTH_LSPB){
@@ -460,14 +461,20 @@ void StartDefaultTask(void const * argument)
 				  			  }
 
 				  			  current_duty_state = SCARA_DUTY_STATE_OPERATION;
-				  		  }else if(current_duty_state == SCARA_DUTY_STATE_INIT && duty_cmd.id_command == CMD_GCODE_RESUME){
-				  			  lowlayer_readTruePosition(&positionCurrent);
-				  			  kinematicForward(&positionCurrent);
-				  			  current_duty_state = SCARA_DUTY_STATE_INIT;
+				  		  }else if(current_duty_state == SCARA_DUTY_STATE_INIT){
+				  			detail_array[0] = GCODE_MODE_NOT_READY;
+							respond_lenght = commandRespond1(RPD_OK, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
+							total_respond_length += respond_lenght;
 				  		  }else if(duty_cmd.id_command == CMD_GCODE_STOP){
 				  			  current_duty_state = SCARA_DUTY_STATE_READY;
-				  		  }else if(duty_cmd.id_command == CMD_GCODE_PAUSE){
-				  			  current_duty_state = SCARA_DUTY_STATE_INIT;
+				  		  }else if(Gcode_data_available == 0){
+				  			detail_array[0] = GCODE_DATA_MISSING;
+						    respond_lenght = commandRespond1(RPD_OK, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
+						    total_respond_length += respond_lenght;
+				  		  }else if(offset_data_available == 0){
+				  			detail_array[0] = GCODE_OFFSET_MISSING;
+							respond_lenght = commandRespond1(RPD_OK, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
+							total_respond_length += respond_lenght;
 				  		  }
 				  	  }
 				  	  break;
@@ -644,7 +651,7 @@ void StartDefaultTask(void const * argument)
 							  } else {
 								  current_duty_state 	= SCARA_DUTY_STATE_READY;
 
-								  LOG_REPORT("TEST FAIL", __LINE__);
+								  //LOG_REPORT("TEST FAIL", __LINE__);
 								detail_array[0] = status2;
 								respond_lenght = commandRespond1(RPD_ERROR, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
 								total_respond_length += respond_lenght;
@@ -724,12 +731,14 @@ void StartDefaultTask(void const * argument)
 	  {
 		  switch (current_duty_state)
 		  {
-		  case SCARA_DUTY_STATE_READY:{
-			  //run_point = 1;
+		  case SCARA_DUTY_STATE_INIT:{
+			  if(fabs(positionCurrent.x - offset_x) < 4 && fabs(positionCurrent.y - offset_y) < 4 && fabs(positionCurrent.z - offset_z) < 4){
+				  current_duty_state = SCARA_DUTY_STATE_READY;
+			  }
 		  }
 		  break;
-		  case SCARA_DUTY_STATE_INIT:{
-
+		  case SCARA_DUTY_STATE_READY:{
+			  // do nothing wait for hot key
 		  }
 		  break;
 		  case SCARA_DUTY_STATE_OPERATION:{
@@ -764,6 +773,7 @@ void StartDefaultTask(void const * argument)
 					current_duty_state = SCARA_DUTY_STATE_READY;
 					lowlayer_readTruePosition(&positionNext);
 				    kinematicForward(&positionNext);
+				    Gcode_data_available = 0;
 				}else{
 					if(Gcode_Mode == GCODE_SMOOTH_LSPB){
 						accumulate_update(Gcode_Cor[run_point++]);
@@ -818,7 +828,7 @@ void StartDefaultTask(void const * argument)
 	  {
 		  switch(current_duty_state) {
 		  case SCARA_DUTY_STATE_INIT:{
-			  HAL_TIM_Base_Start(&htim2);
+			  //HAL_TIM_Base_Start(&htim2);
 			  object_tail_pointer = 0;
 			  object_head_pointer = 0;
 			  operation_state = SCARA_MOVE_TO_TARGET;

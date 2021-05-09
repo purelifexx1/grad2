@@ -138,8 +138,8 @@
 #define		a4				(32.36f)
 
 /* Coordinate value scale number for transmission */
-#define COR_FOWARD_SCALE 1000000.0f
-#define COR_INVERSE_SCALE 0.000001f
+#define DATA_FOWARD_SCALE 1000000.0f
+#define DATA_INVERSE_SCALE 0.000001f
 #define au32_ticks	(SystemCoreClock / 1000000)
 #define GET_MICROS 	(DWT->CYCCNT / au32_ticks)
 /* Auto pick and place operation parameter definition */

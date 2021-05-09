@@ -95,6 +95,7 @@ void packet_handler::routing(QByteArray packet)
                     if(packet.at(2) == CMD_READ_POSITION){ // check if CMD_ID is correct
                         Scara_position_received(packet.mid(3, packet_length-3));
                     }else{
+                        log_console("Incorrect position packet format");
                         // incorrect packet format
                     }
                 break;
@@ -125,14 +126,14 @@ void packet_handler::Scara_position_received(QByteArray data)
 {
     Scara_Position_RawData *RawData = reinterpret_cast<Scara_Position_RawData*>(data.data());
     Display_packet display_packet;
-    display_packet.RealData.theta1 = (double)(RawData->raw_theta1*SCARA_INVERSE_SCALE);
-    display_packet.RealData.theta2 = (double)(RawData->raw_theta2*SCARA_INVERSE_SCALE);
-    display_packet.RealData.theta4 = (double)(RawData->raw_theta4*SCARA_INVERSE_SCALE);
-    display_packet.RealData.D3 = (double)(RawData->raw_D3*SCARA_INVERSE_SCALE);
-    display_packet.RealData.x = (double)(RawData->raw_x*SCARA_INVERSE_SCALE);
-    display_packet.RealData.y = (double)(RawData->raw_y*SCARA_INVERSE_SCALE);
-    display_packet.RealData.z = (double)(RawData->raw_z*SCARA_INVERSE_SCALE);
-    display_packet.RealData.roll = (double)(RawData->raw_roll*SCARA_INVERSE_SCALE);
+    display_packet.RealData.theta1 = (double)(RawData->raw_theta1*DATA_INVERSE_SCALE);
+    display_packet.RealData.theta2 = (double)(RawData->raw_theta2*DATA_INVERSE_SCALE);
+    display_packet.RealData.theta4 = (double)(RawData->raw_theta4*DATA_INVERSE_SCALE);
+    display_packet.RealData.D3 = (double)(RawData->raw_D3*DATA_INVERSE_SCALE);
+    display_packet.RealData.x = (double)(RawData->raw_x*DATA_INVERSE_SCALE);
+    display_packet.RealData.y = (double)(RawData->raw_y*DATA_INVERSE_SCALE);
+    display_packet.RealData.z = (double)(RawData->raw_z*DATA_INVERSE_SCALE);
+    display_packet.RealData.roll = (double)(RawData->raw_roll*DATA_INVERSE_SCALE);
     display_packet.action_id = DISPLAY_POSITION;
     emit on_display_event(display_packet);
 }

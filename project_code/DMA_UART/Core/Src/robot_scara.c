@@ -611,24 +611,17 @@ SCARA_StatusTypeDef	scaraInitLSPB1		(Trajectory_LSPB_TypeDef *lspb,
 	}else if(modeinit == DUTY_MODE_INIT_QVA){
 		//check qva condition
 		if(total_s*a_design > v_design*v_design){ //condition for ta smaller than td
-			if(total_s/v_design < 0.3){ //td too small
-				//recalculate v_design
-				v_design = total_s/0.3;
-			}
-			if(v_design/a_design < 0.1){ //ta is too small
-				//recalculate a_design
-				a_design = v_design/0.1;
-			}
+//			if(total_s/v_design < 0.3){ //td too small
+//				//recalculate v_design
+//				v_design = total_s/0.3;
+//			}
+//			if(v_design/a_design < 0.1){ //ta is too small
+//				//recalculate a_design
+//				a_design = v_design/0.1;
+//			}
 			ta = v_design/a_design;
 			td = total_s/v_design;
 			tf = ta + td;
-//			if(v_design/a_design < 1){ //ta is too small
-//				//recalculate a_design
-//				a_design = v_design;
-//				ta = 1;
-//				td = total_s/v_design;
-//				tf = ta + td;
-//			}
 
 		}else{
 			tf = 2*total_s/v_design;
@@ -733,14 +726,14 @@ SCARA_StatusTypeDef			scaraInitScurve1	(Trajectory_Scurve_TypeDef *scurve,
 	}else if(modeinit == DUTY_MODE_INIT_QVA){
 		//check qva condition
 		if(total_s*a_design > 2*v_design*v_design){ //condition for ta smaller than tc
-			if(total_s/v_design < 0.3){ //tc too small
-				//recalculate v_design
-				v_design = total_s/0.3;
-			}
-			if(v_design/a_design < 0.1){ //ta is too small
-				//recalculate a_design
-				a_design = v_design/0.1;
-			}
+//			if(total_s/v_design < 0.3){ //tc too small
+//				//recalculate v_design
+//				v_design = total_s/0.3;
+//			}
+//			if(v_design/a_design < 0.1){ //ta is too small
+//				//recalculate a_design
+//				a_design = v_design/0.1;
+//			}
 			ta = v_design/a_design;
 			td = total_s/v_design + ta;
 			tf = ta + td;
@@ -1632,14 +1625,14 @@ uint8_t					scaraIsFinish		(double run_time) {
 int32_t scaraPosition_packaging(uint8_t *data_packet, SCARA_PositionTypeDef position)
 {
 	int32_t cur_ptr = -4;
-	Append_Coordinate_Value((int32_t)(position.x*COR_FOWARD_SCALE), &data_packet[cur_ptr+=4]);
-	Append_Coordinate_Value((int32_t)(position.y*COR_FOWARD_SCALE), &data_packet[cur_ptr+=4]);
-	Append_Coordinate_Value((int32_t)(position.z*COR_FOWARD_SCALE), &data_packet[cur_ptr+=4]);
-	Append_Coordinate_Value((int32_t)(position.roll*COR_FOWARD_SCALE), &data_packet[cur_ptr+=4]);
-	Append_Coordinate_Value((int32_t)(position.Theta1*COR_FOWARD_SCALE), &data_packet[cur_ptr+=4]);
-	Append_Coordinate_Value((int32_t)(position.Theta2*COR_FOWARD_SCALE), &data_packet[cur_ptr+=4]);
-	Append_Coordinate_Value((int32_t)(position.D3*COR_FOWARD_SCALE), &data_packet[cur_ptr+=4]);
-	Append_Coordinate_Value((int32_t)(position.Theta4*COR_FOWARD_SCALE), &data_packet[cur_ptr+=4]);
+	Append_Coordinate_Value((int32_t)(position.x*DATA_FOWARD_SCALE), &data_packet[cur_ptr+=4]);
+	Append_Coordinate_Value((int32_t)(position.y*DATA_FOWARD_SCALE), &data_packet[cur_ptr+=4]);
+	Append_Coordinate_Value((int32_t)(position.z*DATA_FOWARD_SCALE), &data_packet[cur_ptr+=4]);
+	Append_Coordinate_Value((int32_t)(position.roll*DATA_FOWARD_SCALE), &data_packet[cur_ptr+=4]);
+	Append_Coordinate_Value((int32_t)(position.Theta1*DATA_FOWARD_SCALE), &data_packet[cur_ptr+=4]);
+	Append_Coordinate_Value((int32_t)(position.Theta2*DATA_FOWARD_SCALE), &data_packet[cur_ptr+=4]);
+	Append_Coordinate_Value((int32_t)(position.D3*DATA_FOWARD_SCALE), &data_packet[cur_ptr+=4]);
+	Append_Coordinate_Value((int32_t)(position.Theta4*DATA_FOWARD_SCALE), &data_packet[cur_ptr+=4]);
 	return cur_ptr + 4;
 }
 
