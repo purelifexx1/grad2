@@ -12,7 +12,7 @@ using namespace dnn;
 using namespace std;
 
 // Initialize the parameters
-float confThreshold = 0.65; // Confidence threshold
+float confThreshold = 0.8; // Confidence threshold
 float nmsThreshold = 0.4;  // Non-maximum suppression threshold
 int inpWidth = 384;  // Width of network's input image
 int inpHeight = 384; // Height of network's input image
@@ -21,6 +21,7 @@ int left_Mask = 112 ;              // x pixel
 int top_Mask  =  35 ;              // y pixel
 int width_Mask= 416;              // width pixel
 int height_Mask=416;              // height pixel
+
 
 vector<string> classes;
 
@@ -114,7 +115,7 @@ void detect::run()
             //tracker = Tracker::create("KCF");
 
 
-
+            
             putText(mFrame, label, Point(0, 15), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 0, 255));
 
             if (!mFrame.empty())
@@ -282,7 +283,7 @@ void imageProcess(Mat input, Mat& output, int x_crop, int y_crop, Point& center_
     for( size_t i = 0; i< contours.size(); i++ ) // iterate through each contour.
     {
 
-        if (contourArea(contours[i]) > 1000)  //remove small areas like noise etc
+        if (contourArea(contours[i]) > 1500)  //remove small areas like noise etc
         {
             convexHull(contours[i], hull[i],false);
             approxPolyDP(hull[i], hull[i],  0.1*(arcLength(hull[i], true)), true);
@@ -309,6 +310,7 @@ void imageProcess(Mat input, Mat& output, int x_crop, int y_crop, Point& center_
                 theta_edges[2] = (-atan2((hull[i][3].y - hull[i][2].y), (hull[i][3].x - hull[i][2].x)) / pi * 180);
                 theta_edges[3] = (-atan2((hull[i][3].y - hull[i][0].y), (hull[i][3].x - hull[i][0].x)) / pi * 180);       
                 double sum = 0;
+                double theta_result = 0;
                 for( size_t i = 0; i< theta_edges.size(); i++ )
                 {
                     if (theta_edges[i] >= 135)
@@ -321,7 +323,27 @@ void imageProcess(Mat input, Mat& output, int x_crop, int y_crop, Point& center_
                         theta_edges[i] = theta_edges[i] + 90;
                     sum += theta_edges[i];
                 }
-                theta_total.push_back(sum/4);
+                theta_result = sum/4;
+                int err = 0;
+                for(size_t i = 0; i< theta_edges.size(); i++)
+                {
+                    err += abs(sum/4 - theta_edges[i]);
+                }
+                if (err > 90)
+                {
+                    sum = 0;
+                    for(size_t i = 0; i< theta_edges.size(); i++)
+                    {
+                        if(theta_edges[i]<0)
+                        {
+                            theta_edges[i] += 90;
+                        }
+                        sum += theta_edges[i];
+                    }
+                    theta_result = sum/4;
+                }
+                if(theta_result<40) theta_result +=90;
+                theta_total.push_back(theta_result);
             }
         }
     }
@@ -336,12 +358,11 @@ void imageProcess(Mat input, Mat& output, int x_crop, int y_crop, Point& center_
             center_final_temp += center[i];
             theta_final_temp += theta_total[i];
         }
-
         center_final.x = int(center_final_temp.x/center.size());
         center_final.y = int(center_final_temp.y/center.size());
         circle(output,center_final,1,Scalar(0, 255, 0),2);
         theta_final = theta_final_temp/theta_total.size();
-        //if (theta_final < 0) theta_final = theta_final + 90;
+        if (theta_final > 45) theta_final -=  90;
     }
 
 
