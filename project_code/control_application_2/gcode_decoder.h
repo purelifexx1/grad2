@@ -42,7 +42,7 @@ typedef struct
     double          gradiant = 0;
     double          delta_gradiant = 0;
     bool            change_height_border = false;
-    bool            bezier_segment = false;
+//    bool            bezier_segment = false;
 }GCode_Coordinate_TypeDef;
 typedef enum
 {

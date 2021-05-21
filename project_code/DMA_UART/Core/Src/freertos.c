@@ -184,7 +184,7 @@ void StartDefaultTask(void const * argument)
 
 
   // Report buffer;
-  uint8_t				update_pos_cycle = 0;
+  uint8_t				update_pos_counter = 0;
   int8_t 				test_value[4];
   uint8_t				respond[80];
   int32_t				respond_lenght;
@@ -197,6 +197,10 @@ void StartDefaultTask(void const * argument)
 //  int32_t 				detail_ptr;
   uint8_t				detail_array[80];
 
+  uint8_t 				testing_value = 0;
+  double 				value1 = 0;
+  double 				value2 = 0;
+  double  				value3 = 0;
 //  uint8_t				respond_packed[50];
 //  int32_t				respond_packed_lenght;
   //uint8_t				infor_packed[150];
@@ -278,7 +282,7 @@ void StartDefaultTask(void const * argument)
 	  total_respond_length  = 0;
 //	  detail_ptr 			= 0;
 	  // Update new position
-	  memcpy(&positionPrevios, &positionCurrent, sizeof(SCARA_PositionTypeDef));
+//	  memcpy(&positionPrevios, &positionCurrent, sizeof(SCARA_PositionTypeDef));
 	  memcpy(&positionCurrent, &positionNext, sizeof(SCARA_PositionTypeDef));
 
 	  /* 2--- Check New Duty Phase ---*/
@@ -459,8 +463,10 @@ void StartDefaultTask(void const * argument)
 				  			  }else if(Gcode_Mode == GCODE_SMOOTH_LSPB){
 				  				run_point = 0;
 				  			  }
-
-				  			  current_duty_state = SCARA_DUTY_STATE_OPERATION;
+				  			detail_array[0] = GCODE_START;
+							respond_lenght = commandRespond1(RPD_START, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
+							total_respond_length += respond_lenght;
+				  			current_duty_state = SCARA_DUTY_STATE_OPERATION;
 				  		  }else if(current_duty_state == SCARA_DUTY_STATE_INIT){
 				  			detail_array[0] = GCODE_MODE_NOT_READY;
 							respond_lenght = commandRespond1(RPD_OK, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
@@ -641,9 +647,9 @@ void StartDefaultTask(void const * argument)
 							  //current_duty_state = SCARA_DUTY_STATE_FINISH;
 							  run_time			= 0;
 							  // Respond
-							  detail_array[0] = status1;
-							  respond_lenght = commandRespond1(RPD_OK, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
-							  total_respond_length += respond_lenght;
+//							  detail_array[0] = status1;
+//							  respond_lenght = commandRespond1(RPD_OK, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
+//							  total_respond_length += respond_lenght;
 							  detail_array[0] = NONE;
 							  respond_lenght = commandRespond1(RPD_START, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
 							  total_respond_length += respond_lenght;
@@ -743,10 +749,11 @@ void StartDefaultTask(void const * argument)
 		  break;
 		  case SCARA_DUTY_STATE_OPERATION:{
 			  update_gcode_point(&duty_cmd, run_point);
+			  testing_value = 1;
 			  SCARA_StatusTypeDef status;
 			  status = scaraInitDuty(duty_cmd);
 			  if(status == SCARA_STATUS_OK){
-				  if(duty_cmd.trajec_type == DUTY_TRAJECTORY_LINEAR || duty_cmd.trajec_type == DUTY_TRAJECTORY_BEZIER_CURVE){
+				  if(duty_cmd.trajec_type == DUTY_TRAJECTORY_LINEAR || duty_cmd.trajec_type == DUTY_TRAJECTORY_LSPB){
 					  run_time = 0;
 				  }else if(duty_cmd.trajec_type == DUTY_TRAJECTORY_GCODE_LSPB){
 					  run_time = last_T;
@@ -774,6 +781,9 @@ void StartDefaultTask(void const * argument)
 					lowlayer_readTruePosition(&positionNext);
 				    kinematicForward(&positionNext);
 				    Gcode_data_available = 0;
+				    detail_array[0] = GCODE_FINISH;
+					respond_lenght = commandRespond1(RPD_DONE, duty_cmd.id_command, detail_array, 1, &respond[total_respond_length]);
+					total_respond_length += respond_lenght;
 				}else{
 					if(Gcode_Mode == GCODE_SMOOTH_LSPB){
 						accumulate_update(Gcode_Cor[run_point++]);
@@ -836,6 +846,7 @@ void StartDefaultTask(void const * argument)
 			  duty_cmd.robot_method = SCARA_METHOD_PICK_AND_PLACE;
 			  duty_cmd.path_type = DUTY_PATH_LINE;
 			  duty_cmd.space_type = DUTY_SPACE_TASK;
+
 		  }
 		  break;
 
@@ -847,6 +858,10 @@ void StartDefaultTask(void const * argument)
 						  Object[object_tail_pointer].object_position.y -= wait_time*conveyor_speed;
 						  Object[object_tail_pointer].object_position.z = UP_HEIGHT;
 						  state_time = MOVE_TIME;
+//						  testing_value = 1;
+//						  value1 = Object[object_tail_pointer].object_position.y;
+//						  value2 = wait_time;
+
 					  }
 					  break;
 
@@ -856,7 +871,8 @@ void StartDefaultTask(void const * argument)
 					  }
 					  break;
 					  case SCARA_ATTACH:{
-						  state_time = ATTACH_TIME;
+//						  state_time = ATTACH_TIME;
+						  state_time = 0;
 						  scaraSetOutput(1);
 					  }
 					  break;
@@ -980,14 +996,22 @@ void StartDefaultTask(void const * argument)
 
 	  }
 	  }
-	  if(continuous_update == 1 && update_pos_cycle++ >= 10){
-		  update_pos_cycle = 0;
+	  if(continuous_update == 1 && update_pos_counter++ >= update_pos_cycle){
+		  update_pos_counter = 0;
 		  lowlayer_readTruePosition(&update_position);
-		  kinematicForward(&update_position);
+//		  kinematicForward(&update_position);
+		  if(testing_value == 1){
+			  testing_value = 0;
+			  update_position.D3 = -2000;
+		  }
 		  respond_lenght = scaraPosition_packaging(detail_array, update_position);
 		  respond_lenght = commandRespond1(RPD_POSITION, CMD_READ_POSITION, detail_array, respond_lenght, &respond[total_respond_length]);
 		  total_respond_length += respond_lenght;
 	  }
+//	  if(testing_value == 1){
+//		  testing_value = 0;
+//		  LOG_REPORT1("info", value1, value2);
+//	  }
 	  /* 4--- Send to PC Phase ---*/
 	if(total_respond_length > 0){
 		CDC_Transmit_FS(respond, total_respond_length);

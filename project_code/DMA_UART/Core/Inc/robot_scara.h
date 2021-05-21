@@ -163,11 +163,11 @@ typedef enum
 typedef struct
 {
 	double						q;
-	double						q_roll;
-	double						q_theta1;
-	double						q_theta2;
-	double						q_d3;
-	double						q_theta4;
+//	double						q_roll;
+//	double						q_theta1;
+//	double						q_theta2;
+//	double						q_d3;
+//	double						q_theta4;
 	uint64_t					packet_time_stamp;
 	double						t;
 	double						total_time;
@@ -443,12 +443,6 @@ SCARA_StatusTypeDef			scaraInitCircle		(Path_Circle_TypeDef *circle,
 												SCARA_PositionTypeDef center,
 												int32_t dir);
 
-SCARA_StatusTypeDef			scaraInitLSPB		(Trajectory_LSPB_TypeDef *lspb,
-												Trajectory_TargetTypeDef target,
-												double total_s,
-												ModeInitTypeDef modeinits,
-												double v_factor,
-												double a_factor);
 SCARA_StatusTypeDef	scaraInitLSPB1		(Trajectory_LSPB_TypeDef *lspb,
 										Trajectory_TargetTypeDef target,
 										double total_s,
@@ -462,28 +456,18 @@ SCARA_StatusTypeDef			scaraInitScurve1	(Trajectory_Scurve_TypeDef *scurve,
 												double v_factor,
 												double additional_factor);
 
-SCARA_StatusTypeDef			scaraInitScurve		(Trajectory_Scurve_TypeDef *scurve,
-												Trajectory_TargetTypeDef target,
-												double total_s,
-												ModeInitTypeDef modeinit,
-												double v_factor,
-												double a_factor);
 
 SCARA_StatusTypeDef			scaraFlowDuty		(double time,
 												SCARA_PositionTypeDef *pos_Next ,
 												SCARA_PositionTypeDef pos_Current);
 
-
+SCARA_StatusTypeDef			PNPcalMovtime(SCARA_PositionTypeDef start_point, SCARA_PositionTypeDef object_point, double K);
 SCARA_StatusTypeDef			scaraFlowLine		(Path_Line_TypeDef *line, double s);
 SCARA_StatusTypeDef			scaraFlowCircle		(Path_Circle_TypeDef *circle, double s);
-SCARA_StatusTypeDef			scaraFlowLSPB		(Trajectory_LSPB_TypeDef *lspb, double time);
 SCARA_StatusTypeDef			scaraFlowLSPB1		(Trajectory_LSPB_TypeDef *lspb, double time);
-SCARA_StatusTypeDef			scaraFLowScurve		(Trajectory_Scurve_TypeDef *scurve, double time);
 SCARA_StatusTypeDef			scaraFlowBezierCurve(Path_Line_TypeDef *line, double s);
 SCARA_StatusTypeDef			scaraFLowScurve1		(Trajectory_Scurve_TypeDef *scurve, double t);
 SCARA_StatusTypeDef			scaraFlowGCODE		(double *s, double time);
-
-SCARA_StatusTypeDef 		scara_test_InitDuty(DUTY_Command_TypeDef command);
 
 SCARA_StatusTypeDef			scaraCheckWorkSpace4(double theta1, double theta2, double d3, double theta4);
 SCARA_StatusTypeDef			scaraCheckWorkSpace1(Trajectory_TargetTypeDef target, double value);
@@ -507,9 +491,6 @@ uint8_t						scaraIsFinish		(double run_time);
 
 
 SCARA_StatusTypeDef  		scaraKeyInit1(SCARA_KeyTypeDef key, int32_t speed);
-SCARA_StatusTypeDef			scaraKeyFlow(double time,
-										SCARA_PositionTypeDef *pos_Next,
-										SCARA_PositionTypeDef pos_Current);
 SCARA_StatusTypeDef scaraInitLinear(Trajectory_Linear_TypeDef *lspb, Trajectory_TargetTypeDef target, double total_s,
 									ModeInitTypeDef modeinit, double additional_factor);
 SCARA_StatusTypeDef scaraTestFlowDuty(double time, SCARA_PositionTypeDef *pos_next, SCARA_PositionTypeDef pos_current);									

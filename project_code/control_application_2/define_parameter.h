@@ -6,15 +6,17 @@
 #include "ui_mainwindow.h"
 #define START_CHAR         0x28
 #define RECEIVE_END        "})"
-#define DATA_FOWARD_SCALE 1000000
-#define DATA_INVERSE_SCALE 0.000001f
+#define DATA_FOWARD_SCALE 500000
+#define DATA_INVERSE_SCALE 0.000002f
 #define SHIFT_KEY_MAX       14
 #define SHIFT_KEY_MIN       1
 #define MINIMUM_LINEAR_TIME_FRAME  0.03
 #define MINIMUM_CIRCLE_TIME_FRAME  0.05
+#define NL(object)  object.append("\r")
 #define log_console(content) global_ui->tb_console->append(content)
 #define ADD_VALUE(array, value, type) system_parameter->Convert_And_Append(array, value, type)
 #define PROGRAM_CONFGIURE_CODE "#4e1ab5"
+#define d2s(value) QString::number(value)
 #define SAVE_CONFIGURE(key, value)  {         \
     file_content.append(QString::number(key));\
     file_content.append(":");                 \
@@ -98,6 +100,8 @@ typedef enum
     PICK_AND_PLACE_METHOD,
     OBJECT_DETECTED ,
     GCODE_TRANSFER_FINISH,
+    GCODE_START,
+    GCODE_FINISH,
     GCODE_OFFSET_CONFIGURE,
     GCODE_OFFSET_MISSING,
     GCODE_DATA_MISSING,
@@ -204,7 +208,7 @@ typedef enum
     PROTOCOL_ERROR,
 
     CMD_OBJECT_DETECTED,
-    CMD_SETUP_CONVEYOR_SPEED,
+    CMD_SETUP_PNP_CONFIGURE,
     CMD_GCODE,
     NUM_OF_COMMAND_STRING
 }Robot_CommandTypedef ;
@@ -267,14 +271,14 @@ typedef struct
 
 typedef struct
 {
-    int32_t raw_x;
-    int32_t raw_y;
-    int32_t raw_z;
-    int32_t raw_roll;
     int32_t raw_theta1;
     int32_t raw_theta2;
     int32_t raw_D3;
     int32_t raw_theta4;
+    int32_t raw_x;
+    int32_t raw_y;
+    int32_t raw_z;
+    int32_t raw_roll;
 }Scara_Position_RawData;
 
 typedef struct
@@ -387,6 +391,8 @@ public:
                                              "Changed PICK_AND_PLACE Method",
                                              "Object Detected",
                                              "Gcode transfer process completed",
+                                             "Gcode start",
+                                             "Gcode finish",
                                              "Gcode offset data configured succesfully",
                                              "Offset data hasn't been set",
                                              "Gcode data missing",
@@ -429,7 +435,7 @@ public:
         "PROTOCOL_ERROR",
 
         "CMD_OBJECT_DETECTED",
-        "CMD_SETUP_CONVEYOR_SPEED",
+        "CMD_SETUP_PNP_CONFIGURE",
         "CMD_GCODE",
     };
     QString RDP_String[NUM_OF_RESPOND] = {

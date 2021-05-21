@@ -20,6 +20,7 @@ private:
     void packet_extract(QByteArray packet, bool end_buffer);
     void Scara_position_received(QByteArray data);
     void Detail_Status_Handler(QByteArray data, display_id id);
+    void Scara_Foward_Kinematic(Display_packet &Scara_Coor);
     QByteArray archive_buffer;
     bool archive_status = false;
     const char* end_header = RECEIVE_END;

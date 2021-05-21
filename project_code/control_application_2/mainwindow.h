@@ -140,15 +140,22 @@ private slots:
 
     void on_bt_load_offset_clicked();
 
+    void on_bt_save_browse_clicked();
+
+    void on_bt_save_data_file_clicked();
+
 public slots:
     void received_callback(QByteArray log_data);
     void display_event(Display_packet data);
 
 private:
+    bool save_enable = false;
+    QString DAQ_content = "X,Y,Z,Roll,Theta1,Theta2,D3,Theta4\r";
     Ui::MainWindow *ui;
     void object_detected(double x, double y, double roll);
     Coordinate_Receive_Handler_TypeDef MovC_ACK = DISPLAY_ONLY;
     void MovC_Hanlder(Coordinate_Receive_Handler_TypeDef type, Display_packet data);
+    void DAQ(Display_packet &data);
     Vision *vision;
 protected:
     void closeEvent(QCloseEvent *event);

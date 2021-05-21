@@ -25,6 +25,7 @@ extern double DOWN_HEIGHT_ON_SLOT 	    = 126.5f;
 extern SCARA_LSPB_Clutch_TypeDef  gcode_clutch_configure[200];
 extern uint8_t offset_data_available = 0;
 extern uint8_t Gcode_data_available = 0;
+extern uint8_t update_pos_cycle = 5;
 Position_DataType position_type;
 SCARA_Gcode_Cor_TypeDef	Gcode_Cor[1000];
 uint16_t point_counter = 0, current_clutch_index = 0;
@@ -286,9 +287,10 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
 				// Read position
 				case CMD_READ_POSITION:
 				{
-					if(length == 3){ // 1 byte categorize read type + 2 byte define
+					if(length == 4){ // 1 byte categorize read type + 1 byte read cycle + 2 byte define
 						temp_pointer = 2;
-						position_type = message[temp_pointer];
+						position_type = message[temp_pointer++];
+						update_pos_cycle = message[temp_pointer];
 						return CMD_READ_POSITION;
 					}else{
 						return CMD_ERROR;
@@ -414,7 +416,7 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
 				}
 				break;
 
-				case CMD_SETUP_CONVEYOR_SPEED:
+				case CMD_SETUP_PNP_CONFIGURE:
 				{
 					if (length == 47) { // 11 int32_t number + 1 byte move type + 2 define byte
 						temp_pointer = -2;
@@ -430,7 +432,7 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
 						DOWN_HEIGHT_ON_OBJECT 	 = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
 						DOWN_HEIGHT_ON_SLOT 	 = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
 						pnp_move_option 		 = message[temp_pointer+=4];
-						return CMD_SETUP_CONVEYOR_SPEED;
+						return CMD_SETUP_PNP_CONFIGURE;
 					}else{
 						return CMD_ERROR;
 					}
@@ -563,7 +565,7 @@ Robot_RespondTypedef	commandReply	(Robot_CommandTypedef cmd_type,
 		break;
 	case CMD_READ_POSITION:
 		{
-			SCARA_PositionTypeDef position;
+//			SCARA_PositionTypeDef position;
 			if(position_type == READ_CONTINUOUS_ENABLE){
 				detail[(*detail_length)++] = POSREAD_CONTINUOUS_ENABLE;
 //				lowlayer_readTruePosition(&position);
@@ -588,7 +590,7 @@ Robot_RespondTypedef	commandReply	(Robot_CommandTypedef cmd_type,
 			}else if(position_type == READ_REAL_DATA){
 				SCARA_PositionTypeDef position;
 				lowlayer_readTruePosition(&position);
-				kinematicForward(&position);
+//				kinematicForward(&position);
 				*detail_length = scaraPosition_packaging(detail, position);
 				ret =  RPD_POSITION;
 			}else{
@@ -604,7 +606,7 @@ Robot_RespondTypedef	commandReply	(Robot_CommandTypedef cmd_type,
 		detail[(*detail_length)++] = TEST_VALUE_SETTING;
 		ret = RPD_OK;
 		break;
-	case CMD_SETUP_CONVEYOR_SPEED:
+	case CMD_SETUP_PNP_CONFIGURE:
 		ret = RPD_OK;
 		break;
 	case CMD_METHOD_CHANGE:

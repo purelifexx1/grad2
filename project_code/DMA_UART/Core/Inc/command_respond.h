@@ -25,6 +25,7 @@ int8_t  test_value_array[4];
 uint8_t continuous_update;
 uint8_t offset_data_available;
 uint8_t Gcode_data_available;
+uint8_t update_pos_cycle;
 SCARA_LSPB_Clutch_TypeDef  gcode_clutch_configure[200];
 double PUT_DOWN_TIME_ON_SLOT;
 double PUT_DOWN_TIME_ON_OBJECT;
@@ -69,7 +70,7 @@ typedef enum
 	PROTOCOL_ERROR,
 
 	CMD_OBJECT_DETECTED,
-	CMD_SETUP_CONVEYOR_SPEED,
+	CMD_SETUP_PNP_CONFIGURE,
 	CMD_GCODE,
 	NUM_OF_COMMAND
 }Robot_CommandTypedef;
@@ -136,6 +137,8 @@ typedef enum
 	PICK_AND_PLACE_METHOD,
 	OBJECT_DETECTED 	,
 	GCODE_TRANSFER_FINISH,
+	GCODE_START,
+	GCODE_FINISH,
 	GCODE_OFFSET_CONFIGURE,
 	GCODE_OFFSET_MISSING,
 	GCODE_DATA_MISSING,

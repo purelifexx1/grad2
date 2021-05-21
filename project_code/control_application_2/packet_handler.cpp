@@ -24,9 +24,12 @@ void packet_handler::categorize(std::vector<uint8_t> &packet)
         count++;
         if(number_of_state == sync_state){
             QByteArray temper; // empty byte array
-            for(auto val: packet){
-                temper.push_back(val);
+            for(int temp = 0; temp < distance; temp++){
+                temper.push_back(packet.at(temp));
             }
+//            for(auto val: packet){
+//                temper.push_back(val);
+//            }
             packet_extract(temper, count >= (packet_size));
             packet.erase(packet.begin(), packet.begin() + distance);
             distance = 0;
@@ -124,16 +127,19 @@ void packet_handler::routing(QByteArray packet)
 
 void packet_handler::Scara_position_received(QByteArray data)
 {
-    Scara_Position_RawData *RawData = reinterpret_cast<Scara_Position_RawData*>(data.data());
+    Scara_Position_RawData RawData;
+    std::memcpy(&RawData, data.data(), data.size());
+//    Scara_Position_RawData *RawData = reinterpret_cast<Scara_Position_RawData*>(data.data());
     Display_packet display_packet;
-    display_packet.RealData.theta1 = (double)(RawData->raw_theta1*DATA_INVERSE_SCALE);
-    display_packet.RealData.theta2 = (double)(RawData->raw_theta2*DATA_INVERSE_SCALE);
-    display_packet.RealData.theta4 = (double)(RawData->raw_theta4*DATA_INVERSE_SCALE);
-    display_packet.RealData.D3 = (double)(RawData->raw_D3*DATA_INVERSE_SCALE);
-    display_packet.RealData.x = (double)(RawData->raw_x*DATA_INVERSE_SCALE);
-    display_packet.RealData.y = (double)(RawData->raw_y*DATA_INVERSE_SCALE);
-    display_packet.RealData.z = (double)(RawData->raw_z*DATA_INVERSE_SCALE);
-    display_packet.RealData.roll = (double)(RawData->raw_roll*DATA_INVERSE_SCALE);
+    display_packet.RealData.theta1 = (double)(RawData.raw_theta1*DATA_INVERSE_SCALE);
+    display_packet.RealData.theta2 = (double)(RawData.raw_theta2*DATA_INVERSE_SCALE);
+    display_packet.RealData.theta4 = (double)(RawData.raw_theta4*DATA_INVERSE_SCALE);
+    display_packet.RealData.D3 = (double)(RawData.raw_D3*DATA_INVERSE_SCALE);
+    Scara_Foward_Kinematic(display_packet);
+//    display_packet.RealData.x = (double)(RawData->raw_x*DATA_INVERSE_SCALE);
+//    display_packet.RealData.y = (double)(RawData->raw_y*DATA_INVERSE_SCALE);
+//    display_packet.RealData.z = (double)(RawData->raw_z*DATA_INVERSE_SCALE);
+//    display_packet.RealData.roll = (double)(RawData->raw_roll*DATA_INVERSE_SCALE);
     display_packet.action_id = DISPLAY_POSITION;
     emit on_display_event(display_packet);
 }
@@ -158,4 +164,25 @@ void packet_handler::Detail_Status_Handler(QByteArray data, display_id id)
     }
 
     emit on_display_event(display_packet);
+}
+void packet_handler::Scara_Foward_Kinematic(Display_packet &Scara_Coor)
+{
+    double a1 = 197.0;
+    double a2 = 160.0;
+    double a4 = 32.36;
+    double d4 = 77.674;
+    double d1 = 211.0;
+    double Theta1 = Scara_Coor.RealData.theta1;
+    double Theta2 = Scara_Coor.RealData.theta2;
+    double Theta4 = Scara_Coor.RealData.theta4;
+    double D3     = Scara_Coor.RealData.D3;
+    Scara_Coor.RealData.x =   a1*cos(Theta1)
+        + a2*cos(Theta1 + Theta2)
+        + a4*cos(Theta1 + Theta2 - Theta4);
+    Scara_Coor.RealData.y =   a1*sin(Theta1)
+        + a2*sin(Theta1 + Theta2)
+        + a4*sin(Theta1 + Theta2 - Theta4);
+    Scara_Coor.RealData.z =   d1 - D3 - d4;
+    Scara_Coor.RealData.roll = Theta1 + Theta2 - Theta4;
+
 }

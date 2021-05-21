@@ -251,7 +251,7 @@
       <rect>
        <x>10</x>
        <y>140</y>
-       <width>81</width>
+       <width>51</width>
        <height>21</height>
       </rect>
      </property>
@@ -278,7 +278,7 @@
     <widget class="QRadioButton" name="rb_estimate_type">
      <property name="geometry">
       <rect>
-       <x>130</x>
+       <x>140</x>
        <y>170</y>
        <width>111</width>
        <height>20</height>
@@ -294,7 +294,7 @@
     <widget class="QRadioButton" name="rb_real_data_update">
      <property name="geometry">
       <rect>
-       <x>130</x>
+       <x>140</x>
        <y>140</y>
        <width>111</width>
        <height>19</height>
@@ -302,6 +302,32 @@
      </property>
      <property name="text">
       <string>Real data update</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_60">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>140</y>
+       <width>31</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>cycle</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="tb_update_cycle">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>140</y>
+       <width>31</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>5</string>
      </property>
     </widget>
    </widget>
@@ -2608,76 +2634,164 @@
      </widget>
     </widget>
    </widget>
-   <widget class="QGroupBox" name="gb_output_shaft">
+   <widget class="QTabWidget" name="tabWidget_3">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>240</y>
-      <width>251</width>
-      <height>81</height>
+      <y>230</y>
+      <width>261</width>
+      <height>111</height>
      </rect>
     </property>
-    <property name="title">
-     <string>Output Control Tab</string>
+    <property name="currentIndex">
+     <number>1</number>
     </property>
-    <widget class="QPushButton" name="bt_off_magnet">
-     <property name="geometry">
-      <rect>
-       <x>90</x>
-       <y>20</y>
-       <width>80</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Magnet off</string>
-     </property>
+    <widget class="QWidget" name="tab_11">
+     <attribute name="title">
+      <string>Output Control Tab</string>
+     </attribute>
+     <widget class="QGroupBox" name="gb_output_shaft">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>261</width>
+        <height>81</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Output Control Tab</string>
+      </property>
+      <widget class="QPushButton" name="bt_off_magnet">
+       <property name="geometry">
+        <rect>
+         <x>90</x>
+         <y>20</y>
+         <width>80</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Magnet off</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="bt_on_magnet">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>20</y>
+         <width>80</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Magnet on</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>50</y>
+         <width>80</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Step On</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton_2">
+       <property name="geometry">
+        <rect>
+         <x>90</x>
+         <y>50</y>
+         <width>80</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Step off</string>
+       </property>
+      </widget>
+     </widget>
     </widget>
-    <widget class="QPushButton" name="bt_on_magnet">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>20</y>
-       <width>80</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Magnet on</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pushButton">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>50</y>
-       <width>80</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Step On</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pushButton_2">
-     <property name="geometry">
-      <rect>
-       <x>90</x>
-       <y>50</y>
-       <width>80</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Step off</string>
-     </property>
+    <widget class="QWidget" name="tab_12">
+     <attribute name="title">
+      <string>File Output</string>
+     </attribute>
+     <widget class="QLineEdit" name="tb_save_dir">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>151</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>D:\graduation_2\DAQ</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="bt_save_browse">
+      <property name="geometry">
+       <rect>
+        <x>170</x>
+        <y>10</y>
+        <width>80</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>browse</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="cb_save_enable">
+      <property name="geometry">
+       <rect>
+        <x>70</x>
+        <y>40</y>
+        <width>101</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Enable Save File</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="tb_file_name">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>40</y>
+        <width>51</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>data.csv</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="bt_save_data_file">
+      <property name="geometry">
+       <rect>
+        <x>170</x>
+        <y>40</y>
+        <width>80</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Save</string>
+      </property>
+     </widget>
     </widget>
    </widget>
    <widget class="QPushButton" name="bt_sw_test">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>320</y>
+      <x>890</x>
+      <y>0</y>
       <width>80</width>
       <height>21</height>
      </rect>

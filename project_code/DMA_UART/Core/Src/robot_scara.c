@@ -41,56 +41,6 @@ void				scaraStartup(void) {
 	//lowlayer_writePulse(0, 0, 0, 0);
 }
 
-SCARA_StatusTypeDef scara_test_InitDuty(DUTY_Command_TypeDef command)
-{
-	SCARA_StatusTypeDef status, status1, status2;
-	double total_s, angle_s;
-	int8_t dir_angle;
-	SCARA_PositionTypeDef target_point;
-	command.target_point.roll = command.target_point.roll*PI/180.0;
-	if( DUTY_COORDINATES_REL == command.coordinate_type) {
-		target_point.x 		= positionCurrent.x + command.target_point.x;
-		target_point.y 		= positionCurrent.y + command.target_point.y;
-		target_point.z 		= positionCurrent.z + command.target_point.z;
-		target_point.roll	= positionCurrent.roll + command.target_point.roll;
-	} else if (DUTY_COORDINATES_ABS == command.coordinate_type) {
-		target_point.x 		= command.target_point.x;
-		target_point.y 		= command.target_point.y;
-		target_point.z 		= command.target_point.z;
-		target_point.roll	= command.target_point.roll;
-	} else {
-		return SCARA_STATUS_ERROR_COORDINATE;
-	}
-	angle_s = target_point.roll - positionCurrent.roll;
-	dir_angle = 1;
-	if ( angle_s < 0) {
-		dir_angle = -1;
-	}
-	if ( fabs(angle_s) > PI) {
-		dir_angle = -dir_angle;
-		angle_s = (2*PI - fabsf(angle_s))*dir_angle;
-	}
-	myDUTY.time_total = command.time_total;
-	myDUTY.space_type = DUTY_SPACE_TASK;// Change type
-	myDUTY.task.roll_start = positionCurrent.roll;
-	myDUTY.task.path.path_type = DUTY_PATH_LINE;
-	myDUTY.task.trajectory_roll.lspb.total_s = angle_s;
-	myDUTY.task.trajectory_roll.lspb.dir = dir_angle;
-	myDUTY.task.trajectory_roll.lspb.v_design = angle_s/command.time_total;
-	myDUTY.task.trajectory_3d.trajectory_type = DUTY_TRAJECTORY_LINEAR;
-	status = scaraInitLine(&(myDUTY.task.path.line), positionCurrent, target_point);
-	total_s = myDUTY.task.path.line.total_s;
-	if(status != SCARA_STATUS_OK){
-		return status;
-	}
-	status = scaraInitLinear(&(myDUTY.task.trajectory_3d.linear), TRAJECTORY_3D, total_s, DUTY_MODE_INIT_QT, command.time_total);
-	if(status != SCARA_STATUS_OK){
-		return status;
-	}
-
-	return SCARA_STATUS_OK;
-	
-}
 
 /* Compute duty corresponding to new command */
 SCARA_StatusTypeDef	scaraInitDuty		(DUTY_Command_TypeDef command) {
@@ -325,7 +275,7 @@ SCARA_StatusTypeDef	scaraInitDuty		(DUTY_Command_TypeDef command) {
 			} else if  ( DUTY_MODE_INIT_QVA == command.modeInit_type) {
 				for ( uint8_t i = 0; i < 4; i++) {
 					myDUTY.joint.trajectory[i].trajectory_type = DUTY_TRAJECTORY_LSPB;
-					status1 = scaraInitLSPB(&(myDUTY.joint.trajectory[i].lspb), joint_taget[i],
+					status1 = scaraInitLSPB1(&(myDUTY.joint.trajectory[i].lspb), joint_taget[i],
 										q[i], DUTY_MODE_INIT_QVA, command.v_factor, command.a_factor);
 				}
 				myDUTY.time_total = 0;
@@ -337,7 +287,7 @@ SCARA_StatusTypeDef	scaraInitDuty		(DUTY_Command_TypeDef command) {
 				for ( uint8_t i = 0; i < 4; i++) {
 					myDUTY.joint.trajectory[i].trajectory_type = DUTY_TRAJECTORY_LSPB;
 					myDUTY.joint.trajectory[i].lspb.Tf = myDUTY.time_total;
-					status1 = scaraInitLSPB(&(myDUTY.joint.trajectory[i].lspb), joint_taget[i],
+					status1 = scaraInitLSPB1(&(myDUTY.joint.trajectory[i].lspb), joint_taget[i],
 										q[i], DUTY_MODE_INIT_QVT, command.v_factor, command.a_factor);
 				}
 
@@ -362,7 +312,7 @@ SCARA_StatusTypeDef	scaraInitDuty		(DUTY_Command_TypeDef command) {
 			} else if  ( DUTY_MODE_INIT_QVA == command.modeInit_type) {
 				for ( uint8_t i = 0; i < 4; i++) {
 					myDUTY.joint.trajectory[i].trajectory_type = DUTY_TRAJECTORY_SCURVE;
-					status1 = scaraInitScurve(&(myDUTY.joint.trajectory[i].scurve), joint_taget[i],
+					status1 = scaraInitScurve1(&(myDUTY.joint.trajectory[i].scurve), joint_taget[i],
 										q[i], DUTY_MODE_INIT_QVA, command.v_factor, command.a_factor);
 				}
 				myDUTY.time_total = 0;
@@ -374,7 +324,7 @@ SCARA_StatusTypeDef	scaraInitDuty		(DUTY_Command_TypeDef command) {
 				for ( uint8_t i = 0; i < 4; i++) {
 					myDUTY.joint.trajectory[i].trajectory_type = DUTY_TRAJECTORY_SCURVE;
 					myDUTY.joint.trajectory[i].scurve.Tf = myDUTY.time_total;
-					status1 = scaraInitScurve(&(myDUTY.joint.trajectory[i].scurve), joint_taget[i],
+					status1 = scaraInitScurve1(&(myDUTY.joint.trajectory[i].scurve), joint_taget[i],
 										q[i], DUTY_MODE_INIT_QVT, command.v_factor, command.a_factor);
 				}
 
@@ -460,9 +410,9 @@ SCARA_StatusTypeDef	scaraInitCircle		(Path_Circle_TypeDef *circle,
 		return SCARA_STATUS_ERROR_PARA; //start & stop are not in a circle together !!
 	}
 
-	if (r1 < 0.1 || r2 < 0.1) {
-		return SCARA_STATUS_ERROR_PARA; //start and center almost in the same phace, radius = 0 !!
-	}
+//	if (r1 < 0.1 || r2 < 0.1) {
+//		return SCARA_STATUS_ERROR_PARA; //start and center almost in the same phace, radius = 0 !!
+//	}
 
 	angle_start = atan2(y_start, x_start);
 	angle_stop  = atan2(y_stop, x_stop);
@@ -851,264 +801,6 @@ SCARA_StatusTypeDef	scaraFLowScurve1(Trajectory_Scurve_TypeDef *scurve, double t
 	return SCARA_STATUS_OK;
 }
 
-/* Compute trapezoidal trajectory parameters */
-SCARA_StatusTypeDef	scaraInitLSPB		(Trajectory_LSPB_TypeDef *lspb,
-										Trajectory_TargetTypeDef target,
-										double total_s,
-										ModeInitTypeDef modeinit,
-										double v_factor,
-										double a_factor) {
-	 double v_design, a_design, v_lim, q0, q1, v0, v1, ta, td, tf;
-	 uint32_t	no_sample;
-	 int8_t	dir;
-
-	 if ( TRAJECTORY_3D == target) {
-		 v_design = V_DESIGN_3D*v_factor;
-		 a_design = A_DESIGN_3D*a_factor;
-	 } else if (TRAJECTORY_ROLL == target) {
-		 v_design = V_DESIGN_ROLL*v_factor;
-		 a_design = A_DESIGN_ROLL*a_factor;
-	 } else if (TRAJECTORY_J0 == target) {
-		 v_design = V_DESIGN_J0*v_factor;
-		 a_design = A_DESIGN_J0*a_factor;
-	 } else if (TRAJECTORY_J1 == target) {
-		 v_design = V_DESIGN_J1*v_factor;
-		 a_design = A_DESIGN_J1*a_factor;
-	 } else if (TRAJECTORY_J2 == target) {
-		 v_design = V_DESIGN_J2*v_factor;
-		 a_design = A_DESIGN_J2*a_factor;
-	 } else if (TRAJECTORY_J3 == target) {
-		 v_design = V_DESIGN_J3*v_factor;
-		 a_design = A_DESIGN_J3*a_factor;
-	 } else {
-		 return SCARA_STATUS_ERROR_PARA;
-	 }
-
-	 q0 = 0;
-	 q1 = total_s;
-	 v0 = 0;
-	 v1 = 0;
-
-	 if ( q0 <= q1) {
-		 dir = 1;
-	 } else {
-		 dir = -1;
-		 q1 = -q1;
-	 }
-
-	 if (DUTY_MODE_INIT_QVT == modeinit) {
-		 double v_lower, v_upper, tc_upper, a_upper;
-		 tf = lspb->Tf;
-		 // Avoid division by 0
-		 if (tf > 0.001) {
-			 v_lower 	= (q1 - q0) / tf;
-			 v_upper 	= 2*(q1 - q0) / tf;
-
-			 if ( v_design < v_lower) {
-				 return SCARA_STATUS_ERROR_OVER_VELOC;
-			 } else {
-				 if ( v_upper <= v_design) {
-					 v_design = v_upper;
-				 }
-				 // Avoid division by 0
-				 if (v_design > 0.0000001) {
-					 tc_upper	= tf - (q1 - q0)/v_design;
-				 } else {
-					 tc_upper = tf / 2;
-				 }
-				 a_upper	= v_design/tc_upper;
-				//  if ( a_upper > a_design) {
-				// 	 return SCARA_STATUS_ERROR_OVER_ACCEL;
-				//  } else {
-				// 	 a_design = a_upper;
-				//  }
-			 }
-		 } else {
-			 v_design = 0;
-			 a_design = 0;
-		 }
-	}
-
-	 // Check condition trapezoidal ---> triangle
-	 // Avoid division by 0
-	 if (a_design > 0.0000001 && v_design > 0.0000001) {
-		 if ( (fabs(q1 - q0)*a_design) <= (v_design*v_design - (v0*v0 + v1*v1)/2)) {
-			 v_lim 	= sqrt(fabs(q1 - q0)*a_design + (v0*v0 + v1*v1)/2);
-			 ta		= (v_lim - v0)/a_design;
-			 td		= (v_lim - v1)/a_design;
-			 tf		= ta + td;
-		 } else {
-			 v_lim	= v_design;
-			 ta		= (v_lim - v0)/a_design;
-			 td		= (v_lim - v1)/a_design;
-			 tf		= fabs(q0 - q1)/v_lim + v_lim/(2*a_design)*(1 - v0/v_lim)*(1 - v0/v_lim)
-							+ v_lim/(2*a_design)*(1 - v1/v_lim)*(1 - v1/v_lim);
-		 }
-	 } else {
-		 v_lim	= 0;
-		 ta = tf/2;
-		 td = tf/2;
-	 }
-
-	 no_sample = ceilf(tf / T_SAMPLING); // ceiling
-	 // Init lspb params
-	 lspb->dir= dir;
-	 lspb->s0 = q0;
-	 lspb->s1 = q1;
-	 lspb->Ta = ta;
-	 lspb->Td = td;
-	 lspb->Tf = tf;
-	 lspb->a_design = a_design;
-	 lspb->v_design = v_design;
-	 lspb->v_lim = v_lim;
-	 lspb->v0 = v0;
-	 lspb->v1 = v1;
-	 lspb->num_of_sampling = no_sample;
-	 lspb->total_s = lspb->s1 - lspb->s0;
-
-	 return SCARA_STATUS_OK;
-}
-
-/* Compute s-curve trajectory parameters */
-SCARA_StatusTypeDef	scaraInitScurve		(Trajectory_Scurve_TypeDef *scurve,
-										Trajectory_TargetTypeDef target,
-										double total_s,
-										ModeInitTypeDef modeinit,
-										double v_factor,
-										double a_factor) {
-//	 double v_design, a_design, q0, q1, v0, v1, v_lim, j_max, tm, tc, tf, dir;
-//	 double v_1, s_1, v_2, s_2, v_3, s_3, v_4, s_4;
-//	 uint32_t	 no_sample;
-//	 uint8_t	 no_phases;
-//
-//	 if ( TRAJECTORY_3D == target) {
-//		 v_design = V_DESIGN_3D*v_factor;
-//		 a_design = A_DESIGN_3D*a_factor;
-//	 } else if (TRAJECTORY_ROLL == target) {
-//		 v_design = V_DESIGN_ROLL*v_factor;
-//		 a_design = A_DESIGN_ROLL*a_factor;
-//	 } else if (TRAJECTORY_J0 == target) {
-//		 v_design = V_DESIGN_J0*v_factor;
-//		 a_design = A_DESIGN_J0*a_factor;
-//	 } else if (TRAJECTORY_J1 == target) {
-//		 v_design = V_DESIGN_J1*v_factor;
-//		 a_design = A_DESIGN_J1*a_factor;
-//	 } else if (TRAJECTORY_J2 == target) {
-//		 v_design = V_DESIGN_J2*v_factor;
-//		 a_design = A_DESIGN_J2*a_factor;
-//	 } else if (TRAJECTORY_J3 == target) {
-//		 v_design = V_DESIGN_J3*v_factor;
-//		 a_design = A_DESIGN_J3*a_factor;
-//	 } else {
-//		 return SCARA_STATUS_ERROR_PARA;
-//	 }
-//
-//	 v0 = 0;
-//	 v1 = 0;
-//	 q0 = 0;
-//	 q1 = total_s;
-//
-//	 if ( total_s < 0) {
-//		 dir = -1;
-//		 q1 = -q1;
-//		 total_s = -total_s;
-//	 } else {
-//		 dir = 1;
-//	 }
-//
-//
-//	 if (DUTY_MODE_INIT_QVT == modeinit) {
-//		 double t_upper, v_upper, a_upper;
-//		 tf = scurve->Tf;
-//		 // Avoid division by 0
-//		 if (tf > 0.001) {
-//			 // Assume 4 phase
-//			 t_upper = tf / 4;
-//			 v_upper = total_s / (2*t_upper);
-//			 // Check 4 phase --> 5 phase
-//			 if ( v_upper > v_design) {
-//				 t_upper = tf/2 - total_s/(2*v_design);
-//			 } else {
-//				 v_design = v_upper;
-//			 }
-//			 a_upper  = v_design / t_upper;
-//			 if ( a_upper > a_design) {
-//				 return SCARA_STATUS_ERROR_OVER_ACCEL;
-//			 } else {
-//				 a_design = a_upper;
-//			 }
-//		 } else {
-//			 v_design = 0;
-//			 a_design = 0;
-//		 }
-//	 }
-//	 // Avoid division by 0
-//	 if (a_design > 0.0000001 && v_design > 0.0000001) {
-//		 no_phases = 5;
-//		 tm = v_design/a_design;
-//		 tc = total_s/v_design - 2*tm;
-//		 // Check condition 5 phase ---> 4 phase
-//		 if (tc < 0.0) {
-//			 tc = 0;
-//			 no_phases = 4;
-//			 tm = sqrt(total_s/(2*a_design));
-//		 }
-//		 if (tm < 0.001) {
-//			 j_max = 0;
-//		 } else {
-//			 j_max = a_design/tm;
-//		 }
-//		 v_lim = a_design*tm;
-//		 tf    = 4*tm + tc;
-//	 } else {
-//		 j_max = 0;
-//		 tc = 0;
-//		 no_phases = 4;
-//		 tm = tf / 4;
-//		 v_lim = 0;
-//	 }
-//
-//	 no_sample = ceil(tf / T_SAMPLING);
-//	 v_1 = 0.5*j_max*tm*tm;
-//	 s_1 = j_max*tm*tm*tm/6;
-//	 v_2 = j_max*tm*tm;
-//	 s_2 = v_2*tm;
-//	 v_3 = v_2;
-//	 s_3 = s_2 + v_2*tc;
-//	 v_4 = v_1;
-//	 s_4 = s_3 + s_2 - s_1;
-//
-//	 scurve->Ta = tc;
-//	 scurve->Tf = tf;
-//	 scurve->Td = tm;
-//	 scurve->a_design = a_design;
-//	 scurve->v_design = v_design;
-//	 scurve->v_lim = v_lim;
-//	 scurve->v0 = v0;
-//	 scurve->v1 = v1;
-//	 scurve->j_max = j_max;
-//	 scurve->s0   = q0;
-//	 scurve->s1   = q1;
-//	 scurve->num_of_phase = no_phases;
-//	 scurve->num_of_sampling = no_sample;
-//	 scurve->total_s = total_s;
-//	 scurve->dir = dir;
-//
-//	 scurve->a_current = 0;
-//	 scurve->v_current = 0;
-//	 scurve->s_current = 0;
-//	 scurve->v_1 = v_1;
-//	 scurve->v_2 = v_2;
-//	 scurve->v_3 = v_3;
-//	 scurve->v_4 = v_4;
-//	 scurve->s_1 = s_1;
-//	 scurve->s_2 = s_2;
-//	 scurve->s_3 = s_3;
-//	 scurve->s_4 = s_4;
-
-	 return SCARA_STATUS_OK;
-}
-
 SCARA_StatusTypeDef scaraTestFlowDuty(double time, SCARA_PositionTypeDef *pos_Next, SCARA_PositionTypeDef pos_Current)
 {
 	double current_s;
@@ -1223,13 +915,13 @@ SCARA_StatusTypeDef	scaraFlowDuty		(double time,
 		positionCompute.roll 	= myDUTY.task.roll_start + angle*dir_roll;
 
 		positionCompute.q		= s;
-		positionCompute.q_roll  = angle;
+//		positionCompute.q_roll  = angle;
 
-		positionCompute.v_3d    = v;
-		positionCompute.v_roll  = v_angle;
+//		positionCompute.v_3d    = v;
+//		positionCompute.v_roll  = v_angle;
 
-		positionCompute.total_time = myDUTY.time_total;
-		positionCompute.t		= time;
+//		positionCompute.total_time = myDUTY.time_total;
+//		positionCompute.t		= time;
 		if ( FALSE == kinematicInverse(&positionCompute, pos_Current)) {
 			return SCARA_STATUS_ERROR_OVER_WORKSPACE;
 		} else {
@@ -1311,10 +1003,10 @@ SCARA_StatusTypeDef	scaraFlowDuty		(double time,
 		positionCompute.v_d3 		= v2;
 		positionCompute.v_theta4 	= v3;
 
-		positionCompute.q_theta1 = s0;
-		positionCompute.q_theta2 = s1;
-		positionCompute.q_d3	 = s2;
-		positionCompute.q_theta4 = s3;
+//		positionCompute.q_theta1 = s0;
+//		positionCompute.q_theta2 = s1;
+//		positionCompute.q_d3	 = s2;
+//		positionCompute.q_theta4 = s3;
 
 		positionCompute.total_time = myDUTY.time_total;
 		positionCompute.t		= time;
@@ -1406,94 +1098,6 @@ SCARA_StatusTypeDef	scaraFlowLSPB		(Trajectory_LSPB_TypeDef *lspb, double time) 
 }
 
 
-/* Compute new s corresponding to time */
-SCARA_StatusTypeDef	scaraFLowScurve		(Trajectory_Scurve_TypeDef *scurve, double time) {
-//	double j_max, tm, tc, t;
-//
-//	j_max = scurve->j_max;
-//	tm	  = scurve->Td;
-//	tc	  = scurve->Ta;
-//
-//	 // SCURVE 4 PHASE: tc = 0;
-//	 if ( 4 == scurve->num_of_phase) {
-//		 // Phase 1
-//		 if ( (0.0f <= time) && ( time < tm)) {
-//			 t = time;
-//			 scurve->a_current 	= 	j_max*t;
-//			 scurve->v_current	= 	0.5*j_max*t*t;
-//			 scurve->s_current 	= 	j_max*t*t*t/6;
-//		 // Phase 2
-//		 } else if ( (tm <= time) && ( time < (2*tm) ) ) {
-//			 t = time - tm;
-//			 scurve->a_current 	= 	j_max*tm - j_max*t;
-//			 scurve->v_current 	= 	scurve->v_1 + j_max*tm*t - 0.5*j_max*t*t;
-//			 scurve->s_current 	=	scurve->s_1 + scurve->v_1*t + 0.5*j_max*tm*t*t - j_max*t*t*t/6;
-//		 // Phase 3: does not exist
-//		 // Phase 4
-//		 } else if ( ((2*tm) <= time) && ( time < (3*tm)) ) {
-//			 t = time - 2*tm;
-//			 scurve->a_current 	=	-j_max*t;
-//			 scurve->v_current	=	scurve->v_2 - 0.5*j_max*t*t;
-//			 scurve->s_current	=	scurve->s_2 + scurve->v_2*t - j_max*t*t*t/6;
-//		 // Phase 5
-//		 } else if ( ((3*tm) <= time) && ( time < (4*tm)) ) {
-//			 t = time - 3*tm;
-//			 scurve->a_current	=	-j_max*tm + j_max*t;
-//			 scurve->v_current	=	scurve->v_4 - j_max*tm*t + 0.5*j_max*t*t;
-//			 scurve->s_current	=	scurve->s_4 + scurve->v_4*t
-//									- 0.5*j_max*tm*t*t
-//									+ j_max*t*t*t/6;
-//		 } else {
-//			 scurve->a_current = 0;
-//			 scurve->v_current = 0;
-//			 scurve->s_current = scurve->total_s;
-//		 }
-//
-//	 // SCURVE 5 PHASE: tc > 0
-//	 } else if ( 5 == scurve->num_of_phase) {
-//		 // Phase 1
-//		 if ( (0 <= time) && ( time < tm)) {
-//			 t = time;
-//			 scurve->a_current 	= 	j_max*t;
-//			 scurve->v_current	= 	0.5*j_max*t*t;
-//			 scurve->s_current 	= 	j_max*t*t*t/6;
-//		 // Phase 2
-//		 } else if ( (tm <= time) && ( time < (2*tm) ) ) {
-//			 t = time - tm;
-//			 scurve->a_current 	= 	j_max*tm - j_max*t;
-//			 scurve->v_current 	= 	scurve->v_1 + j_max*tm*t - 0.5*j_max*t*t;
-//			 scurve->s_current 	=	scurve->s_1 + scurve->v_1*t + 0.5*j_max*tm*t*t - j_max*t*t*t/6;
-//		 // Phase 3
-//		 } else if ( ((2*tm) <= time) && ( time < (2*tm + tc)) ) {
-//			 t = time - 2*tm;
-//			 scurve->a_current 	=	0;
-//			 scurve->v_current	=	scurve->v_2;
-//			 scurve->s_current	=	scurve->s_2 + scurve->v_2*t;
-//		 // Phase 4
-//		 } else if ( ((2*tm + tc) <= time) && ( time < (3*tm + tc)) ) {
-//			 t = time - (2*tm + tc);
-//			 scurve->a_current 	=	-j_max*t;
-//			 scurve->v_current	=	scurve->v_3 - 0.5*j_max*t*t;
-//			 scurve->s_current	=	scurve->s_3 + scurve->v_3*t - j_max*t*t*t/6;
-//		 // Phase 5
-//		 } else if ( ((3*tm + tc) <= time) && ( time < (4*tm + tc)) ) {
-//			 t = time - (3*tm + tc);
-//			 scurve->a_current	=	-j_max*tm + j_max*t;
-//			 scurve->v_current	=	scurve->v_4 - j_max*tm*t + 0.5*j_max*t*t;
-//			 scurve->s_current	=	scurve->s_4 + scurve->v_4*t - 0.5*j_max*tm*t*t + j_max*t*t*t/6;
-//		 } else {
-//			 scurve->a_current = 0;
-//			 scurve->v_current = 0;
-//			 scurve->s_current = scurve->total_s;
-//		 }
-//
-//	 } else {
-//		 return SCARA_STATUS_ERROR;
-//	 }
-
-	 return SCARA_STATUS_OK;
-}
-
 /* Check limit 4 joint variable */
 SCARA_StatusTypeDef	scaraCheckWorkSpace4 (double theta1, double theta2, double d3, double theta4) {
 	// check theta 1
@@ -1545,7 +1149,15 @@ SCARA_StatusTypeDef	scaraCheckWorkSpace1 (Trajectory_TargetTypeDef target, doubl
 		return SCARA_STATUS_ERROR;
 	}
 }
-
+SCARA_StatusTypeDef	PNPcalMovtime(SCARA_PositionTypeDef start_point, SCARA_PositionTypeDef object_point, double K)
+{
+	double deltax = object_point.x - start_point.x;
+	double deltay = object_point.y - start_point.y;
+	double distance = sqrt(deltax*deltax + deltay*deltay);
+	double alpha = atan2(deltax, deltay);
+	double beta = asin(K*sin(alpha));
+	return SCARA_STATUS_OK;
+}
 
 /* Check all of point in travel */
 SCARA_StatusTypeDef	scaraTestDuty(void) {
@@ -1625,10 +1237,10 @@ uint8_t					scaraIsFinish		(double run_time) {
 int32_t scaraPosition_packaging(uint8_t *data_packet, SCARA_PositionTypeDef position)
 {
 	int32_t cur_ptr = -4;
-	Append_Coordinate_Value((int32_t)(position.x*DATA_FOWARD_SCALE), &data_packet[cur_ptr+=4]);
-	Append_Coordinate_Value((int32_t)(position.y*DATA_FOWARD_SCALE), &data_packet[cur_ptr+=4]);
-	Append_Coordinate_Value((int32_t)(position.z*DATA_FOWARD_SCALE), &data_packet[cur_ptr+=4]);
-	Append_Coordinate_Value((int32_t)(position.roll*DATA_FOWARD_SCALE), &data_packet[cur_ptr+=4]);
+//	Append_Coordinate_Value((int32_t)(position.x*DATA_FOWARD_SCALE), &data_packet[cur_ptr+=4]);
+//	Append_Coordinate_Value((int32_t)(position.y*DATA_FOWARD_SCALE), &data_packet[cur_ptr+=4]);
+//	Append_Coordinate_Value((int32_t)(position.z*DATA_FOWARD_SCALE), &data_packet[cur_ptr+=4]);
+//	Append_Coordinate_Value((int32_t)(position.roll*DATA_FOWARD_SCALE), &data_packet[cur_ptr+=4]);
 	Append_Coordinate_Value((int32_t)(position.Theta1*DATA_FOWARD_SCALE), &data_packet[cur_ptr+=4]);
 	Append_Coordinate_Value((int32_t)(position.Theta2*DATA_FOWARD_SCALE), &data_packet[cur_ptr+=4]);
 	Append_Coordinate_Value((int32_t)(position.D3*DATA_FOWARD_SCALE), &data_packet[cur_ptr+=4]);
@@ -1650,8 +1262,7 @@ SCARA_StatusTypeDef  scaraKeyInit1(SCARA_KeyTypeDef key, int32_t speed)
 	cmd.coordinate_type = DUTY_COORDINATES_REL;
 	cmd.trajec_type = DUTY_TRAJECTORY_LSPB;
 	cmd.modeInit_type = DUTY_MODE_INIT_QVT;
-	double v_current = 0;
-	Trajectory_LSPB_TypeDef *lspb;
+
 	if(speed < SHIFT_SPEED_MIN || speed > SHIFT_SPEED_MAX){
 		return SCARA_STATUS_ERROR_PARA;
 	}
@@ -1753,10 +1364,7 @@ SCARA_StatusTypeDef  scaraKeyInit1(SCARA_KeyTypeDef key, int32_t speed)
 		if (status != SCARA_STATUS_OK) {
 			return status;
 		}
-		// tinh lai run time so vs v hien tai
-//		*(runtime) = (v_current - lspb->v0)/(lspb->a_design);
-//		scaraFlowDuty(*runtime, &positionKeyInit, positionCurrent);
-//		return status;
+
 	} else {
 		return status;
 	}
@@ -1764,149 +1372,3 @@ SCARA_StatusTypeDef  scaraKeyInit1(SCARA_KeyTypeDef key, int32_t speed)
 
 
 
-SCARA_StatusTypeDef		scaraKeyFlow(double time,
-									SCARA_PositionTypeDef *pos_Next,
-									SCARA_PositionTypeDef pos_Current) {
-	SCARA_StatusTypeDef status1, status2, status3, status4;
-	SCARA_PositionTypeDef	positionCompute;
-	// Update time
-	positionCompute.t = time;
-	/*---- Task space ----*/
-	if ( DUTY_SPACE_TASK == myDUTY.space_type) {
-		double s, angle, x, y, z, v, v_angle;
-		double s_shift, angle_shift;
-		int8_t	dir_roll;
-		//---Trajectory flowing
-			// LSPB
-		if( DUTY_TRAJECTORY_LSPB == myDUTY.task.trajectory_3d.trajectory_type) {
-			status1 = scaraFlowLSPB(&(myDUTY.task.trajectory_3d.lspb), time);
-			status2 = scaraFlowLSPB(&(myDUTY.task.trajectory_roll.lspb), time);
-			s = myDUTY.task.trajectory_3d.lspb.s_current;
-			v = myDUTY.task.trajectory_3d.lspb.v_current;
-			angle = myDUTY.task.trajectory_roll.lspb.s_current;
-			v_angle = myDUTY.task.trajectory_roll.lspb.v_current;
-			dir_roll = myDUTY.task.trajectory_roll.lspb.dir;
-		}
-
-		if ( SCARA_STATUS_OK != status1) {
-			return status1;
-		}
-		if ( SCARA_STATUS_OK != status2) {
-			return status2;
-		}
-
-		// Shift q , q_roll
-		s_shift = s - positionKeyInit.q;
-		angle_shift = angle - positionKeyInit.q_roll;
-
-		//---Path flowing
-			// Straight line
-		if( DUTY_PATH_LINE == myDUTY.task.path.path_type) {
-			status1 = scaraFlowLine(&(myDUTY.task.path.line), s_shift);//shift
-			x = myDUTY.task.path.line.x_current;
-			y = myDUTY.task.path.line.y_current;
-			z = myDUTY.task.path.line.z_current;
-		}
-
-		positionCompute.x 		= x;
-		positionCompute.y		= y;
-		positionCompute.z 		= z;
-		positionCompute.roll 	= myDUTY.task.roll_start + angle_shift*dir_roll;// shift
-
-		positionCompute.q		= s;
-		positionCompute.q_roll  = angle;
-
-		positionCompute.v_3d    = v;
-		positionCompute.v_roll  = v_angle;
-
-		positionCompute.total_time = myDUTY.time_total;
-		positionCompute.t		= time;
-		if ( FALSE == kinematicInverse(&positionCompute, pos_Current)) {
-			return SCARA_STATUS_ERROR_OVER_WORKSPACE;
-		} else {
-			memcpy(pos_Next, &positionCompute, sizeof(SCARA_PositionTypeDef));
-		}
-
-	/*---- Joint space -----*/
-	} else if (DUTY_SPACE_JOINT == myDUTY.space_type) {
-		double s0, s1, s2, s3;
-		double v0, v1, v2, v3;
-		double s0_shift, s1_shift, s2_shift, s3_shift;
-		int8_t dir0, dir1, dir2, dir3;
-		// Trajectory flowing
-			// LSPB
-		if( DUTY_TRAJECTORY_LSPB == myDUTY.joint.trajectory[0].trajectory_type) {
-			status1 = scaraFlowLSPB(&(myDUTY.joint.trajectory[0].lspb), time);
-			status2 = scaraFlowLSPB(&(myDUTY.joint.trajectory[1].lspb), time);
-			status3 = scaraFlowLSPB(&(myDUTY.joint.trajectory[2].lspb), time);
-			status4 = scaraFlowLSPB(&(myDUTY.joint.trajectory[3].lspb), time);
-
-			dir0 = myDUTY.joint.trajectory[0].lspb.dir;
-			dir1 = myDUTY.joint.trajectory[1].lspb.dir;
-			dir2 = myDUTY.joint.trajectory[2].lspb.dir;
-			dir3 = myDUTY.joint.trajectory[3].lspb.dir;
-
-			s0 = myDUTY.joint.trajectory[0].lspb.s_current;
-			s1 = myDUTY.joint.trajectory[1].lspb.s_current;
-			s2 = myDUTY.joint.trajectory[2].lspb.s_current;
-			s3 = myDUTY.joint.trajectory[3].lspb.s_current;
-
-			v0 = myDUTY.joint.trajectory[0].lspb.v_current;
-			v1 = myDUTY.joint.trajectory[1].lspb.v_current;
-			v2 = myDUTY.joint.trajectory[2].lspb.v_current;
-			v3 = myDUTY.joint.trajectory[3].lspb.v_current;
-
-		}
-		// Check init status
-		if ( SCARA_STATUS_OK != status1) {
-			return status1;
-		}
-		if ( SCARA_STATUS_OK != status2) {
-			return status2;
-		}
-		if ( SCARA_STATUS_OK != status3) {
-			return status3;
-		}
-		if ( SCARA_STATUS_OK != status4) {
-			return status4;
-		}
-		// shift s0, s1, s2, s3
-		s0_shift = s0 - positionKeyInit.q_theta1;
-		s1_shift = s1 - positionKeyInit.q_theta2;
-		s2_shift = s2 - positionKeyInit.q_d3;
-		s3_shift = s3 - positionKeyInit.q_theta4;
-
-		positionCompute.Theta1 	= myDUTY.joint.theta1_start + s0_shift*dir0;
-		positionCompute.Theta2 	= myDUTY.joint.theta2_start + s1_shift*dir1;
-		positionCompute.D3 		= myDUTY.joint.d3_start 	+ s2_shift*dir2;
-		positionCompute.Theta4 	= myDUTY.joint.theta4_start + s3_shift*dir3;
-
-		positionCompute.v_theta1 	= v0;
-		positionCompute.v_theta2 	= v1;
-		positionCompute.v_d3 		= v2;
-		positionCompute.v_theta4 	= v3;
-
-		positionCompute.q_theta1 = s0;
-		positionCompute.q_theta2 = s1;
-		positionCompute.q_d3	 = s2;
-		positionCompute.q_theta4 = s3;
-
-		positionCompute.total_time = myDUTY.time_total;
-		positionCompute.t		= time;
-		// Check workspace
-		if( SCARA_STATUS_OK != scaraCheckWorkSpace4(positionCompute.Theta1,
-							 	 	 	  positionCompute.Theta2,
-										  positionCompute.D3,
-										  positionCompute.Theta4)) {
-			return SCARA_STATUS_ERROR_OVER_WORKSPACE;
-		} else {
-			memcpy(pos_Next, &positionCompute, sizeof(SCARA_PositionTypeDef));
-		}
-		kinematicForward(pos_Next);
-
-	} else {
-		return SCARA_STATUS_ERROR_SPACE;
-	}
-
-	return SCARA_STATUS_OK;
-}

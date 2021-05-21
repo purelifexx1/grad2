@@ -205,7 +205,7 @@ Gcode_Decoder_DTC_TypeDef Gcode_Decoder::package_data(Gcode_Packet_Command_TypeD
     if(execute_mode == GCODE_LINEAR){
         ADD_VALUE(&temper_array, linear_execute_data.count(), INT32_VALUE);
     }else if(execute_mode == GCODE_SMOOTH_LSPB){
-        ADD_VALUE(&temper_array, compact_data.count() - 1, INT32_VALUE);
+        ADD_VALUE(&temper_array, compact_data.count() - 1 - sub_point_gcode_smooth, INT32_VALUE);
     }
     temper_array.append(RECEIVE_END);
     PACKET_DEFINE_LENGTH(temper_array);
@@ -475,8 +475,17 @@ Gcode_Decoder_DTC_TypeDef Gcode_Decoder::LSPB_Process(double limit_angle)
             last_z = compact_data.at(t).Z;
         }
     }
-    sub_point_gcode_smooth = process_data.size(); //this will be used after to get the correct total number of point in Gcode smooth mode
-
+    //eliminate all the group have the size of 1
+    int temper_num = 0;
+    sub_point_gcode_smooth = 0; //this will be used after to get the correct total number of point in Gcode smooth mode
+    do{
+        if(process_data.at(temper_num).size() == 1){
+            process_data.erase(process_data.begin() + temper_num);
+            sub_point_gcode_smooth++;
+        }else{
+            temper_num++;
+        }
+    }while(temper_num < process_data.size());
     int count = -1;
     //calculate each clutch gradiant and its delta, seperate into each clutch with insignificant delta_graditant
     for(int c1 = 0; c1 < process_data.size(); c1++){ //interrate each height clutch
@@ -653,13 +662,13 @@ Gcode_Decoder_DTC_TypeDef Gcode_Decoder::Write_Data_To_File(QString path)
                 file_content.append("G0" + QString::number(compact_data.at(i).Command) + " X" +
                                QString::number(compact_data.at(i).X) + " Y" + QString::number(compact_data.at(i).Y)
                                + " Z" + QString::number(compact_data.at(i).Z));
-                file_content.append("\r\n");
+                file_content.append("\r");
             break;
             case G01:
                 file_content.append("G0" + QString::number(compact_data.at(i).Command) + " X" +
                            QString::number(compact_data.at(i).X) + " Y" + QString::number(compact_data.at(i).Y)
                            + " Z" + QString::number(compact_data.at(i).Z) + " F" + QString::number(compact_data.at(i).Feed));
-                file_content.append("\r\n");
+                file_content.append("\r");
             break;
             case G02:
             case G03:
@@ -668,7 +677,7 @@ Gcode_Decoder_DTC_TypeDef Gcode_Decoder::Write_Data_To_File(QString path)
                            + " Z" + QString::number(compact_data.at(i).Z) +
                                + " I" +QString::number(compact_data.at(i).I) +" J" +QString::number(compact_data.at(i).J) +
                                " F" + QString::number(compact_data.at(i).Feed));
-                file_content.append("\r\n");
+                file_content.append("\r");
             break;
         }
     }

@@ -27,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent)
      SET_GCODE_UI(false);
      global_ui = ui;
      system_parameter->Load_Configuration();
-    fuzzy_control.fuzzy_set_data({0,10,20,30,40,50,100},{16.63,16.63,35.5,54.38,75.38,93.23,93.23});
+    fuzzy_control.fuzzy_set_data({0,10,20,25,30,35,40},{16.63,16.63,30.5,40.5,49.5,58.5,58.5});
 }
 
 MainWindow::~MainWindow()
@@ -54,6 +54,9 @@ void MainWindow::display_event(Display_packet data)
             }else{
                 MovC_Hanlder(MovC_ACK, data);
                 MovC_ACK = DISPLAY_ONLY;
+            }
+            if(save_enable == true && ui->cb_save_enable->isChecked() == true){
+                DAQ(data);
             }
         }
         break;
@@ -106,6 +109,11 @@ void MainWindow::display_event(Display_packet data)
                 }
                 break;
                 }
+            }
+            if(data.Respond_Type == RPD_START){
+                save_enable = true;
+            }else if(data.Respond_Type == RPD_DONE){
+                save_enable = false;
             }
             log_console(system_parameter->RDP_String[data.Respond_Type]
                     + " | Command ID: " + system_parameter->COMMAND_STRING[data.Command_ID]
@@ -163,7 +171,7 @@ void MainWindow::on_bt_connect_clicked()
 
 void MainWindow::received_callback(QByteArray log_data)
 {
-    qDebug() << log_data;
+    //qDebug() << log_data;
     FIFO_Buffer.insert(FIFO_Buffer.end(), log_data.begin(), log_data.end());
     _packet_handler->categorize(FIFO_Buffer);
 }
@@ -314,16 +322,12 @@ void MainWindow::on_bt_read_position_clicked()
     command.append(CMD_READ_POSITION);
     if(ui->rb_real_type->isChecked() == true){
         command.append(READ_CONTINUOUS_ENABLE);
-//        if(ui->cb_update_true_pos->isChecked() == true){
-//            command.append(REAL_POSITION_DATA_PLUS_UPDATE);
-//        }else{
-//            command.append(REAL_POSITION_DATA);
-//        }
     }else if(ui->rb_estimate_type->isChecked() == true){
         command.append(READ_CONTINUOUS_DISABLE);
     }else if(ui->rb_real_data_update->isChecked() == true){
         command.append(POSITION_UPDATE);
     }
+    command.append((uint8_t)(ui->tb_update_cycle->text().toUInt()));
     command.append(RECEIVE_END);
     PACKET_DEFINE_LENGTH(command);
     mSerial->write(command, command.length());
@@ -452,7 +456,7 @@ void MainWindow::on_bt_conveyor_sp_clicked()
     command.append(START_CHAR);
     command.append("00");
     command.append(COMMAND_TRANSMISION);
-    command.append(CMD_SETUP_CONVEYOR_SPEED);
+    command.append(CMD_SETUP_PNP_CONFIGURE);
     ADD_VALUE(&command, ui->tb_conveyor_sp->text(), SCARA_COR_VALUE_TEXT);
     for(int i = 1; i <= 10; i++){
         QLineEdit *tb = this->findChild<QLineEdit*>("tb_p2p_" + QString::number(i));
@@ -508,12 +512,14 @@ void MainWindow::on_bt_process_clicked()
         log_console("Failed to compress Gcode file. DTC code: " + QString::number(Gcode_DTC));
         return;
     }
+
     Gcode_DTC = gcode->Write_Data_To_File("D:/gcode/file.gcode");
     if(Gcode_DTC == GCODE_OK){
         log_console("Gcode file writes successfully");
     }else{
         log_console("Failed to write Gcode file. DTC code: " + QString::number(Gcode_DTC));
     }
+
     if(ui->rb_gcode_lspb->isChecked() == true){
         Gcode_DTC = gcode->LSPB_Process(ui->tb_limit_angle->text().toDouble());
         gcode->package_data(GCODE_SMOOTH_LSPB);
@@ -521,6 +527,7 @@ void MainWindow::on_bt_process_clicked()
         Gcode_DTC = gcode->Linear_Process(ui->tb_limit_angle->text().toDouble());
         gcode->package_data(GCODE_LINEAR);
     }
+
     QByteArray send_packet;
     for(int c = 0; c < gcode->data_packet.count(); c++){
         send_packet.append(gcode->data_packet.at(c));
@@ -933,4 +940,40 @@ void MainWindow::on_bt_load_offset_clicked()
     ui->rb_abs->setChecked(true);
     ui->rb_lspb->setChecked(true);
     ui->rb_qvt->setChecked(true);
+}
+void MainWindow::DAQ(Display_packet &data)
+{
+    DAQ_content += d2s(data.RealData.x)+",";
+    DAQ_content += d2s(data.RealData.y)+",";
+    DAQ_content += d2s(data.RealData.z)+",";
+    DAQ_content += d2s(data.RealData.roll)+",";
+    DAQ_content += d2s(data.RealData.theta1)+",";
+    DAQ_content += d2s(data.RealData.theta2)+",";
+    DAQ_content += d2s(data.RealData.D3)+",";
+    DAQ_content += d2s(data.RealData.theta4)+",";
+    NL(DAQ_content);
+
+}
+void MainWindow::on_bt_save_browse_clicked()
+{
+    QString file_directory = QFileDialog::getExistingDirectory(this, "Open Save Directory");
+    ui->tb_save_dir->setText(file_directory);
+}
+
+void MainWindow::on_bt_save_data_file_clicked()
+{
+    QString path = ui->tb_save_dir->text();
+    path.append(92);
+    path.append(ui->tb_file_name->text());
+    QFile file(path);
+    if(file.open(QIODevice::WriteOnly | QIODevice::Text)){
+        file.write(DAQ_content.toStdString().c_str(), DAQ_content.length());
+        file.close();
+    }else{
+        log_console("Data file failed to save");
+        return;
+    }
+    DAQ_content.clear();
+    DAQ_content = "X,Y,Z,Roll,Theta1,Theta2,D3,Theta4"; NL(DAQ_content);
+    log_console("Data is logged successfully");
 }
