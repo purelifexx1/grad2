@@ -26,18 +26,22 @@ uint8_t continuous_update;
 uint8_t offset_data_available;
 uint8_t Gcode_data_available;
 uint8_t update_pos_cycle;
+uint8_t object_tail_pointer;
+uint8_t object_head_pointer;
+SCARA_Pick_And_Place_Package Object[8];
 SCARA_LSPB_Clutch_TypeDef  gcode_clutch_configure[200];
+ModeInitTypeDef PNP_MOVE_TYPE;
 double PUT_DOWN_TIME_ON_SLOT;
 double PUT_DOWN_TIME_ON_OBJECT;
 double PICK_UP_TIME_ON_OBJECT;
 double PICK_UP_TIME_ON_SLOT;
-double MOVE_TIME;
+double MOVE_FACTOR;
 double ATTACH_TIME;
 double	DETACH_TIME;
 double UP_HEIGHT;
 double DOWN_HEIGHT_ON_OBJECT;
 double DOWN_HEIGHT_ON_SLOT;
-double conveyor_speed;
+double CONVEYOR_SPEED;
 typedef enum
 {
 	CMD_STOPNOW = 0x00,
@@ -136,6 +140,7 @@ typedef enum
     TEST_METHOD     ,
 	PICK_AND_PLACE_METHOD,
 	OBJECT_DETECTED 	,
+	OBJECT_UNREACHABLE,
 	GCODE_TRANSFER_FINISH,
 	GCODE_START,
 	GCODE_FINISH,
@@ -171,10 +176,10 @@ Robot_RespondTypedef	commandReply	(Robot_CommandTypedef cmd_type,
 										DUTY_Command_TypeDef duty_cmd,
 										uint8_t *detail, int32_t *detail_length);
 
-int32_t 				commandRespond1 (Robot_RespondTypedef rpd,
+int32_t 				commandRespond (Robot_RespondTypedef rpd,
 										int32_t id_command,
-										char *detail,
+										uint8_t *detail,
 										int32_t detail_length,
-										char *respond);
+										uint8_t *respond);
 
 #endif /* INC_COMMAND_RESPOND_H_ */

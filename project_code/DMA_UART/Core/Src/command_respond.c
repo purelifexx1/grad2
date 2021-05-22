@@ -11,12 +11,14 @@
 #include <string.h>
 extern const char *DETAIL_STATUS[NUM_OF_STATUS];
 extern int8_t 	test_value_array[4] = {5, 5, 5, 10};
-extern double conveyor_speed = 30.0;
+
+extern double CONVEYOR_SPEED = 30.0;
+extern ModeInitTypeDef PNP_MOVE_TYPE = DUTY_MODE_INIT_QT;
 extern double PUT_DOWN_TIME_ON_SLOT 	= 0.3f;
 extern double PUT_DOWN_TIME_ON_OBJECT	= 0.3f;
 extern double PICK_UP_TIME_ON_OBJECT 	= 0.3f;
 extern double PICK_UP_TIME_ON_SLOT	    = 0.3f;
-extern double MOVE_TIME 				= 1.2f;
+extern double MOVE_FACTOR 				= 1.2f;
 extern double ATTACH_TIME 			    = 0.01f;
 extern double DETACH_TIME 			    = 0.01f;
 extern double UP_HEIGHT 				= 131.0f;
@@ -26,6 +28,7 @@ extern SCARA_LSPB_Clutch_TypeDef  gcode_clutch_configure[200];
 extern uint8_t offset_data_available = 0;
 extern uint8_t Gcode_data_available = 0;
 extern uint8_t update_pos_cycle = 5;
+ObjectType ret_object_type;
 Position_DataType position_type;
 SCARA_Gcode_Cor_TypeDef	Gcode_Cor[1000];
 uint16_t point_counter = 0, current_clutch_index = 0;
@@ -400,32 +403,48 @@ Robot_CommandTypedef 	packetRead	(uint8_t *message, int32_t length, int32_t *id_
 				{
 					if (length == 15){ // 3 int32_t number + 1 byte object type + 2 define byte
 						temp_pointer = -2;
-						duty_cmd->target_point.x = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
-						duty_cmd->target_point.y = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
-						//duty_cmd->target_point.z = (double)(*(int32_t*)(&message[temp_pointer+=4]))*COR_INVERSE_SCALE;
-						duty_cmd->target_point.roll = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
-						duty_cmd->target_point.object_type = message[temp_pointer+=4];
-						duty_cmd->target_point.packet_time_stamp = GET_MICROS;
+						Object[object_head_pointer].object_position.x = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+						Object[object_head_pointer].object_position.y = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+						Object[object_head_pointer].object_position.roll = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+						Object[object_head_pointer].object_type = message[temp_pointer+=4];
+						ret_object_type = Object[object_head_pointer].object_type;
+						Object[object_head_pointer].timer_value = GET_MICROS;
+						object_head_pointer = (object_head_pointer+1)%8;
+
+//						duty_cmd->target_point.x = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+//						duty_cmd->target_point.y = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+//						//duty_cmd->target_point.z = (double)(*(int32_t*)(&message[temp_pointer+=4]))*COR_INVERSE_SCALE;
+//						duty_cmd->target_point.roll = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+//						duty_cmd->target_point.object_type = message[temp_pointer+=4];
+//						duty_cmd->target_point.packet_time_stamp = GET_MICROS;
 
 					}else{
 						return CMD_ERROR;
 					}
-					duty_cmd->robot_method = SCARA_METHOD_PICK_AND_PLACE;
-					duty_cmd->change_method = FALSE;
+//					duty_cmd->robot_method = SCARA_METHOD_PICK_AND_PLACE;
+//					duty_cmd->change_method = FALSE;
 					return CMD_OBJECT_DETECTED;
 				}
 				break;
 
 				case CMD_SETUP_PNP_CONFIGURE:
 				{
-					if (length == 47) { // 11 int32_t number + 1 byte move type + 2 define byte
+					if (length == 48) { // 11 int32_t number + 1 byte move type + 1 byte move option + 2 define byte
 						temp_pointer = -2;
-						conveyor_speed           = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+						CONVEYOR_SPEED           = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
 						PUT_DOWN_TIME_ON_SLOT 	 = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
 						PUT_DOWN_TIME_ON_OBJECT	 = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
 						PICK_UP_TIME_ON_OBJECT 	 = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
 						PICK_UP_TIME_ON_SLOT	 = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
-						MOVE_TIME 				 = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
+						ModeInitTypeDef pnp_move_type = message[temp_pointer+=4];
+						if(pnp_move_type == DUTY_MODE_INIT_QT){
+							PNP_MOVE_TYPE = DUTY_MODE_INIT_QT;
+						}else if(pnp_move_type == DUTY_MODE_INIT_QV){
+							PNP_MOVE_TYPE = DUTY_MODE_INIT_QV;
+						}else{
+							return CMD_ERROR;
+						}
+						MOVE_FACTOR 			 = (double)B2I(temp_pointer+=1)*DATA_INVERSE_SCALE;
 						ATTACH_TIME 			 = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
 						DETACH_TIME 			 = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
 						UP_HEIGHT 				 = (double)B2I(temp_pointer+=4)*DATA_INVERSE_SCALE;
@@ -527,10 +546,10 @@ Robot_RespondTypedef	commandReply	(Robot_CommandTypedef cmd_type,
 	case CMD_MOTOR_TEST:
 	case CMD_MOVE_CIRCLE:
 	case CMD_MOVE_JOINT:
-	case CMD_OBJECT_DETECTED:
 	case CMD_ROTATE_SINGLE:
 		ret = RPD_DUTY;
 		break;
+
 	case CMD_OUTPUT:
 		{
 			if (1 == duty_cmd.arc_dir) {
@@ -562,7 +581,7 @@ Robot_RespondTypedef	commandReply	(Robot_CommandTypedef cmd_type,
 				ret = RPD_BUSY;
 			}
 		}
-		break;
+	break;
 	case CMD_READ_POSITION:
 		{
 //			SCARA_PositionTypeDef position;
@@ -601,17 +620,22 @@ Robot_RespondTypedef	commandReply	(Robot_CommandTypedef cmd_type,
 //			ret =  RPD_POSITION;
 //			ret =  RPD_OK;
 		}
-		break;
+	break;
+	case CMD_OBJECT_DETECTED:
+		detail[(*detail_length)++] = OBJECT_DETECTED;
+		detail[(*detail_length)++] = ret_object_type;
+		ret = RPD_OK;
+	break;
 	case CMD_TEST_METHOD_SETTING:
 		detail[(*detail_length)++] = TEST_VALUE_SETTING;
 		ret = RPD_OK;
-		break;
+	break;
 	case CMD_SETUP_PNP_CONFIGURE:
 		ret = RPD_OK;
-		break;
+	break;
 	case CMD_METHOD_CHANGE:
 		ret = RPD_DUTY;
-		break;
+	break;
 	case CMD_GCODE:{
 		if(point_counter == total_num_of_point){
 			Gcode_data_available = 1;
@@ -636,21 +660,21 @@ Robot_RespondTypedef	commandReply	(Robot_CommandTypedef cmd_type,
 	case CMD_GCODE_RESUME:
 	case CMD_GCODE_RUN:
 		ret = RPD_DUTY;
-		break;
+	break;
 	case CMD_KEYBOARD:
 		ret = RPD_DUTY;
-		break;
+	break;
 	case CMD_KEY_SPEED:{
 		detail[(*detail_length)++] = MANUAL_SPEED;
 		detail[(*detail_length)++] = (uint8_t)(duty_cmd.key_speed);
 		ret = RPD_OK;
 	}
-		break;
+	break;
 	case CMD_ERROR:{
 		detail[(*detail_length)++] = CHECK_PARAMETER;
 		ret = RPD_ERROR;
 	}
-		break;
+	break;
 	case CMD_STEP_ON_OFF:{
 		if(step_status == 1){
 			detail[(*detail_length)++] = STEP_ON;
@@ -671,11 +695,11 @@ Robot_RespondTypedef	commandReply	(Robot_CommandTypedef cmd_type,
 }
 
 
-int32_t				commandRespond1	(Robot_RespondTypedef rpd,
+int32_t				commandRespond	(Robot_RespondTypedef rpd,
 										int32_t id_command,
-										char *detail,
+										uint8_t *detail,
 										int32_t detail_length,
-										char *respond) {
+										uint8_t *respond) {
 	int32_t out_length = 0;
 	respond[out_length++] = 0x28;
 	respond[out_length++] = 0;

@@ -42,6 +42,12 @@ typedef enum
 
 typedef enum
 {
+	SCARA_METHOD_IDLE,
+	SCARA_METHOD_ACTIVE,
+}SCARA_MethodChangeState;
+
+typedef enum
+{
 	  SCARA_MODE_STOP					= 0x00U,  /*!< SCARA scan stop immediate  */
 	  SCARA_MODE_SCAN					= 0x01U,  /*!< SCARA scan limit switch to determine absolute position*/
 	  SCARA_MODE_DUTY					= 0x02U   /*!< SCARA work  */
@@ -185,7 +191,6 @@ typedef struct
 	double						v_theta4;
 	double						v_3d;
 	double						v_roll;
-	ObjectType					object_type;
 }SCARA_PositionTypeDef;
 
 typedef struct
@@ -387,6 +392,7 @@ typedef struct
 	SCARA_PositionTypeDef 		object_position;
 	SCARA_PositionTypeDef		slot_position;
 	uint64_t					timer_value;
+	ObjectType					object_type;
 }SCARA_Pick_And_Place_Package;
 
 typedef enum
@@ -443,13 +449,13 @@ SCARA_StatusTypeDef			scaraInitCircle		(Path_Circle_TypeDef *circle,
 												SCARA_PositionTypeDef center,
 												int32_t dir);
 
-SCARA_StatusTypeDef	scaraInitLSPB1		(Trajectory_LSPB_TypeDef *lspb,
+SCARA_StatusTypeDef	scaraInitLSPB		(Trajectory_LSPB_TypeDef *lspb,
 										Trajectory_TargetTypeDef target,
 										double total_s,
 										ModeInitTypeDef modeinit,
 										double v_factor,
 										double additional_factor);
-SCARA_StatusTypeDef			scaraInitScurve1	(Trajectory_Scurve_TypeDef *scurve,
+SCARA_StatusTypeDef			scaraInitScurve	(Trajectory_Scurve_TypeDef *scurve,
 												Trajectory_TargetTypeDef target,
 												double total_s,
 												ModeInitTypeDef modeinit,
@@ -461,12 +467,12 @@ SCARA_StatusTypeDef			scaraFlowDuty		(double time,
 												SCARA_PositionTypeDef *pos_Next ,
 												SCARA_PositionTypeDef pos_Current);
 
-SCARA_StatusTypeDef			PNPcalMovtime(SCARA_PositionTypeDef start_point, SCARA_PositionTypeDef object_point, double K);
+
 SCARA_StatusTypeDef			scaraFlowLine		(Path_Line_TypeDef *line, double s);
 SCARA_StatusTypeDef			scaraFlowCircle		(Path_Circle_TypeDef *circle, double s);
-SCARA_StatusTypeDef			scaraFlowLSPB1		(Trajectory_LSPB_TypeDef *lspb, double time);
+SCARA_StatusTypeDef			scaraFlowLSPB		(Trajectory_LSPB_TypeDef *lspb, double time);
 SCARA_StatusTypeDef			scaraFlowBezierCurve(Path_Line_TypeDef *line, double s);
-SCARA_StatusTypeDef			scaraFLowScurve1		(Trajectory_Scurve_TypeDef *scurve, double t);
+SCARA_StatusTypeDef			scaraFLowScurve		(Trajectory_Scurve_TypeDef *scurve, double t);
 SCARA_StatusTypeDef			scaraFlowGCODE		(double *s, double time);
 
 SCARA_StatusTypeDef			scaraCheckWorkSpace4(double theta1, double theta2, double d3, double theta4);
@@ -480,6 +486,7 @@ void						scaraSetMode		(SCARA_ModeTypeDef mode);
 void						scaraSetMethod		(SCARA_MethodTypeDef method);
 
 int32_t 					scaraPosition_packaging(uint8_t *data_packet, SCARA_PositionTypeDef position);
+double						PNPcalMovDistance(double startx, double starty, double objectx, double objecty, double Vr, double Vc);
 void 						Append_Coordinate_Value(int32_t append_value, uint8_t* append_position);
 void						scaraGetPosition	(SCARA_PositionTypeDef *pos);
 void						scaraUpdatePosition (SCARA_PositionTypeDef *pos);
