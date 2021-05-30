@@ -185,10 +185,10 @@ typedef struct
 	double 						Theta2;//Rotate
 	double 						D3;//Transpose
 	double 						Theta4;//Rotate
-	double						v_theta1;
-	double						v_theta2;
-	double						v_d3;
-	double						v_theta4;
+//	double						v_theta1;
+//	double						v_theta2;
+//	double						v_d3;
+//	double						v_theta4;
 	double						v_3d;
 	double						v_roll;
 }SCARA_PositionTypeDef;

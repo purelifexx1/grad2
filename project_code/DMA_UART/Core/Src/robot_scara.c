@@ -992,10 +992,10 @@ SCARA_StatusTypeDef	scaraFlowDuty		(double time,
 		positionCompute.D3 		= myDUTY.joint.d3_start 	+ s2*dir2;
 		positionCompute.Theta4 	= myDUTY.joint.theta4_start + s3*dir3;
 
-		positionCompute.v_theta1 	= v0;
-		positionCompute.v_theta2 	= v1;
-		positionCompute.v_d3 		= v2;
-		positionCompute.v_theta4 	= v3;
+//		positionCompute.v_theta1 	= v0;
+//		positionCompute.v_theta2 	= v1;
+//		positionCompute.v_d3 		= v2;
+//		positionCompute.v_theta4 	= v3;
 
 //		positionCompute.q_theta1 = s0;
 //		positionCompute.q_theta2 = s1;

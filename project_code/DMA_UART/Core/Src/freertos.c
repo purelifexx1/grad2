@@ -201,9 +201,9 @@ void StartDefaultTask(void const * argument)
   uint8_t				detail_array[80];
 
   uint8_t 				testing_value = 0;
-  double 				value1 = 0;
-  double 				value2 = 0;
-  double  				value3 = 0;
+//  double 				value1 = 0;
+//  double 				value2 = 0;
+//  double  			value3 = 0;
 //  uint8_t				respond_packed[50];
 //  int32_t				respond_packed_lenght;
   //uint8_t				infor_packed[150];
@@ -872,20 +872,29 @@ void StartDefaultTask(void const * argument)
 						  if(PNP_MOVE_TYPE == DUTY_MODE_INIT_QT){
 							  double wait_time = 1e-6*((uint64_t)(GET_MICROS - Object[object_tail_pointer].timer_value)) + MOVE_FACTOR + PUT_DOWN_TIME_ON_OBJECT + ATTACH_TIME;
 							  state_time = MOVE_FACTOR;
-							  Object[object_tail_pointer].object_position.y -= wait_time*CONVEYOR_SPEED;
-							  Object[object_tail_pointer].object_position.z = UP_HEIGHT;
+//							  Object[object_tail_pointer].object_position.y -= wait_time*CONVEYOR_SPEED;
+//							  Object[object_tail_pointer].object_position.z = UP_HEIGHT;
+							  duty_cmd.target_point.x = Object[object_tail_pointer].object_position.x;
+							  duty_cmd.target_point.y = Object[object_tail_pointer].object_position.y - wait_time*CONVEYOR_SPEED;
+							  duty_cmd.target_point.z = UP_HEIGHT;
+							  duty_cmd.target_point.roll = Object[object_tail_pointer].object_position.roll;
 						  }else if(PNP_MOVE_TYPE == DUTY_MODE_INIT_QV){
 							  double has_moved_distance = CONVEYOR_SPEED*(1e-6*((uint64_t)(GET_MICROS - Object[object_tail_pointer].timer_value)) + PUT_DOWN_TIME_ON_OBJECT + ATTACH_TIME);
 							  double implement_distance = PNPcalMovDistance(positionCurrent.x, positionCurrent.y, Object[object_tail_pointer].object_position.x, Object[object_tail_pointer].object_position.y-has_moved_distance, MOVE_FACTOR*V_MOVE_MAX/1.5, CONVEYOR_SPEED);
-							  Object[object_tail_pointer].object_position.y -= (has_moved_distance+implement_distance);
-							  Object[object_tail_pointer].object_position.z = UP_HEIGHT;
+//							  Object[object_tail_pointer].object_position.y -= (has_moved_distance+implement_distance);
+//							  Object[object_tail_pointer].object_position.z = UP_HEIGHT;
+							  duty_cmd.target_point.x = Object[object_tail_pointer].object_position.x;
+							  duty_cmd.target_point.y = Object[object_tail_pointer].object_position.y - has_moved_distance - implement_distance;
+							  duty_cmd.target_point.z = UP_HEIGHT;
+							  duty_cmd.target_point.roll = Object[object_tail_pointer].object_position.roll;
 							  state_time = 0;
 						  }
 					  }
 					  break;
 
 					  case SCARA_MOVE_DOWN_ON_OBJECT:{
-						  Object[object_tail_pointer].object_position.z = DOWN_HEIGHT_ON_OBJECT;
+//						  Object[object_tail_pointer].object_position.z = DOWN_HEIGHT_ON_OBJECT;
+						  duty_cmd.target_point.z = DOWN_HEIGHT_ON_OBJECT;
 						  state_time = PUT_DOWN_TIME_ON_OBJECT;
 					  }
 					  break;
@@ -896,16 +905,22 @@ void StartDefaultTask(void const * argument)
 					  }
 					  break;
 					  case SCARA_MOVE_UP_ON_OBJECT:{
-						  Object[object_tail_pointer].object_position.z = UP_HEIGHT;
+//						  Object[object_tail_pointer].object_position.z = UP_HEIGHT;
+						  duty_cmd.target_point.z = UP_HEIGHT;
 						  state_time = PICK_UP_TIME_ON_OBJECT;
 					  }
 					  break;
 					  case SCARA_MOVE_TO_SLOT :{
 						  ObjectType current_type = Object[object_tail_pointer].object_type;
-						  Object[object_tail_pointer].object_position.x = SLot_Cordinate[current_type].posx + Slot_Placement[current_type]*placement_spacing;
-						  Object[object_tail_pointer].object_position.y = SLot_Cordinate[current_type].posy;
-						  Object[object_tail_pointer].object_position.roll = SLot_Cordinate[current_type].roll;
-						  Object[object_tail_pointer].object_position.z = UP_HEIGHT;
+//						  Object[object_tail_pointer].object_position.x = SLot_Cordinate[current_type].posx + Slot_Placement[current_type]*placement_spacing;
+//						  Object[object_tail_pointer].object_position.y = SLot_Cordinate[current_type].posy;
+//						  Object[object_tail_pointer].object_position.roll = SLot_Cordinate[current_type].roll;
+//						  Object[object_tail_pointer].object_position.z = UP_HEIGHT;
+
+						  duty_cmd.target_point.x = SLot_Cordinate[current_type].posx + Slot_Placement[current_type]*placement_spacing;
+						  duty_cmd.target_point.y = SLot_Cordinate[current_type].posy;
+						  duty_cmd.target_point.z = UP_HEIGHT;
+						  duty_cmd.target_point.roll = SLot_Cordinate[current_type].roll;
 
 						  if(PNP_MOVE_TYPE == DUTY_MODE_INIT_QT){
 							  state_time = MOVE_FACTOR;
@@ -916,7 +931,8 @@ void StartDefaultTask(void const * argument)
 					  }
 					  break;
 					  case SCARA_MOVE_DOWN_ON_SLOT:{
-						  Object[object_tail_pointer].object_position.z = DOWN_HEIGHT_ON_SLOT;
+//						  Object[object_tail_pointer].object_position.z = DOWN_HEIGHT_ON_SLOT;
+						  duty_cmd.target_point.z = DOWN_HEIGHT_ON_SLOT;
 						  state_time = PUT_DOWN_TIME_ON_SLOT;
 					  }
 					  break;
@@ -927,12 +943,13 @@ void StartDefaultTask(void const * argument)
 					  break;
 					  case SCARA_MOVE_UP_ON_SLOT:{
 						  state_time = PICK_UP_TIME_ON_SLOT;
-						  Object[object_tail_pointer].object_position.z = UP_HEIGHT;
+//						  Object[object_tail_pointer].object_position.z = UP_HEIGHT;
+						  duty_cmd.target_point.z = UP_HEIGHT;
 					  }
 					  break;
 				  }
 
-				  memcpy(&duty_cmd.target_point, &Object[object_tail_pointer].object_position, sizeof(SCARA_PositionTypeDef));
+//				  memcpy(&duty_cmd.target_point, &Object[object_tail_pointer].object_position, sizeof(SCARA_PositionTypeDef));
 				  duty_cmd.time_total = state_time;
 				  if(PNP_MOVE_TYPE == DUTY_MODE_INIT_QT){
 					  duty_cmd.v_factor = 0;
