@@ -105,6 +105,13 @@ void define_parameter::Save_Configuration()
     }else if(global_ui->rb_pnp_movL->isChecked() == false){
         SAVE_CONFIGURE(PNP_MOVE_OPTION   , "0");
     }
+    if(global_ui->rb_time_constraint->isChecked() == true){
+        SAVE_CONFIGURE(PNP_MOVE_TYPE, "1");
+    }else if(global_ui->rb_veloc_constraint->isChecked() == true){
+        SAVE_CONFIGURE(PNP_MOVE_TYPE, "0");
+    }
+    SAVE_CONFIGURE(LOG_FILE_DIR          , global_ui->tb_save_dir->text());
+    SAVE_CONFIGURE(LOG_FILE_NAME         , global_ui->tb_file_name->text());
     QString path = QCoreApplication::applicationDirPath();
     QFile file("configuration.txt");
     if(file.open(QIODevice::WriteOnly | QIODevice::Text)){
@@ -132,8 +139,12 @@ void define_parameter::Load_Configuration()
                 break;
             }
         }else{
+            QList<QString> component_list = line.split(':');
             Save_Configuration_TypeDef ident_index = (Save_Configuration_TypeDef)line.split(':').at(0).toInt();
-            QString value = line.split(':').at(1);
+            QString value;
+            for(int c = 1; c < component_list.count(); c++){
+                value += component_list.at(c);
+            }
             switch (ident_index) {
             case KEY_SPEED             :
                 global_ui->tb_key_setsp->setText(value);
@@ -214,6 +225,19 @@ void define_parameter::Load_Configuration()
                 }else if(value == "0"){
                     global_ui->rb_pnp_movL->setChecked(true);
                 }
+            break;
+            case PNP_MOVE_TYPE         :
+                if(value == "1"){
+                    global_ui->rb_time_constraint->setChecked(true);
+                }else if(value == "0"){
+                    global_ui->rb_veloc_constraint->setChecked(true);
+                }
+            break;
+            case LOG_FILE_DIR:
+                global_ui->tb_save_dir->setText(value);
+            break;
+            case LOG_FILE_NAME:
+                global_ui->tb_file_name->setText(value);
             break;
             default:
             break;

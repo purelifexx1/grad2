@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1079</width>
-    <height>387</height>
+    <height>389</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -357,7 +357,7 @@
    <widget class="QPushButton" name="testing">
     <property name="geometry">
      <rect>
-      <x>980</x>
+      <x>990</x>
       <y>0</y>
       <width>80</width>
       <height>21</height>
@@ -470,7 +470,7 @@
       </rect>
      </property>
      <property name="currentIndex">
-      <number>4</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -1723,7 +1723,7 @@
      </widget>
      <widget class="QWidget" name="tab_3">
       <attribute name="title">
-       <string>GCODE</string>
+       <string>CNC</string>
       </attribute>
       <widget class="QLineEdit" name="tb_file_dir">
        <property name="geometry">
@@ -1942,12 +1942,12 @@
         <rect>
          <x>180</x>
          <y>40</y>
-         <width>101</width>
+         <width>111</width>
          <height>21</height>
         </rect>
        </property>
        <property name="text">
-        <string>Execute percentage</string>
+        <string>Executed percentage</string>
        </property>
       </widget>
       <widget class="QLabel" name="label_37">
@@ -2705,7 +2705,7 @@
        </rect>
       </property>
       <property name="title">
-       <string>Output Control Tab</string>
+       <string/>
       </property>
       <widget class="QPushButton" name="bt_off_magnet">
        <property name="geometry">
@@ -2835,7 +2835,7 @@
    <widget class="QPushButton" name="bt_sw_test">
     <property name="geometry">
      <rect>
-      <x>890</x>
+      <x>900</x>
       <y>0</y>
       <width>80</width>
       <height>21</height>

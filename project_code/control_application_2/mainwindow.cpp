@@ -27,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent)
      SET_GCODE_UI(false);
      global_ui = ui;
      system_parameter->Load_Configuration();
-    fuzzy_control.fuzzy_set_data({0,10,20,25,30,35,40},{16.63,16.63,30.5,40.5,49.5,58.5,58.5});
+    fuzzy_control.fuzzy_set_data({0,10,20,25,30,35,40},{16.63,16.63,32.5,42.5,51.5,60.5,60.5});
 }
 
 MainWindow::~MainWindow()
