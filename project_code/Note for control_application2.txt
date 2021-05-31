@@ -1,0 +1,5 @@
+The app needs opencv library to operate.
+
+Due to some issues below, the project doesn't include the library
+ - Error in linking with dynamic opencv library 
+ - Github doesn't allow to upload oversized static opencv library

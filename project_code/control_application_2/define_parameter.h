@@ -99,6 +99,7 @@ typedef enum
     TEST_METHOD     ,
     PICK_AND_PLACE_METHOD,
     OBJECT_DETECTED ,
+    OBJECT_UNREACHABLE,
     GCODE_TRANSFER_FINISH,
     GCODE_START,
     GCODE_FINISH,
@@ -348,7 +349,10 @@ typedef enum{
     UP_HEIGHT             ,  //up height when moving object after pick up
     DOWN_HEIGHT_ON_OBJECT ,  //down height when pick up object
     DOWN_HEIGHT_ON_SLOT   ,  //down height when release object on slot
-    PNP_MOVE_OPTION          //move type in pnp mode
+    PNP_MOVE_OPTION       ,  //move option in pnp mode(movL, movJ)
+    PNP_MOVE_TYPE         ,  //move type in pnp mode(time constraint, velocity constraint)
+    LOG_FILE_DIR          ,  //log file directory
+    LOG_FILE_NAME         ,  //log file name
 }Save_Configuration_TypeDef;
 
 class define_parameter
@@ -390,6 +394,7 @@ public:
                                              "Changed TEST Method",
                                              "Changed PICK_AND_PLACE Method",
                                              "Object Detected",
+                                             "Object Unreachable in the amount of time",
                                              "Gcode transfer process completed",
                                              "Gcode start",
                                              "Gcode finish",

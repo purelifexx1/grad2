@@ -27,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent)
      SET_GCODE_UI(false);
      global_ui = ui;
      system_parameter->Load_Configuration();
-    fuzzy_control.fuzzy_set_data({0,10,20,25,30,35,40},{16.63,16.63,30.5,40.5,49.5,58.5,58.5});
+    fuzzy_control.fuzzy_set_data({0,10,20,25,30,35,40},{16.63,16.63,32.5,42.5,51.5,60.5,60.5});
 }
 
 MainWindow::~MainWindow()
@@ -459,6 +459,13 @@ void MainWindow::on_bt_conveyor_sp_clicked()
     command.append(CMD_SETUP_PNP_CONFIGURE);
     ADD_VALUE(&command, ui->tb_conveyor_sp->text(), SCARA_COR_VALUE_TEXT);
     for(int i = 1; i <= 10; i++){
+        if(i == 5){ //move type define
+            if(ui->rb_time_constraint->isChecked() == true){
+                command.append(DUTY_MODE_INIT_QT);
+            }else if(ui->rb_veloc_constraint->isChecked() == true){
+                command.append(DUTY_MODE_INIT_QV);
+            }
+        }
         QLineEdit *tb = this->findChild<QLineEdit*>("tb_p2p_" + QString::number(i));
         ADD_VALUE(&command, tb->text(), SCARA_COR_VALUE_TEXT);
     }

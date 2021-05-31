@@ -12,6 +12,7 @@ SOURCES += \
     calib.cpp \
     detect.cpp \
     define_parameter.cpp \
+    fuzzy.cpp \
     gcode_decoder.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -23,6 +24,7 @@ HEADERS += \
     calib.h \
     detect.h \
     define_parameter.h \
+    fuzzy.h \
     gcode_decoder.h \
     mainwindow.h \
     packet_handler.h \
@@ -40,9 +42,9 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../../Downloads/long/opencv4.5.1/build/x64/vc15/lib/ -lopencv_world451
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../../Downloads/long/opencv4.5.1/build/x64/vc15/lib/ -lopencv_world451d
-else:unix: LIBS += -L$$PWD/../../../../../Downloads/long/opencv4.5.1/build/x64/vc15/lib/ -lopencv_world451
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../opencv4.5.1/build/x64/vc15/lib/ -lopencv_world451
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../opencv4.5.1/build/x64/vc15/lib/ -lopencv_world451d
+else:unix: LIBS += -L$$PWD/../opencv4.5.1/build/x64/vc15/lib/ -lopencv_world451
 
-INCLUDEPATH += $$PWD/../../../../../Downloads/long/opencv4.5.1/build/include
-DEPENDPATH += $$PWD/../../../../../Downloads/long/opencv4.5.1/build/include
+INCLUDEPATH += $$PWD/../opencv4.5.1/build/include
+DEPENDPATH += $$PWD/../opencv4.5.1/build/include
