@@ -1,7 +1,0 @@
-fsmc.c:24:6:FSMC_Write	16	static
-fsmc.c:29:10:FSMC_Read	16	static
-fsmc.c:37:6:MX_FSMC_Init	40	static
-fsmc.c:90:13:HAL_FSMC_MspInit	32	static
-fsmc.c:161:6:HAL_NOR_MspInit	16	static
-fsmc.c:173:13:HAL_FSMC_MspDeInit	8	static
-fsmc.c:222:6:HAL_NOR_MspDeInit	16	static

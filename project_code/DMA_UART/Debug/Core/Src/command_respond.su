@@ -1,4 +1,0 @@
-command_respond.c:52:23:packetRead	56	static
-command_respond.c:499:22:commandReply	400	static
-command_respond.c:641:12:commandRespond	32	static
-command_respond.c:684:12:commandRespond1	32	static
