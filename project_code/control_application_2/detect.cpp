@@ -44,84 +44,73 @@ vector<String> getOutputsNames(const Net& net);
 void detect::run()
 {
     buffer.clear();
-    if (mVideoCap.isOpened())
+    if (Check_accept_opened)
     {
-        // Load names of classes
-        string classesFile = "model/obj.names";     //Path of file .names
-        ifstream ifs(classesFile.c_str());
-        string line;
-        while (getline(ifs, line)) classes.push_back(line);
+        if (mVideoCap.isOpened())
+        {
+            // Load names of classes
+            string classesFile = "model/obj.names";     //Path of file .names
+            ifstream ifs(classesFile.c_str());
+            string line;
+            while (getline(ifs, line)) classes.push_back(line);
 
 
 
-        // Give the configuration and weight files for the model
-        string modelConfiguration = "model/yolov3prn-obj.cfg";
-        string modelWeights = "model/yolov3prn-obj_best.weights";
+            // Give the configuration and weight files for the model
+            string modelConfiguration = "model/yolov3prn-obj.cfg";
+            string modelWeights = "model/yolov3prn-obj_best.weights";
 
 
-        // Load the network
-        Net net = readNetFromDarknet(modelConfiguration, modelWeights);
-        net.setPreferableBackend(DNN_BACKEND_DEFAULT);
-        net.setPreferableTarget(DNN_TARGET_OPENCL);
+            // Load the network
+            Net net = readNetFromDarknet(modelConfiguration, modelWeights);
+            net.setPreferableBackend(DNN_BACKEND_DEFAULT);
+            net.setPreferableTarget(DNN_TARGET_OPENCL);
 
-        //UMat map1, map2, U_Calib;
-        //Rect Roi;
-        //Mat newCameraMtx = getOptimalNewCameraMatrix(U_cameraMatrix, U_distCoeffs, Size(640,480), 0, Size(640,480), &Roi);
-        //initUndistortRectifyMap(U_cameraMatrix, U_distCoeffs, UMat(),newCameraMtx, Size(640,480), CV_16SC2, map1, map2);
-        //Create ROI
-        Mat Mask(480,640, CV_8UC3, cv::Scalar(0, 0, 0));
-        rectangle(Mask, Point(left_Mask+width_Mask,top_Mask+height_Mask), Point(left_Mask,top_Mask), cv::Scalar(255, 255, 255),-1);
-        Rect2d MaskDeep(left_Mask,top_Mask,width_Mask,height_Mask);
-        while (true)
-        {            
-            //Get frame
-            mVideoCap >> mFrame;
-            //mFrame = mFrame & Mask;
-            Mat MaskCrop = mFrame(MaskDeep);
-            m_time.start();
-            //U_mFrame = mFrame.getUMat(ACCESS_READ) ;
-            U_mFrame = MaskCrop.getUMat(ACCESS_READ) ;
-            resize(U_mFrame,U_mFrame_resize,Size(inpWidth,inpHeight));
-            //Calib camera
-            //remap(U_mFrame,U_Calib,map1,map2,INTER_LINEAR);
-            //mFrame = U_Calib.getMat(ACCESS_RW);
-            //mFrame = imread("D:/Downloads/YASKAWA/LV/Code/50.jpg");
-            // Create a 4D blob from a frame.
-
-            blobFromImage(U_mFrame_resize, blob, 1/255.0, cv::Size(inpWidth, inpHeight), Scalar(0,0,0), true, false);
-
-            //Sets the input to the network
-            net.setInput(blob);
-
-            // Runs the forward pass to get output of the output layers
-
-            vector<Mat> outs;
-            net.forward(outs, getOutputsNames(net));
-
-
-            //cout<<"Width "<<mFrame.cols<< "Height"<<mFrame.rows<< endl;
-            // Remove the bounding boxes with low confidence
-
-            buffer.clear();
-            postprocess(mFrame, outs, buffer, center, theta, left_Mask,top_Mask, width_Mask, height_Mask);
-            string label = format("FPS : %f ", (double)m_time.elapsed());
-            // Put efficiency information. The function getPerfProfile returns the overall time for inference(t) and the timings for each of the layers(in layersTimes)
-            //vector<double> layersTimes;
-            //double freq = getTickFrequency() ;
-            //double t = freq/net.getPerfProfile(layersTimes)  ;
-            //string label = format("FPS : %.2f ", t);
-
-            //Ptr<Tracker> tracker;
-            //tracker = Tracker::create("KCF");
-
-
-            
-            putText(mFrame, label, Point(0, 15), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 0, 255));
-
-            if (!mFrame.empty())
+            //UMat map1, map2, U_Calib;
+            //Rect Roi;
+            //Mat newCameraMtx = getOptimalNewCameraMatrix(U_cameraMatrix, U_distCoeffs, Size(640,480), 0, Size(640,480), &Roi);
+            //initUndistortRectifyMap(U_cameraMatrix, U_distCoeffs, UMat(),newCameraMtx, Size(640,480), CV_16SC2, map1, map2);
+            //Create ROI
+            Mat Mask(480,640, CV_8UC3, cv::Scalar(0, 0, 0));
+            rectangle(Mask, Point(left_Mask+width_Mask,top_Mask+height_Mask), Point(left_Mask,top_Mask), cv::Scalar(255, 255, 255),-1);
+            Rect2d MaskDeep(left_Mask,top_Mask,width_Mask,height_Mask);
+            while (true)
             {
-                mPixmap = cvMatToQPixmap(mFrame);
-                emit newPixmapCaptured();
+                //Get frame
+                mVideoCap >> mFrame;
+                //mFrame = mFrame & Mask;
+                Mat MaskCrop = mFrame(MaskDeep);
+                m_time.start();
+                //U_mFrame = mFrame.getUMat(ACCESS_READ) ;
+                U_mFrame = MaskCrop.getUMat(ACCESS_READ) ;
+                resize(U_mFrame,U_mFrame_resize,Size(inpWidth,inpHeight));
+                // Create a 4D blob from a frame.
+
+                blobFromImage(U_mFrame_resize, blob, 1/255.0, cv::Size(inpWidth, inpHeight), Scalar(0,0,0), true, false);
+
+                //Sets the input to the network
+                net.setInput(blob);
+
+                // Runs the forward pass to get output of the output layers
+
+                vector<Mat> outs;
+                net.forward(outs, getOutputsNames(net));
+
+
+                //cout<<"Width "<<mFrame.cols<< "Height"<<mFrame.rows<< endl;
+                // Remove the bounding boxes with low confidence
+
+                buffer.clear();
+                postprocess(mFrame, outs, buffer, center, theta, left_Mask,top_Mask, width_Mask, height_Mask);
+                string label = format("FPS : %i ", (int)(1000/m_time.elapsed()));
+
+                putText(mFrame, label, Point(0, 15), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 0, 255));
+
+                if (!mFrame.empty())
+                {
+                    mPixmap = cvMatToQPixmap(mFrame);
+                    emit newPixmapCaptured();
+                }
             }
         }
     }

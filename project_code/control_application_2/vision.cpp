@@ -15,18 +15,22 @@ Vision::Vision(QWidget *parent) :
     CalibFrame = new Calib(this);
     connect(VideoCapture, &detect::newPixmapCaptured, this, [&]()
     {
-        ui->CameraFrame->setPixmap(VideoCapture->pixmap().scaled(640,480));
-        CalibFrame -> buffer.clear();
-        CalibFrame -> buffer = VideoCapture ->buffer ;
-        CalibFrame -> Set = true;
+       if(check_Closing){
+           check_Closing = false;
+           VideoCapture->terminate();
+           VideoCapture->wait();
+           VideoCapture->quit();
+           VideoCapture->wait();
+       } else{
+           VideoCapture->Check_accept_opened =true;             //Accept for continuous video capture
+           ui->CameraFrame->setPixmap(VideoCapture->pixmap().scaled(640,480));
+           CalibFrame -> buffer.clear();
+           CalibFrame -> buffer = VideoCapture ->buffer ;
+           CalibFrame -> Set = true;
+       }
     });
     connect(CalibFrame, &Calib::newPixmapCaptured, this, [&]()
     {
-        //CalibFrame->Trans_buffer
-//        for (size_t i = 0; i < CalibFrame -> Trans_buffer.size(); ++i)
-//        {
-//            qDebug()<<"Toa do da gui cua vat"  << ": X = "<< CalibFrame-> Trans_buffer[i][1]<< " Y = "<< CalibFrame-> Trans_buffer[i][2] <<endl;
-//        }
         if( enable == true)
         {
             for (size_t i = 0; i < CalibFrame -> Send_buffer.size(); ++i)
@@ -41,33 +45,27 @@ Vision::Vision(QWidget *parent) :
                                                 (ObjectType)CalibFrame->Send_buffer[i][0] ,mSerial);
 
                 }
-
-//                if(CalibFrame-> Send_buffer[i][2] < Y_LEVEL && CalibFrame-> Send_buffer[i][5]==0)
-//                {
-//                    count_object ++;
-//                    qDebug()<<"Toa do da gui cua vat" << count_object << ": X = "<< CalibFrame-> Send_buffer[i][1]<< " Y = "<< CalibFrame-> Send_buffer[i][2] <<endl;
-//                    //qDebug()<<" X1 = "<< VideoCapture ->buffer[i][1]<< " Y1 = "<< VideoCapture ->buffer[i][2] <<endl;
-//                    //qDebug()<<" X2 = "<< CalibFrame ->buffer[i][1]<< " Y2 = "<< CalibFrame ->buffer[i][2] <<endl;
-//                    CalibFrame->Send_buffer[i][5] = 2; // had sent = true
-//                    if (ui->checkBox_2->isChecked()== true)
-//                    {
-//                        send_packet(CalibFrame->Send_buffer[i][1], CalibFrame->Send_buffer[i][2], 0, mSerial);
-//                    }
-
-//                }
-
             }
         }
         CalibFrame-> Send_buffer.clear();
-
-
 
     });
 }
 
 Vision::~Vision()
 {
+    VideoCapture -> mVideoCap.release();
+    delete CalibFrame;
+    delete VideoCapture;
     delete ui;
+}
+void Vision::closeEvent (QCloseEvent *event)
+{
+    if (check_Opened) {
+        event->ignore();
+    } else {
+        event->accept();
+    }
 }
 
 void Vision::send_packet(double x, double y, double roll, ObjectType flag_type, QSerialPort* mSerial)
@@ -88,15 +86,24 @@ void Vision::send_packet(double x, double y, double roll, ObjectType flag_type, 
 
 void Vision::on_CameraOn_Button_clicked()
 {
-    CalibFrame->start(QThread::HighPriority);
-
-    VideoCapture->start(QThread::HighPriority);
+    VideoCapture->start();
+    CalibFrame->start();
+    check_Opened = true;     // Check for close button on apllication
+    ui->CameraOn_Button->setEnabled(false);
+    VideoCapture->Check_accept_opened = true; //Accept for continuous video capture
 }
 
 void Vision::on_CameraOff_Button_clicked()
 {
-    VideoCapture->terminate();
     CalibFrame -> terminate();
+    CalibFrame -> wait();
+    CalibFrame ->quit();
+    CalibFrame -> wait();
+
+    check_Opened = false;
+    check_Closing = true;
+    ui->CameraOn_Button->setEnabled(true);
+
 }
 
 

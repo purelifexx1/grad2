@@ -36,11 +36,12 @@ private:
     Ui::Vision *ui;
     detect *VideoCapture;
     Calib  *CalibFrame;
-    bool enable=false;
+    bool enable=false, check_Opened = false, check_Closing = false;
     int notFoundCount = 0;
     QByteArray command;
     int count_object = 0;
     void send_packet(double x, double y, double roll, ObjectType flag_type, QSerialPort* mSerial);
+    void closeEvent (QCloseEvent *event);
 };
 
 #endif // VISION_H

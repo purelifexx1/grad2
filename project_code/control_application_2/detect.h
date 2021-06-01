@@ -27,8 +27,9 @@ public:
         return mPixmap;
     }
     std::vector<std::vector<double>> buffer;
-    bool found = false;
+    bool found = false, Check_accept_opened = true;
     int notFoundCount = 0;
+    cv::VideoCapture mVideoCap;
 signals:
     void newPixmapCaptured();
 protected:
@@ -40,7 +41,6 @@ private:
     QPixmap mPixmap;
     cv::Mat mFrame ;
     cv::UMat U_mFrame,U_mFrame_resize, blob;
-    cv::VideoCapture mVideoCap;
     QImage cvMatToQImage(const cv::Mat &inMat);
     QPixmap cvMatToQPixmap(const cv::Mat &inMat);
 };
