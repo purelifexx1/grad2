@@ -108,6 +108,7 @@ void detect::run()
 
                 if (!mFrame.empty())
                 {
+                    Check_accept_opened = false;
                     mPixmap = cvMatToQPixmap(mFrame);
                     emit newPixmapCaptured();
                 }
